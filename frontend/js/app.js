@@ -57,8 +57,8 @@ class App {
                     ${item.updatedAt !== item.createdAt ? `<br>Updated: ${new Date(item.updatedAt).toLocaleDateString()}` : ''}
                 </div>
                 <div class="item-actions">
-                    <button class="edit-btn" onclick="app.editItem('${item.id}')">Edit</button>
-                    <button class="delete-btn" onclick="app.deleteItem('${item.id}')">Delete</button>
+                    <button class="btn btn--warning btn--small" onclick="app.editItem('${item.id}')">Edit</button>
+                    <button class="btn btn--danger btn--small" onclick="app.deleteItem('${item.id}')">Delete</button>
                 </div>
             </div>
         `).join('');
@@ -165,47 +165,9 @@ class App {
     }
 }
 
-// Save API endpoint
-function saveApiEndpoint() {
-    const input = document.getElementById('apiEndpoint');
-    const endpoint = input.value.trim();
-    
-    if (endpoint) {
-        localStorage.setItem('apiEndpoint', endpoint);
-        location.reload();
-    }
-}
-
-// Make it global
-window.saveApiEndpoint = saveApiEndpoint;
-
 // Initialize app when DOM is ready
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    const apiConfigDiv = document.getElementById('apiConfig');
-    const apiEndpointInput = document.getElementById('apiEndpoint');
-    
-    if (CONFIG.IS_API_MANAGED) {
-        // API is auto-configured, show as read-only
-        apiConfigDiv.innerHTML = `
-            <div style="padding: 10px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;">
-                <strong>API Endpoint (Auto-configured):</strong><br>
-                <code>${CONFIG.API_ENDPOINT}</code>
-            </div>
-        `;
-    } else {
-        // Manual configuration needed
-        const savedEndpoint = localStorage.getItem('apiEndpoint');
-        if (savedEndpoint) {
-            apiEndpointInput.value = savedEndpoint;
-        }
-        
-        if (!CONFIG.API_ENDPOINT) {
-            // Show warning if no API configured
-            apiConfigDiv.style.border = '2px solid #f8d7da';
-            apiConfigDiv.style.background = '#f8d7da';
-        }
-    }
-    
+    // Initialize app
     app = new App();
 });

@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "name": "web3cms",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  }
+}
