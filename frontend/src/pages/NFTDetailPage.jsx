@@ -54,7 +54,7 @@ const NFTDetailPage = () => {
         // Get creator if available
         let creator = null;
         try {
-          creator = await nftContract.getCreator(id);
+          creator = await nftContract.tokenCreator(id);
         } catch (err) {
           console.warn('Could not fetch creator:', err);
         }
@@ -86,18 +86,29 @@ const NFTDetailPage = () => {
           try {
             const registry = getTBARegistry(web3Config.tbaRegistry, provider);
             const chainId = await provider.getNetwork().then(n => n.chainId);
-            const salt = web3Config.tbaSalt || '0';
+            const salt = ethers.toBigInt(web3Config.tbaSalt || '0');
+            
+            // Log parameters for debugging
+            console.log('TBA calculation params:', {
+              registry: web3Config.tbaRegistry,
+              implementation: web3Config.tbaImplementation,
+              chainId: chainId.toString(),
+              nftContract: web3Config.nftContract,
+              tokenId: id,
+              salt: salt.toString()
+            });
             
             const tba = await registry.account(
               web3Config.tbaImplementation,
-              salt,
               chainId,
               web3Config.nftContract,
-              id
+              ethers.toBigInt(id),
+              salt
             );
             setTbaAddress(tba);
           } catch (err) {
-            console.warn('Could not calculate TBA address:', err);
+            console.warn('TBA feature not available on this network:', err.message);
+            // TBA is optional, continue without it
           }
         }
 

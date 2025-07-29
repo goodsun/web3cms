@@ -172,14 +172,14 @@ export class FullstackServerlessStack extends cdk.Stack {
       errorResponses: [
         {
           httpStatus: 404,
-          responseHttpStatus: 404,
-          responsePagePath: '/error.html',
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
           ttl: cdk.Duration.minutes(5),
         },
         {
           httpStatus: 403,
-          responseHttpStatus: 403,
-          responsePagePath: '/error.html',
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
           ttl: cdk.Duration.minutes(5),
         },
       ],

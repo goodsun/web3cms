@@ -14,6 +14,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # Maximum 30 minutes for the entire job
     
     steps:
     - name: Checkout code
@@ -52,24 +53,63 @@ jobs:
       run: |
         npx cdk bootstrap || echo "Bootstrap already exists"
 
+    - name: Check CloudFormation stack status
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        STACK_NAME="Web3cms-Dev"
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+        echo "Current stack status: $STACK_STATUS"
+        
+        if [[ "$STACK_STATUS" == *"IN_PROGRESS"* ]]; then
+          echo "Stack is in progress state. Waiting for completion..."
+          aws cloudformation wait stack-update-complete --stack-name $STACK_NAME || true
+          aws cloudformation wait stack-create-complete --stack-name $STACK_NAME || true
+        fi
+
     - name: Deploy to dev (develop branch)
       if: github.ref == 'refs/heads/develop'
       run: |
         echo "Environment: dev"
-        echo "Using deploy-with-config.sh for proper deployment order"
-        ./scripts/deploy-with-config.sh dev
+        echo "Running direct CDK deployment"
+        npm run deploy:dev -- --require-approval never
+
+    - name: Check CloudFormation stack status (staging)
+      if: github.ref == 'refs/heads/staging'
+      run: |
+        STACK_NAME="Web3cms-Staging"
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+        echo "Current stack status: $STACK_STATUS"
+        
+        if [[ "$STACK_STATUS" == *"IN_PROGRESS"* ]]; then
+          echo "Stack is in progress state. Waiting for completion..."
+          aws cloudformation wait stack-update-complete --stack-name $STACK_NAME || true
+          aws cloudformation wait stack-create-complete --stack-name $STACK_NAME || true
+        fi
 
     - name: Deploy to staging (staging branch)
       if: github.ref == 'refs/heads/staging'
       run: |
         echo "Environment: staging"
-        ./scripts/deploy-with-config.sh staging
+        npm run deploy:staging -- --require-approval never
+
+    - name: Check CloudFormation stack status (production)
+      if: github.ref == 'refs/heads/production'
+      run: |
+        STACK_NAME="Web3cms-Prod"
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+        echo "Current stack status: $STACK_STATUS"
+        
+        if [[ "$STACK_STATUS" == *"IN_PROGRESS"* ]]; then
+          echo "Stack is in progress state. Waiting for completion..."
+          aws cloudformation wait stack-update-complete --stack-name $STACK_NAME || true
+          aws cloudformation wait stack-create-complete --stack-name $STACK_NAME || true
+        fi
 
     - name: Deploy to prod (production branch)
       if: github.ref == 'refs/heads/production'
       run: |
         echo "Environment: production"
-        ./scripts/deploy-with-config.sh prod
+        npm run deploy:prod -- --require-approval never
 
     - name: Show deployment outputs
       run: |

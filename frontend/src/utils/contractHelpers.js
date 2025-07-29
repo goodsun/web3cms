@@ -72,10 +72,10 @@ export const calculateTBAAddress = async (
     // Adjust based on your specific registry ABI
     const tbaAddress = await registry.account(
       implementationAddress,
-      salt,
       chainId,
       tokenContract,
-      tokenId
+      tokenId,
+      salt
     );
     
     return tbaAddress;
@@ -112,10 +112,10 @@ export const deployTBA = async (
     // Adjust based on your specific registry ABI
     const tx = await registry.createAccount(
       implementationAddress,
-      salt,
       chainId,
       tokenContract,
-      tokenId
+      tokenId,
+      salt
     );
     
     const receipt = await tx.wait();
