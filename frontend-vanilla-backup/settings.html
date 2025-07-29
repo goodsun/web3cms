@@ -41,12 +41,65 @@
 
                 <div class="form-actions">
                   <button
-                    type="submit"
+                    type="button"
                     id="saveApiEndpoint"
-                    class="btn btn-primary"
+                    class="btn btn--primary"
                   >
                     Save API Endpoint
                   </button>
+                </div>
+              </section>
+
+              <!-- Site Configuration -->
+              <section class="card card--spacing-lg">
+                <h2 class="heading--section">Site Configuration</h2>
+
+                <div class="form-group">
+                  <label for="siteName">Site Name</label>
+                  <input
+                    type="text"
+                    id="siteName"
+                    name="siteName"
+                    class="form-control"
+                    placeholder="My Web3 App"
+                  />
+                  <small class="form-help">Displayed in the header and title</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="siteDescription">Site Description</label>
+                  <textarea
+                    id="siteDescription"
+                    name="siteDescription"
+                    rows="3"
+                    class="form-control"
+                    placeholder="A decentralized application powered by Web3"
+                  ></textarea>
+                  <small class="form-help">Used for SEO and metadata</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="copyrightText">Footer Copyright Text</label>
+                  <input
+                    type="text"
+                    id="copyrightText"
+                    name="copyrightText"
+                    class="form-control"
+                    placeholder="© 2024 My Company. All rights reserved."
+                  />
+                  <small class="form-help">Displayed in the footer</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="footerText">Additional Footer Text</label>
+                  <input
+                    type="text"
+                    id="footerText"
+                    name="footerText"
+                    class="form-control"
+                    placeholder="Powered by AWS CDK, Lambda, API Gateway & DynamoDB"
+                  />
+                  <small class="form-help">Secondary text in the footer</small>
                 </div>
               </section>
 
@@ -54,30 +107,7 @@
               <section class="card card--spacing-lg">
                 <h2 class="heading--section">Web3 Configuration</h2>
 
-                <div class="form-group">
-                  <label for="reownProjectId">Reown Project ID</label>
-                  <input
-                    type="text"
-                    id="reownProjectId"
-                    name="reownProjectId"
-                    class="form-control"
-                    placeholder="Enter your project ID from cloud.walletconnect.com"
-                  />
-                  <small class="form-help"
-                    >Required for wallet connections</small
-                  >
-                </div>
 
-                <div class="form-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      id="enableWalletConnect"
-                      name="enableWalletConnect"
-                    />
-                    Enable Wallet Connect
-                  </label>
-                </div>
 
                 <div class="form-group">
                   <label>Supported Chains</label>
@@ -178,7 +208,16 @@
 
     <script src="js/api-config.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/site-config.js"></script>
     <script src="js/header.js"></script>
     <script src="js/settings.js"></script>
+    <script type="module">
+        import { createWalletConnectButton } from './js/components/WalletConnectButton.js';
+        // Initialize wallet connect buttons after header is created
+        setTimeout(() => {
+            createWalletConnectButton('walletConnectContainer');
+            createWalletConnectButton('mobileWalletConnectContainer');
+        }, 100);
+    </script>
   </body>
 </html>

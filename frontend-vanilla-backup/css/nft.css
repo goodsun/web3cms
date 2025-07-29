@@ -1,0 +1,298 @@
+/* NFT Page Specific Styles */
+
+/* Connection Status */
+.connection-status {
+    margin-bottom: 2rem;
+}
+
+/* NFT Controls */
+.nft-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* NFT Grid */
+.nft-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* NFT Card */
+.nft-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nft-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nft-image-container {
+    position: relative;
+    padding-bottom: 100%; /* 1:1 Aspect Ratio */
+    background: var(--bg-light);
+}
+
+.nft-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nft-image-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+    font-size: 3rem;
+}
+
+.nft-details {
+    padding: 1rem;
+}
+
+.nft-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nft-collection {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.nft-id {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+}
+
+.nft-actions {
+    padding: 0 1rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nft-action-btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Transfer Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: var(--bg-white);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.transfer-form {
+    margin-top: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.nft-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    margin-top: 1rem;
+}
+
+.nft-info img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.nft-info-details {
+    flex: 1;
+}
+
+.nft-info-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.nft-info-id {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.transfer-status {
+    margin-top: 1rem;
+}
+
+.transfer-status .message {
+    margin: 0;
+}
+
+/* Wallet Connect Button in Header */
+.wallet-connect-container {
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.wallet-connect-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.wallet-connect-btn:hover {
+    background: var(--primary-dark);
+}
+
+.wallet-connect-btn.connected {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.wallet-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    z-index: 100;
+}
+
+.wallet-info {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.wallet-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.wallet-address {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+}
+
+.wallet-disconnect-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.wallet-disconnect-btn:hover {
+    background: var(--bg-light);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .nft-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        padding: 1.5rem;
+    }
+    
+    .wallet-connect-container {
+        display: none;
+    }
+    
+    .mobile-wallet-connect {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .mobile-wallet-connect .wallet-connect-btn {
+        width: 100%;
+    }
+}

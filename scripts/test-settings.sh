@@ -20,8 +20,6 @@ curl -X PUT "$API_ENDPOINT/settings/app_config" \
   -d '{
     "data": {
       "web3": {
-        "reownProjectId": "test-project-id",
-        "enableWalletConnect": true,
         "supportedChains": [1, 137],
         "defaultChainId": 1
       },

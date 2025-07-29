@@ -7,7 +7,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "build:frontend": "cd frontend && npm run build && cp -r js css dist/",
+    "build:frontend": "cd frontend && npm run build",
     "deploy:dev": "npm run build:frontend && cdk deploy --context env=dev && ./scripts/update-frontend-config.sh dev",
     "deploy:staging": "npm run build:frontend && cdk deploy --context env=staging && ./scripts/update-frontend-config.sh staging",
     "deploy:prod": "npm run build:frontend && cdk deploy --context env=prod && ./scripts/update-frontend-config.sh prod",
@@ -24,7 +24,7 @@
     "synth": "cdk synth",
     "diff": "cdk diff",
     "dev:api": "sam local start-api --template cdk.out/*.template.json --env-vars env.json",
-    "dev:frontend": "cd frontend && npx live-server --port=8080",
+    "dev:frontend": "cd frontend && npm run dev",
     "dev:db": "docker run -d -p 8000:8000 amazon/dynamodb-local",
     "dev": "echo 'Starting local development...' && npm run build && npm run synth && concurrently \"npm run dev:api\" \"npm run dev:frontend\""
   },

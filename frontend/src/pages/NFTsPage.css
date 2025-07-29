@@ -1,0 +1,203 @@
+.nfts-page {
+  min-height: 60vh;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.page-header h1 {
+  margin: 0;
+}
+
+/* Config Sections */
+.config-section {
+  background: var(--color-white);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.config-section h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-width) solid var(--color-gray-200);
+}
+
+/* Config Grid */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.config-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.config-item label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-600);
+}
+
+.config-value {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-900);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-gray-50);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+}
+
+.config-value.monospace {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+/* RPC URLs */
+.rpc-urls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.rpc-url {
+  padding: var(--spacing-xs) 0;
+  border-bottom: var(--border-width) solid var(--color-gray-200);
+}
+
+.rpc-url:last-child {
+  border-bottom: none;
+}
+
+/* Status Grid */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--color-gray-50);
+  border-radius: var(--border-radius);
+}
+
+.status-indicator {
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+.status-indicator.status-ok {
+  color: #10b981;
+}
+
+.status-indicator.status-warning {
+  color: #f59e0b;
+}
+
+.status-indicator.status-error {
+  color: var(--color-danger);
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-xl);
+}
+
+.loading-state p {
+  color: var(--color-gray-500);
+  margin-top: var(--spacing-md);
+}
+
+/* NFT Contract Info */
+.nft-contract-info {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-gray-100);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-700);
+}
+
+.nft-contract-info strong {
+  color: var(--color-gray-900);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Quick Links */
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.quick-link {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+  background-color: var(--color-gray-50);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-base);
+}
+
+.quick-link:hover {
+  background-color: var(--color-white);
+  border-color: var(--color-gray-300);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.link-icon {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+.link-text {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.link-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .config-section {
+    padding: var(--spacing-lg);
+  }
+}

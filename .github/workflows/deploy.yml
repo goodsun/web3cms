@@ -34,8 +34,7 @@ jobs:
     - name: Build backend
       run: npm run build
 
-    - name: Build frontend
-      run: npm run build:frontend
+    # Frontend build is now handled by deploy-with-config.sh after API URL is available
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -55,47 +54,22 @@ jobs:
 
     - name: Deploy to dev (develop branch)
       if: github.ref == 'refs/heads/develop'
-      env:
-        API_ENDPOINT: ${{ secrets.API_ENDPOINT_DEV }}
       run: |
-        # Debug: Show environment variables
         echo "Environment: dev"
-        echo "API_ENDPOINT from secret: ${API_ENDPOINT}"
-        echo "PROJECT_NAME: ${{ secrets.PROJECT_NAME }}"
-        
-        # First deploy the CDK stack
-        # Frontend is already built by npm run build:frontend
-        npm run deploy:dev:base -- --require-approval never
-        
-        # Debug: Check if stack exists and get outputs
-        STACK_NAME="$(echo ${{ secrets.PROJECT_NAME }} | awk '{print toupper(substr($0,1,1)) substr($0,2)}' | sed 's/-//g')-Dev"
-        echo "Stack name: ${STACK_NAME}"
-        
-        if aws cloudformation describe-stacks --stack-name $STACK_NAME --region ${{ secrets.AWS_REGION || 'ap-northeast-1' }} >/dev/null 2>&1; then
-          echo "Stack exists, getting outputs..."
-          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[*].[OutputKey,OutputValue]' --output table --region ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
-        fi
-        
-        # Then update the frontend configuration with the API endpoint
-        npm run update-config:dev
+        echo "Using deploy-with-config.sh for proper deployment order"
+        ./scripts/deploy-with-config.sh dev
 
     - name: Deploy to staging (staging branch)
       if: github.ref == 'refs/heads/staging'
       run: |
-        # First deploy the CDK stack
-        # Frontend is already built by npm run build:frontend
-        npm run deploy:staging:base -- --require-approval never
-        # Then update the frontend configuration with the API endpoint
-        npm run update-config:staging
+        echo "Environment: staging"
+        ./scripts/deploy-with-config.sh staging
 
     - name: Deploy to prod (production branch)
       if: github.ref == 'refs/heads/production'
       run: |
-        # First deploy the CDK stack
-        # Frontend is already built by npm run build:frontend
-        npm run deploy:prod:base -- --require-approval never
-        # Then update the frontend configuration with the API endpoint
-        npm run update-config:prod
+        echo "Environment: production"
+        ./scripts/deploy-with-config.sh prod
 
     - name: Show deployment outputs
       run: |

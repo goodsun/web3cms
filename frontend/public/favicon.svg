@@ -1,0 +1,31 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .fg { fill: #000000; }
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #000000; }
+        .fg { fill: #ffffff; }
+      }
+    </style>
+  </defs>
+  
+  <!-- Minimalist geometric design -->
+  <rect x="0" y="0" width="32" height="32" rx="8" class="bg"/>
+  
+  <!-- Abstract W3 symbol -->
+  <g class="fg">
+    <!-- Interconnected triangular shapes -->
+    <path d="M 8 20 L 12 12 L 16 20 M 16 20 L 20 12 L 24 20" 
+          stroke-width="2.5" 
+          stroke="currentColor" 
+          fill="none" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+    
+    <!-- Three dots representing decentralization -->
+    <circle cx="12" cy="12" r="1.5"/>
+    <circle cx="20" cy="12" r="1.5"/>
+    <circle cx="16" cy="18" r="1.5"/>
+  </g>
+</svg>

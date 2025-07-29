@@ -68,28 +68,38 @@ fi
 
 print_status "Found API endpoint: ${API_ENDPOINT}"
 
-# Create updated api-config.js
-cat > frontend/js/api-config.js << EOF
-// Auto-generated during deployment - DO NOT EDIT
-window.API_CONFIG = {
-  apiEndpoint: '${API_ENDPOINT}',
-  isManaged: true
-};
+# Create updated api-config.json in both public and dist directories
+cat > frontend/public/api-config.json << EOF
+{
+  "apiEndpoint": "${API_ENDPOINT}",
+  "isManaged": true
+}
 EOF
 
-print_status "Updated frontend/js/api-config.js"
+# Also create in dist directory if it exists (after build)
+if [ -d "frontend/dist" ]; then
+    cat > frontend/dist/api-config.json << EOF
+{
+  "apiEndpoint": "${API_ENDPOINT}",
+  "isManaged": true
+}
+EOF
+    print_status "Updated api-config.json in both public and dist directories"
+else
+    print_status "Updated frontend/public/api-config.json (dist not found, will be included in next build)"
+fi
 
-# Upload only the updated api-config.js to S3
+# Upload only the updated api-config.json to S3
 print_status "Uploading updated configuration to S3..."
-aws s3 cp frontend/js/api-config.js s3://${BUCKET_NAME}/js/api-config.js \
+aws s3 cp frontend/public/api-config.json s3://${BUCKET_NAME}/api-config.json \
     --region $AWS_REGION \
     --cache-control "no-cache, no-store, must-revalidate" \
-    --content-type "application/javascript"
+    --content-type "application/json"
 
 if [ $? -eq 0 ]; then
-    print_status "Successfully uploaded api-config.js to S3"
+    print_status "Successfully uploaded api-config.json to S3"
 else
-    print_error "Failed to upload api-config.js to S3"
+    print_error "Failed to upload api-config.json to S3"
     exit 1
 fi
 
@@ -105,7 +115,7 @@ if [ ! -z "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "None" ]; then
     
     INVALIDATION_ID=$(aws cloudfront create-invalidation \
         --distribution-id $DISTRIBUTION_ID \
-        --paths "/js/api-config.js" \
+        --paths "/api-config.json" "/*" \
         --query 'Invalidation.Id' \
         --output text \
         --region $AWS_REGION)
@@ -120,6 +130,10 @@ else
 fi
 
 print_status "Frontend configuration update completed successfully!"
+
+# Verify the uploaded file
+print_status "Verifying uploaded configuration..."
+aws s3 cp s3://${BUCKET_NAME}/api-config.json - --region $AWS_REGION 2>/dev/null || print_warning "Could not verify uploaded file"
 
 # Output the CloudFront URL for convenience
 CLOUDFRONT_URL=$(aws cloudformation describe-stacks \

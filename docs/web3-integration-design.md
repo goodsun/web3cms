@@ -1,9 +1,9 @@
 # Web3 Integration Design Document
-## Reown (WalletConnect) を使用したウォレット認証システム設計書
+## MetaMask SDK を使用したウォレット認証システム設計書
 
 ### 1. 概要
 
-本設計書は、既存のサーバーレスCRUDアプリケーションにReown (旧WalletConnect) を使用したWeb3ウォレット認証機能を追加するための技術設計を定義します。
+本設計書は、既存のサーバーレスCRUDアプリケーションにMetaMask SDK を使用したWeb3ウォレット認証機能を追加するための技術設計を定義します。
 
 #### 1.1 目的
 - EOA（Externally Owned Account）ベースのユーザー認証・認可システムの実装
@@ -11,7 +11,7 @@
 - Web3ネイティブなユーザー体験の提供
 
 #### 1.2 スコープ
-- ウォレット接続機能（Web3Modal）
+- ウォレット接続機能（MetaMask SDK）
 - 署名ベース認証システム
 - ユーザー管理テーブルの追加
 - 既存CRUDシステムとの統合
@@ -53,7 +53,7 @@
 
 | レイヤー | 技術 | 用途 |
 |---------|------|------|
-| Frontend | Reown Web3Modal | ウォレット接続UI |
+| Frontend | MetaMask SDK | ウォレット接続UI |
 | Frontend | JavaScript (Vanilla) | 既存システムとの互換性維持 |
 | Backend | AWS Lambda (Node.js) | サーバーレス関数 |
 | Backend | ethers.js (軽量版) | 署名検証 |
@@ -147,7 +147,7 @@ interface SystemSetting {
     
     // Feature Flags
     features: {
-      enableWalletConnect: boolean;
+      enableMetaMask: boolean;
       enableENSResolution: boolean;
       requireAuthentication: boolean;
       enableNFTGating: boolean;
@@ -600,7 +600,7 @@ sequenceDiagram
 - [ ] 初期設定データ投入
 
 #### Phase 1: 基本的なウォレット接続（1-2日）
-- [ ] Web3Modal統合
+- [ ] MetaMask SDK統合
 - [ ] ウォレット接続UI
 - [ ] アドレス表示
 - [ ] 動的チェーン設定の適用
@@ -670,7 +670,7 @@ const config = await getSettingByEnvironment('app_config', environment);
 
 ### 13. 参考資料
 
-- [Reown Documentation](https://docs.walletconnect.com/)
-- [Web3Modal Integration Guide](https://docs.walletconnect.com/web3modal/about)
+- [MetaMask SDK Documentation](https://docs.metamask.io/wallet/how-to/connect/set-up-sdk/)
+- [MetaMask SDK JavaScript Guide](https://docs.metamask.io/wallet/how-to/connect/set-up-sdk/javascript/)
 - [EIP-4361: Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361)
 - [AWS DynamoDB Best Practices](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
