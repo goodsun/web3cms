@@ -29,6 +29,9 @@ export const getTBARegistryContract = (registryAddress, signerOrProvider) => {
   return new ethers.Contract(registryAddress, REGISTRY_ABI, signerOrProvider);
 };
 
+// Alias for backward compatibility
+export const getTBARegistry = getTBARegistryContract;
+
 /**
  * Create TBA Implementation contract instance
  * @param {string} implementationAddress - Implementation contract address

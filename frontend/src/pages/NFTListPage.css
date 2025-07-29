@@ -69,10 +69,13 @@
 }
 
 .nft-card {
+  display: block;
   background: var(--color-white);
   border: var(--border-width) solid var(--color-gray-200);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
+  text-decoration: none;
+  color: inherit;
   transition: all var(--transition-base);
 }
 

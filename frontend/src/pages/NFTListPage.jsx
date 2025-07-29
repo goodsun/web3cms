@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
@@ -183,7 +183,7 @@ const NFTListPage = ({ mode = 'owner' }) => {
       {!loading && !error && nfts.length > 0 && (
         <div className="nft-grid">
           {nfts.map((nft) => (
-            <div key={nft.tokenId} className="nft-card">
+            <Link key={nft.tokenId} to={`/nfts/token/${nft.tokenId}`} className="nft-card">
               <div className="nft-id">
                 Token ID: {nft.tokenId}
               </div>
@@ -194,17 +194,12 @@ const NFTListPage = ({ mode = 'owner' }) => {
               )}
               {nft.tokenURI && (
                 <div className="nft-uri">
-                  <a 
-                    href={nft.tokenURI} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="uri-link"
-                  >
-                    View Metadata
-                  </a>
+                  <span className="uri-link">
+                    View Details →
+                  </span>
                 </div>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       )}

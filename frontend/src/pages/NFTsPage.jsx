@@ -112,6 +112,11 @@ const NFTsPage = () => {
         <section className="config-section">
           <h2>Quick Links</h2>
           <div className="quick-links">
+            <Link to="/nfts/mint" className="quick-link">
+              <span className="link-icon">✨</span>
+              <span className="link-text">Mint NFT</span>
+              <span className="link-desc">Create a new NFT</span>
+            </Link>
             <Link to="/nfts/creator" className="quick-link">
               <span className="link-icon">👥</span>
               <span className="link-text">View All Creators</span>
