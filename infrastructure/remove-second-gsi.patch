@@ -1,0 +1,23 @@
+diff --git a/infrastructure/lib/fullstack-serverless-stack.ts b/infrastructure/lib/fullstack-serverless-stack.ts
+index abc123..def456 100644
+--- a/infrastructure/lib/fullstack-serverless-stack.ts
++++ b/infrastructure/lib/fullstack-serverless-stack.ts
+@@ -38,17 +38,6 @@ export class FullstackServerlessStack extends cdk.Stack {
+       tableName: `${projectName}-items-${env}`,
+     });
+ 
+-    // Remove type-index first (will remove eoa-type-index in next deployment)
+-    table.addGlobalSecondaryIndex({
+-      indexName: 'eoa-type-index',
+-      partitionKey: {
+-        name: 'eoa',
+-        type: dynamodb.AttributeType.STRING,
+-      },
+-      sortKey: {
+-        name: 'type',
+-        type: dynamodb.AttributeType.STRING,
+-      },
+-    });
++    // All GSIs removed - columns data now in separate table
+ 
+     // Settings Table

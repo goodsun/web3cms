@@ -37,6 +37,19 @@ export class FullstackServerlessStack extends cdk.Stack {
       tableName: `${projectName}-items-${env}`,
     });
 
+    // Remove type-index first (will remove eoa-type-index in next deployment)
+    table.addGlobalSecondaryIndex({
+      indexName: 'eoa-type-index',
+      partitionKey: {
+        name: 'eoa',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'type',
+        type: dynamodb.AttributeType.STRING,
+      },
+    });
+
     // Settings Table
     const settingsTable = new dynamodb.Table(this, 'SettingsTable', {
       partitionKey: {
@@ -50,6 +63,29 @@ export class FullstackServerlessStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: env === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
       tableName: `${projectName}-settings-${env}`,
+    });
+
+    // Columns Table for folders and contents
+    const columnsTable = new dynamodb.Table(this, 'ColumnsTable', {
+      partitionKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: env === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      pointInTimeRecoverySpecification: {
+        pointInTimeRecoveryEnabled: env === 'prod',
+      },
+      tableName: `${projectName}-columns-${env}`,
+    });
+
+    // Add type index for querying by type (folder/content)
+    columnsTable.addGlobalSecondaryIndex({
+      indexName: 'type-index',
+      partitionKey: {
+        name: 'type',
+        type: dynamodb.AttributeType.STRING,
+      },
     });
 
     // Lambda function for CRUD operations
@@ -99,6 +135,30 @@ export class FullstackServerlessStack extends cdk.Stack {
     // Grant permissions to Settings Lambda
     settingsTable.grantReadWriteData(settingsLambda);
 
+    // Lambda function for Columns operations
+    const columnsLambda = new NodejsFunction(this, 'ColumnsHandler', {
+      functionName: `${projectName}-columns-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/columns.ts'),
+      environment: {
+        TABLE_NAME: columnsTable.tableName,
+        REGION: this.region,
+        ENV: env,
+      },
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(30),
+      tracing: env === 'prod' ? lambda.Tracing.ACTIVE : lambda.Tracing.DISABLED,
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to Columns Lambda
+    columnsTable.grantReadWriteData(columnsLambda);
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'ItemsApi', {
       restApiName: `${projectName}-api-${env}`,
@@ -121,6 +181,7 @@ export class FullstackServerlessStack extends cdk.Stack {
     // Lambda integration
     const integration = new apigateway.LambdaIntegration(crudLambda);
     const settingsIntegration = new apigateway.LambdaIntegration(settingsLambda);
+    const columnsIntegration = new apigateway.LambdaIntegration(columnsLambda);
 
     // API endpoints
     const items = api.root.addResource('items');
@@ -137,6 +198,37 @@ export class FullstackServerlessStack extends cdk.Stack {
     const setting = settings.addResource('{key}');
     setting.addMethod('GET', settingsIntegration); // GET /settings/{key}
     setting.addMethod('PUT', settingsIntegration); // PUT /settings/{key}
+
+    // Columns endpoints
+    const columns = api.root.addResource('columns');
+    const columnsFolders = columns.addResource('folders');
+    columnsFolders.addMethod('GET', columnsIntegration); // GET /columns/folders
+    columnsFolders.addMethod('POST', columnsIntegration); // POST /columns/folders
+    
+    const columnsFolder = columnsFolders.addResource('{id}');
+    columnsFolder.addMethod('GET', columnsIntegration); // GET /columns/folders/{id}
+    columnsFolder.addMethod('PUT', columnsIntegration); // PUT /columns/folders/{id}
+    columnsFolder.addMethod('DELETE', columnsIntegration); // DELETE /columns/folders/{id}
+    
+    const columnsContents = columns.addResource('contents');
+    columnsContents.addMethod('GET', columnsIntegration); // GET /columns/contents
+    columnsContents.addMethod('POST', columnsIntegration); // POST /columns/contents
+    
+    const columnsContent = columnsContents.addResource('{id}');
+    columnsContent.addMethod('GET', columnsIntegration); // GET /columns/contents/{id}
+    columnsContent.addMethod('PUT', columnsIntegration); // PUT /columns/contents/{id}
+    columnsContent.addMethod('DELETE', columnsIntegration); // DELETE /columns/contents/{id}
+
+    // Public columns endpoints (no authentication required)
+    const columnsPublic = columns.addResource('public');
+    const columnsPublicFolders = columnsPublic.addResource('folders');
+    columnsPublicFolders.addMethod('GET', columnsIntegration); // GET /columns/public/folders
+    
+    const columnsPublicContents = columnsPublic.addResource('contents');
+    columnsPublicContents.addMethod('GET', columnsIntegration); // GET /columns/public/contents
+    
+    const columnsPublicContent = columnsPublicContents.addResource('{id}');
+    columnsPublicContent.addMethod('GET', columnsIntegration); // GET /columns/public/contents/{id}
 
     // S3 Bucket for frontend
     const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
@@ -215,6 +307,11 @@ export class FullstackServerlessStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'TableName', {
       value: table.tableName,
       description: 'DynamoDB Table Name',
+    });
+
+    new cdk.CfnOutput(this, 'ColumnsTableName', {
+      value: columnsTable.tableName,
+      description: 'DynamoDB Columns Table Name',
     });
 
     new cdk.CfnOutput(this, 'DistributionId', {

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
+import { getRpcProvider } from '../utils/rpcUtils';
+import { ethers } from 'ethers';
 import './NFTsPage.css';
 
 const NFTsPage = () => {
@@ -16,11 +18,19 @@ const NFTsPage = () => {
   // Fetch NFT contract info when provider and contract address are available
   useEffect(() => {
     const fetchNFTInfo = async () => {
-      if (!provider || !web3Config.nftContract) return;
+      if (!web3Config.nftContract) return;
+      
+      // Always use RPC provider for read-only operations
+      let activeProvider = null;
+      if (web3Config.rpcUrls) {
+        activeProvider = getRpcProvider(web3Config.rpcUrls, web3Config.defaultChainId, ethers);
+      }
+      
+      if (!activeProvider) return;
       
       setLoading(true);
       try {
-        const nftContract = getNFTContract(web3Config.nftContract, provider);
+        const nftContract = getNFTContract(web3Config.nftContract, activeProvider);
         
         // Try to get name, symbol, and totalSupply
         const promises = [];
@@ -58,7 +68,7 @@ const NFTsPage = () => {
     };
 
     fetchNFTInfo();
-  }, [provider, web3Config.nftContract]);
+  }, [provider, web3Config.nftContract, web3Config.rpcUrls, web3Config.defaultChainId]);
 
   // Render loading state after all hooks
   if (settingsLoading) {
@@ -75,66 +85,41 @@ const NFTsPage = () => {
   return (
     <div className="nfts-page">
       <div className="page-header">
-        <h1>Web3 Configuration</h1>
+        <h1>
+          {nftInfo && nftInfo.name ? nftInfo.name : 'NFTs'}
+        </h1>
       </div>
 
-      {/* Connection Status */}
+      {/* Quick Links */}
       <section className="config-section">
-        <h2>Connection Status</h2>
-        <div className="config-grid">
-          <div className="config-item">
-            <label>Wallet Connected</label>
-            <div className="config-value">
-              {isConnected ? 'Yes' : 'No'}
-            </div>
-          </div>
-          {isConnected && (
+        <h2>Quick Links</h2>
+        <div className="quick-links">
+          {isConnected && account && (
             <>
-              <div className="config-item">
-                <label>Account</label>
-                <div className="config-value monospace">
-                  {account}
-                </div>
-              </div>
-              <div className="config-item">
-                <label>Current Chain ID</label>
-                <div className="config-value monospace">
-                  {chainId}
-                </div>
-              </div>
+              <Link to="/nfts/mint" className="quick-link">
+                <span className="link-icon">✨</span>
+                <span className="link-text">Mint NFT</span>
+                <span className="link-desc">Create a new NFT</span>
+              </Link>
+              <Link to={`/nfts/owner/${account}`} className="quick-link">
+                <span className="link-icon">👤</span>
+                <span className="link-text">View My NFTs</span>
+                <span className="link-desc">NFTs owned by your wallet</span>
+              </Link>
+              <Link to={`/nfts/creator/${account}`} className="quick-link">
+                <span className="link-icon">🎨</span>
+                <span className="link-text">View My Created NFTs</span>
+                <span className="link-desc">NFTs created by your wallet</span>
+              </Link>
             </>
           )}
+          <Link to="/nfts/creator" className="quick-link">
+            <span className="link-icon">👥</span>
+            <span className="link-text">View All Creators</span>
+            <span className="link-desc">Browse all NFT creators</span>
+          </Link>
         </div>
       </section>
-
-      {/* Quick Links */}
-      {isConnected && account && (
-        <section className="config-section">
-          <h2>Quick Links</h2>
-          <div className="quick-links">
-            <Link to="/nfts/mint" className="quick-link">
-              <span className="link-icon">✨</span>
-              <span className="link-text">Mint NFT</span>
-              <span className="link-desc">Create a new NFT</span>
-            </Link>
-            <Link to="/nfts/creator" className="quick-link">
-              <span className="link-icon">👥</span>
-              <span className="link-text">View All Creators</span>
-              <span className="link-desc">Browse all NFT creators</span>
-            </Link>
-            <Link to={`/nfts/owner/${account}`} className="quick-link">
-              <span className="link-icon">👤</span>
-              <span className="link-text">View My NFTs</span>
-              <span className="link-desc">NFTs owned by your wallet</span>
-            </Link>
-            <Link to={`/nfts/creator/${account}`} className="quick-link">
-              <span className="link-icon">🎨</span>
-              <span className="link-text">View My Created NFTs</span>
-              <span className="link-desc">NFTs created by your wallet</span>
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Web3 Settings */}
       <section className="config-section">
@@ -208,6 +193,35 @@ const NFTsPage = () => {
               {web3Config.tbaSalt || '0'}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Connection Status */}
+      <section className="config-section">
+        <h2>Connection Status</h2>
+        <div className="config-grid">
+          <div className="config-item">
+            <label>Wallet Connected</label>
+            <div className="config-value">
+              {isConnected ? 'Yes' : 'No'}
+            </div>
+          </div>
+          {isConnected && (
+            <>
+              <div className="config-item">
+                <label>Account</label>
+                <div className="config-value monospace">
+                  {account}
+                </div>
+              </div>
+              <div className="config-item">
+                <label>Current Chain ID</label>
+                <div className="config-value monospace">
+                  {chainId}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

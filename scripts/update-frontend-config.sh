@@ -31,8 +31,18 @@ if [ -z "$1" ]; then
 fi
 
 ENV=$1
-PROJECT_NAME=${PROJECT_NAME:-$(grep PROJECT_NAME .env | cut -d '=' -f2)}
-AWS_REGION=${AWS_REGION:-$(grep AWS_REGION .env | cut -d '=' -f2 || echo "ap-northeast-1")}
+PROJECT_NAME=${PROJECT_NAME:-$(grep PROJECT_NAME .env 2>/dev/null | cut -d '=' -f2 || echo "")}
+# AWS_REGIONを環境変数、.envファイル、AWS CLIの順で取得
+if [ -n "$AWS_REGION" ]; then
+    # 環境変数が設定されている場合（GitHub Actions等）
+    AWS_REGION=$AWS_REGION
+elif [ -f .env ] && grep -q AWS_REGION .env; then
+    # .envファイルにAWS_REGIONが設定されている場合
+    AWS_REGION=$(grep AWS_REGION .env | cut -d '=' -f2)
+else
+    # どちらもない場合はAWS CLIのデフォルトリージョンを使用
+    AWS_REGION=$(aws configure get region 2>/dev/null || echo "ap-northeast-1")
+fi
 
 if [ -z "$PROJECT_NAME" ]; then
     print_error "PROJECT_NAME not found in environment or .env file"
@@ -54,6 +64,21 @@ if [ -n "$API_ENDPOINT" ]; then
 else
     # Get API endpoint from CloudFormation stack
     print_status "Getting API endpoint from CloudFormation stack..."
+    print_status "Stack name: ${STACK_NAME}"
+    print_status "AWS Region: ${AWS_REGION}"
+    
+    # First check if stack exists
+    STACK_EXISTS=$(aws cloudformation describe-stacks \
+        --stack-name $STACK_NAME \
+        --region $AWS_REGION \
+        --output text 2>/dev/null || echo "NO")
+    
+    if [ "$STACK_EXISTS" = "NO" ]; then
+        print_error "Stack ${STACK_NAME} does not exist in region ${AWS_REGION}"
+        exit 1
+    fi
+    
+    # Get API endpoint
     API_ENDPOINT=$(aws cloudformation describe-stacks \
         --stack-name $STACK_NAME \
         --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' \
@@ -62,6 +87,12 @@ else
     
     if [ -z "$API_ENDPOINT" ]; then
         print_error "Could not retrieve API endpoint from stack ${STACK_NAME}"
+        print_status "Available outputs:"
+        aws cloudformation describe-stacks \
+            --stack-name $STACK_NAME \
+            --query 'Stacks[0].Outputs[*].OutputKey' \
+            --output text \
+            --region $AWS_REGION
         exit 1
     fi
 fi

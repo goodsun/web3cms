@@ -9,6 +9,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
 
   useEffect(() => {
     loadItems();
@@ -40,6 +41,23 @@ const HomePage = () => {
     }
   };
 
+  const handleUpdate = async (itemData) => {
+    try {
+      await api.updateItem(editingItem.id, itemData);
+      await loadItems();
+      setEditingItem(null);
+      setShowForm(false);
+    } catch (err) {
+      console.error('Failed to update item:', err);
+      throw new Error('Failed to update item. Please try again.');
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setShowForm(true);
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) {
       return;
@@ -60,7 +78,12 @@ const HomePage = () => {
         <h1>Items</h1>
         <button 
           className="btn btn-primary"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm);
+            if (!showForm) {
+              setEditingItem(null);
+            }
+          }}
         >
           {showForm ? 'Cancel' : 'Add New Item'}
         </button>
@@ -68,8 +91,12 @@ const HomePage = () => {
 
       {showForm && (
         <ItemForm 
-          onSubmit={handleCreate}
-          onCancel={() => setShowForm(false)}
+          item={editingItem}
+          onSubmit={editingItem ? handleUpdate : handleCreate}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingItem(null);
+          }}
         />
       )}
 
@@ -98,6 +125,7 @@ const HomePage = () => {
             <ItemCard
               key={item.id}
               item={item}
+              onEdit={() => handleEdit(item)}
               onDelete={() => handleDelete(item.id)}
             />
           ))}

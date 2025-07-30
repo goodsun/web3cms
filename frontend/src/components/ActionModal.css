@@ -1,0 +1,146 @@
+.action-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.action-modal-content {
+  background: var(--color-white);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.action-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.action-modal-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.action-modal-close {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  color: var(--color-gray-600);
+  transition: color 0.2s ease;
+}
+
+.action-modal-close:hover {
+  color: var(--color-gray-800);
+}
+
+.action-modal-body {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.action-modal-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.action-modal-button:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-300);
+}
+
+.action-modal-button:active {
+  transform: translateY(1px);
+}
+
+.action-modal-button-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger-light);
+}
+
+.action-modal-button-danger:hover {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+}
+
+.action-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-gray-700);
+}
+
+.action-modal-button:hover .action-icon {
+  color: var(--color-gray-900);
+}
+
+.action-modal-button-danger .action-icon {
+  color: var(--color-danger);
+}
+
+.action-label {
+  flex: 1;
+  font-weight: 500;
+}
+
+/* デスクトップ版の調整 */
+@media (min-width: 768px) {
+  .action-modal-overlay {
+    align-items: center;
+  }
+
+  .action-modal-content {
+    border-radius: var(--border-radius);
+    max-height: auto;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}

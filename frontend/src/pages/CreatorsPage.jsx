@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
+import { getRpcProvider } from '../utils/rpcUtils';
+import { ethers } from 'ethers';
 import './CreatorsPage.css';
 
 const CreatorsPage = () => {
   const { provider } = useWeb3();
-  const { settings } = useSettings();
+  const { settings, loading: settingsLoading } = useSettings();
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,8 +19,13 @@ const CreatorsPage = () => {
 
   useEffect(() => {
     const fetchCreators = async () => {
-      if (!provider || !web3Config.nftContract) {
+      if (!web3Config.nftContract || !web3Config.rpcUrls) {
         setLoading(false);
+        if (!web3Config.nftContract) {
+          setError('NFT contract not configured');
+        } else if (!web3Config.rpcUrls) {
+          setError('RPC URLs not configured');
+        }
         return;
       }
 
@@ -26,7 +33,16 @@ const CreatorsPage = () => {
       setError(null);
 
       try {
-        const nftContract = getNFTContract(web3Config.nftContract, provider);
+        // Always use RPC provider for read-only operations
+        const activeProvider = getRpcProvider(web3Config.rpcUrls, web3Config.defaultChainId, ethers);
+        
+        if (!activeProvider) {
+          setError('No provider available. Please check RPC configuration.');
+          setLoading(false);
+          return;
+        }
+
+        const nftContract = getNFTContract(web3Config.nftContract, activeProvider);
 
         // Get contract info
         try {
@@ -56,13 +72,30 @@ const CreatorsPage = () => {
       }
     };
 
-    fetchCreators();
-  }, [provider, web3Config.nftContract]);
+    // Small delay to ensure settings are properly loaded
+    const timeoutId = setTimeout(() => {
+      fetchCreators();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [web3Config.nftContract, web3Config.rpcUrls, web3Config.defaultChainId]);
 
   const formatAddress = (addr) => {
     if (!addr) return '';
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+
+  // Show loading while settings are being loaded
+  if (settingsLoading) {
+    return (
+      <div className="creators-page">
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="creators-page">

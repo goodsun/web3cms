@@ -16,8 +16,14 @@
   
   --color-primary: #000000;
   --color-primary-hover: #171717;
+  --color-primary-light: #f0f0f0;
   --color-danger: #dc2626;
   --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-success-dark: #166534;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-dark: #92400e;
   
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -309,6 +315,18 @@ a:hover {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+}
+
+/* Reduce container padding when instagram view is active on mobile */
+@media (max-width: 768px) {
+  body.instagram-view-active .container {
+    padding: 0 calc(var(--spacing-lg) / 2);
+  }
+  
+  /* NFT detail page mobile optimization */
+  body.nft-detail-mobile .container {
+    padding: 0 calc(var(--spacing-lg) / 2);
+  }
 }
 
 .text-center { text-align: center; }

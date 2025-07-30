@@ -10,6 +10,12 @@
   margin: 0;
 }
 
+.page-header .contract-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-gray-600);
+}
+
 /* Config Sections */
 .config-section {
   background: var(--color-white);

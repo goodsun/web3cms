@@ -27,20 +27,45 @@ export const Web3Provider = ({ children }) => {
   const [chainId, setChainId] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize MetaMask SDK
   useEffect(() => {
     const initSDK = async () => {
       try {
+        // Detect if mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+        
+        if (window.addDebugLog) {
+          window.addDebugLog('info', 'Initializing MetaMask SDK', { isMobile, userAgent: navigator.userAgent });
+        }
+
         const MMSDK = new MetaMaskSDK({
           dappMetadata: {
             name: "Web3CMS NFT Viewer",
             url: window.location.origin,
           },
-          preferDesktop: true,
+          // Don't prefer desktop on mobile devices
+          preferDesktop: !isMobile,
           storage: {
             enabled: true,
           },
+          // Force disconnect any existing connections on mobile
+          forceDeleteProvider: isMobile,
+          // Use in-app browser detection
+          checkInstallationImmediately: false,
+          // Handle deep links properly on mobile
+          openDeeplink: (link) => {
+            if (isMobile) {
+              window.location.href = link;
+            } else {
+              window.open(link, '_blank');
+            }
+          },
+          // Ensure connection persistence on mobile
+          communicationLayerPreference: 'socket',
         });
 
         await MMSDK.init();
@@ -48,10 +73,21 @@ export const Web3Provider = ({ children }) => {
 
         setSdk(MMSDK);
         setEthereum(ethereum);
+        setIsInitialized(true);
+        
+        if (window.addDebugLog) {
+          window.addDebugLog('success', 'MetaMask SDK initialized', { hasEthereum: !!ethereum });
+        }
 
-        // Check for existing connection
+        // Clear stale connections on mobile
+        if (isMobile) {
+          localStorage.removeItem("web3_connected");
+          localStorage.removeItem("walletAddress");
+        }
+
+        // Check for existing connection (desktop only)
         const storedConnection = localStorage.getItem("web3_connected");
-        if (storedConnection === "true" && ethereum) {
+        if (storedConnection === "true" && ethereum && !isMobile) {
           const accounts = await ethereum.request({ method: "eth_accounts" });
           if (accounts.length > 0) {
             await handleAccountsChanged(accounts, ethereum);
@@ -64,12 +100,22 @@ export const Web3Provider = ({ children }) => {
             handleAccountsChanged(accounts, ethereum)
           );
           ethereum.on("chainChanged", (chainId) => {
+            console.log("Chain changed to:", chainId);
+        if (window.addDebugLog) {
+          window.addDebugLog('info', 'Chain changed', { chainId, chainIdInt: parseInt(chainId, 16) });
+        }
             setChainId(parseInt(chainId, 16));
-            window.location.reload();
+            // Don't reload on mobile to preserve connection state
+            if (!isMobile) {
+              window.location.reload();
+            }
           });
         }
       } catch (err) {
         console.error("Failed to initialize MetaMask SDK:", err);
+        if (window.addDebugLog) {
+          window.addDebugLog('error', 'Failed to initialize MetaMask SDK', { error: err.message });
+        }
         setError("Failed to initialize wallet connection");
       }
     };
@@ -83,7 +129,7 @@ export const Web3Provider = ({ children }) => {
     };
   }, []);
 
-  const handleAccountsChanged = async (accounts, eth = ethereum) => {
+  const handleAccountsChanged = useCallback(async (accounts, eth = ethereum) => {
     if (accounts.length === 0) {
       // Disconnected
       setAccount(null);
@@ -91,10 +137,15 @@ export const Web3Provider = ({ children }) => {
       setSigner(null);
       setChainId(null);
       localStorage.removeItem("web3_connected");
+      localStorage.removeItem("walletAddress");
     } else {
       // Connected
       const account = accounts[0];
       setAccount(account);
+      
+      if (window.addDebugLog) {
+        window.addDebugLog('success', 'Account connected', { account });
+      }
 
       const provider = new ethers.BrowserProvider(eth);
       const signer = await provider.getSigner();
@@ -105,8 +156,9 @@ export const Web3Provider = ({ children }) => {
       setChainId(Number(network.chainId));
 
       localStorage.setItem("web3_connected", "true");
+      localStorage.setItem("walletAddress", account);
     }
-  };
+  }, [ethereum]);
 
   const connect = useCallback(async () => {
     if (!ethereum) {
@@ -118,28 +170,109 @@ export const Web3Provider = ({ children }) => {
     setError(null);
 
     try {
+      // Clear any existing connection first on mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      
+      if (isMobile) {
+        // Don't terminate SDK during connection, just clear storage
+        // Clear local storage to ensure fresh connection
+        localStorage.removeItem("web3_connected");
+        localStorage.removeItem("walletAddress");
+      }
+
+      console.log("Requesting accounts from MetaMask...");
+      if (window.addDebugLog) {
+        window.addDebugLog('info', 'Requesting MetaMask accounts...', { isMobile });
+      }
+      
       const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
+      
+      console.log("Received accounts:", accounts);
+      if (window.addDebugLog) {
+        window.addDebugLog('success', `Received ${accounts.length} accounts`, { accounts });
+      }
 
       if (accounts.length > 0) {
-        await handleAccountsChanged(accounts);
+        await handleAccountsChanged(accounts, ethereum);
+      } else if (isMobile) {
+        // On mobile, sometimes accounts come back empty initially
+        // Poll for accounts a few times
+        let retries = 0;
+        const maxRetries = 5;
+        const pollInterval = setInterval(async () => {
+          try {
+            const pollAccounts = await ethereum.request({ method: "eth_accounts" });
+            console.log(`Poll attempt ${retries + 1}:`, pollAccounts);
+            if (window.addDebugLog) {
+              window.addDebugLog('info', `Poll attempt ${retries + 1}/${maxRetries}`, { accounts: pollAccounts });
+            }
+            if (pollAccounts.length > 0) {
+              clearInterval(pollInterval);
+              await handleAccountsChanged(pollAccounts, ethereum);
+            } else if (++retries >= maxRetries) {
+              clearInterval(pollInterval);
+              console.error("Max retries reached, no accounts found");
+              if (window.addDebugLog) {
+                window.addDebugLog('error', 'Max retries reached - no accounts found');
+              }
+              setError("Unable to get accounts after authorization");
+            }
+          } catch (err) {
+            clearInterval(pollInterval);
+            console.error("Polling error:", err);
+          }
+        }, 1000);
       }
     } catch (err) {
       console.error("Connection failed:", err);
-      setError("Failed to connect wallet");
+      const errorDetails = {
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      };
+      console.error("Error details:", errorDetails);
+      if (window.addDebugLog) {
+        window.addDebugLog('error', 'Connection failed', errorDetails);
+      }
+      
+      // More specific error messages
+      if (err.code === 4001) {
+        setError("User rejected the connection request");
+      } else if (err.code === -32002) {
+        setError("Connection request pending. Please check MetaMask");
+      } else {
+        setError(`Failed to connect wallet: ${err.message || 'Unknown error'}`);
+      }
     } finally {
       setIsConnecting(false);
     }
-  }, [ethereum]);
+  }, [ethereum, sdk]);
 
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
+    // Terminate SDK connection on mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+    
+    if (isMobile && sdk && sdk.terminate) {
+      try {
+        await sdk.terminate();
+      } catch (err) {
+        console.error("Error terminating SDK:", err);
+      }
+    }
+    
     setAccount(null);
     setProvider(null);
     setSigner(null);
     setChainId(null);
     localStorage.removeItem("web3_connected");
-  }, []);
+    localStorage.removeItem("walletAddress");
+  }, [sdk]);
 
   const switchNetwork = useCallback(
     async (chainId) => {
@@ -158,6 +291,30 @@ export const Web3Provider = ({ children }) => {
     [ethereum]
   );
 
+  // Add focus event listener for mobile
+  useEffect(() => {
+    const handleFocus = async () => {
+      // Check connection status when app regains focus on mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      
+      if (isMobile && ethereum && isInitialized && !account) {
+        try {
+          const accounts = await ethereum.request({ method: "eth_accounts" });
+          if (accounts.length > 0) {
+            await handleAccountsChanged(accounts, ethereum);
+          }
+        } catch (err) {
+          console.error("Focus check error:", err);
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [ethereum, isInitialized, account, handleAccountsChanged]);
+
   const value = {
     account,
     provider,
@@ -166,6 +323,7 @@ export const Web3Provider = ({ children }) => {
     isConnecting,
     error,
     isConnected: !!account,
+    isInitialized,
     connect,
     disconnect,
     switchNetwork,

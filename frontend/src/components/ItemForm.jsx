@@ -1,14 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSettings } from '../contexts/SettingsContext';
+import { getNFTContract } from '../utils/contractHelpers';
+import { getRpcProvider } from '../utils/rpcUtils';
+import { ethers } from 'ethers';
 import './ItemForm.css';
 
-const ItemForm = ({ onSubmit, onCancel }) => {
+const ItemForm = ({ item, onSubmit, onCancel }) => {
+  const { settings } = useSettings();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: 'general',
+    name: item?.name || '',
+    description: item?.description || '',
+    category: item?.category || 'general',
+    tokenId: item?.tokenId || '',
+    contact: item?.contact || '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [nftMetadata, setNftMetadata] = useState(null);
+  const [loadingNft, setLoadingNft] = useState(false);
+  
+  const web3Config = settings?.web3 || {};
+
+  // Fetch NFT metadata when tokenId changes
+  useEffect(() => {
+    const fetchNFTMetadata = async () => {
+      if (!formData.tokenId || !web3Config.nftContract || !web3Config.rpcUrls) {
+        setNftMetadata(null);
+        return;
+      }
+      
+      setLoadingNft(true);
+      setNftMetadata(null);
+      
+      try {
+        // Get RPC provider
+        const activeProvider = getRpcProvider(web3Config.rpcUrls, web3Config.defaultChainId, ethers);
+        if (!activeProvider) {
+          console.warn('No provider available');
+          return;
+        }
+        
+        const nftContract = getNFTContract(web3Config.nftContract, activeProvider);
+        
+        // Get token URI
+        const tokenURI = await nftContract.tokenURI(formData.tokenId);
+        
+        // Fetch metadata
+        const response = await fetch(tokenURI);
+        const metadata = await response.json();
+        
+        setNftMetadata(metadata);
+        
+        // Auto-fill form fields if empty
+        setFormData(prev => ({
+          ...prev,
+          name: prev.name || metadata.name || '',
+          description: prev.description || metadata.description || '',
+        }));
+      } catch (err) {
+        console.error('Failed to fetch NFT metadata:', err);
+        // Don't show error, just don't display metadata
+      } finally {
+        setLoadingNft(false);
+      }
+    };
+    
+    // Debounce the fetch
+    const timeoutId = setTimeout(fetchNFTMetadata, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.tokenId, web3Config.nftContract, web3Config.rpcUrls, web3Config.defaultChainId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +90,10 @@ const ItemForm = ({ onSubmit, onCancel }) => {
         name: '',
         description: '',
         category: 'general',
+        tokenId: '',
+        contact: '',
       });
+      setNftMetadata(null);
     } catch (err) {
       setError(err.message || 'Failed to create item');
     } finally {
@@ -41,7 +104,44 @@ const ItemForm = ({ onSubmit, onCancel }) => {
   return (
     <div className="item-form-container">
       <form onSubmit={handleSubmit} className="item-form">
-        <h2>Create New Item</h2>
+        <h2>{item ? 'Edit Item' : 'Create New Item'}</h2>
+        
+        <div className="form-group">
+          <label htmlFor="tokenId">NFT Token ID</label>
+          <input
+            type="text"
+            id="tokenId"
+            name="tokenId"
+            value={formData.tokenId}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Enter NFT token ID (optional)"
+          />
+          {loadingNft && (
+            <small className="loading-text">Loading NFT metadata...</small>
+          )}
+        </div>
+        
+        {nftMetadata && (
+          <div className="nft-preview">
+            <h3>NFT Information</h3>
+            <div className="nft-preview-content">
+              {nftMetadata.image && (
+                <div className="nft-preview-image">
+                  <img src={nftMetadata.image} alt={nftMetadata.name || 'NFT'} />
+                </div>
+              )}
+              <div className="nft-preview-details">
+                {nftMetadata.name && (
+                  <p><strong>Name:</strong> {nftMetadata.name}</p>
+                )}
+                {nftMetadata.description && (
+                  <p><strong>Description:</strong> {nftMetadata.description}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="form-group">
           <label htmlFor="name">Name *</label>
@@ -68,6 +168,22 @@ const ItemForm = ({ onSubmit, onCancel }) => {
             rows="4"
             placeholder="Enter item description"
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="contact">Contact</label>
+          <input
+            type="text"
+            id="contact"
+            name="contact"
+            value={formData.contact}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="URL, email address, or other contact info"
+          />
+          <small className="form-help">
+            Enter a URL, email address, or any contact information
+          </small>
         </div>
 
         <div className="form-group">
@@ -98,7 +214,7 @@ const ItemForm = ({ onSubmit, onCancel }) => {
             className="btn btn-primary"
             disabled={isSubmitting || !formData.name}
           >
-            {isSubmitting ? 'Creating...' : 'Create Item'}
+            {isSubmitting ? (item ? 'Updating...' : 'Creating...') : (item ? 'Update Item' : 'Create Item')}
           </button>
           <button
             type="button"

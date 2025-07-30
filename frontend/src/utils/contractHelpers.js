@@ -108,14 +108,15 @@ export const deployTBA = async (
   try {
     const registry = getTBARegistryContract(registryAddress, signer);
     
-    // Most TBA registries have a 'createAccount' function
-    // Adjust based on your specific registry ABI
+    // The createAccount function requires 6 parameters including initData
+    // initData can be empty bytes '0x' for default initialization
     const tx = await registry.createAccount(
       implementationAddress,
       chainId,
       tokenContract,
-      tokenId,
-      salt
+      ethers.toBigInt(tokenId),
+      ethers.toBigInt(salt),
+      '0x' // empty initData
     );
     
     const receipt = await tx.wait();

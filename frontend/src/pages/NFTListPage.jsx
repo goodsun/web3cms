@@ -4,6 +4,13 @@ import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
 import { ethers } from 'ethers';
+import { getRpcProvider } from '../utils/rpcUtils';
+import { copyToClipboard } from '../utils/copyToClipboard';
+import { formatAddress } from '../utils/formatters';
+import CopyButton from '../components/CopyButton';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
+import NFTCard from '../components/NFTCard';
 import './NFTListPage.css';
 
 const NFTListPage = ({ mode = 'owner' }) => {
@@ -15,12 +22,29 @@ const NFTListPage = ({ mode = 'owner' }) => {
   const [error, setError] = useState(null);
   const [contractInfo, setContractInfo] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState({ current: 0, total: 0 });
+  const [viewMode, setViewMode] = useState(() => {
+    // Default to instagram mode on mobile
+    return window.innerWidth <= 768 ? 'instagram' : 'grid';
+  });
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const web3Config = settings?.web3 || {};
 
   useEffect(() => {
     const fetchNFTs = async () => {
-      if (!provider || !web3Config.nftContract || !address) {
+      if (!web3Config.nftContract || !address) {
+        setLoading(false);
+        return;
+      }
+      
+      // Always use RPC provider for read-only operations
+      let activeProvider = null;
+      if (web3Config.rpcUrls) {
+        activeProvider = getRpcProvider(web3Config.rpcUrls, web3Config.defaultChainId, ethers);
+      }
+      
+      if (!activeProvider) {
+        setError('No provider available. Please check RPC configuration.');
         setLoading(false);
         return;
       }
@@ -34,7 +58,7 @@ const NFTListPage = ({ mode = 'owner' }) => {
           throw new Error('Invalid Ethereum address');
         }
 
-        const nftContract = getNFTContract(web3Config.nftContract, provider);
+        const nftContract = getNFTContract(web3Config.nftContract, activeProvider);
 
         // Get contract info
         try {
@@ -130,12 +154,25 @@ const NFTListPage = ({ mode = 'owner' }) => {
     };
 
     fetchNFTs();
-  }, [provider, web3Config.nftContract, address, mode]);
+  }, [provider, web3Config.nftContract, web3Config.rpcUrls, web3Config.defaultChainId, address, mode]);
 
   const formatAddress = (addr) => {
     if (!addr) return '';
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+
+  // Add class to body for global styling adjustments
+  useEffect(() => {
+    if (viewMode === 'instagram' && window.innerWidth <= 768) {
+      document.body.classList.add('instagram-view-active');
+    } else {
+      document.body.classList.remove('instagram-view-active');
+    }
+    
+    return () => {
+      document.body.classList.remove('instagram-view-active');
+    };
+  }, [viewMode]);
 
   return (
     <div className="nft-list-page">
@@ -145,7 +182,10 @@ const NFTListPage = ({ mode = 'owner' }) => {
         </h1>
         <div className="address-display">
           <span className="address-label">{mode === 'creator' ? 'Creator' : 'Owner'}:</span>
-          <span className="address-value">{address}</span>
+          <span className="address-value">
+            {formatAddress(address)}
+          </span>
+          <CopyButton text={address} label="address" />
         </div>
         {contractInfo && (
           <div className="contract-info">
@@ -157,9 +197,8 @@ const NFTListPage = ({ mode = 'owner' }) => {
       </div>
 
       {loading && (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading NFTs...</p>
+        <>
+          <LoadingState message="Loading NFTs..." />
           {loadingProgress.total > 0 && (
             <div className="loading-progress">
               <p>Progress: {loadingProgress.current} / {loadingProgress.total}</p>
@@ -171,37 +210,42 @@ const NFTListPage = ({ mode = 'owner' }) => {
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {error && !loading && (
-        <div className="error-state">
-          <p className="error-message">{error}</p>
-        </div>
+        <ErrorState message={error} />
       )}
 
       {!loading && !error && nfts.length > 0 && (
-        <div className="nft-grid">
-          {nfts.map((nft) => (
-            <Link key={nft.tokenId} to={`/nfts/token/${nft.tokenId}`} className="nft-card">
-              <div className="nft-id">
-                Token ID: {nft.tokenId}
-              </div>
-              {nft.owner && (
-                <div className="nft-owner">
-                  Owner: {formatAddress(nft.owner)}
-                </div>
-              )}
-              {nft.tokenURI && (
-                <div className="nft-uri">
-                  <span className="uri-link">
-                    View Details →
-                  </span>
-                </div>
-              )}
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="view-toggle">
+            <button 
+              className={viewMode === 'grid' ? 'active' : ''}
+              onClick={() => setViewMode('grid')}
+              title="Card view"
+            >
+              ⬜
+            </button>
+            <button 
+              className={viewMode === 'instagram' ? 'active' : ''}
+              onClick={() => setViewMode('instagram')}
+              title="Grid view"
+            >
+              ⚏
+            </button>
+          </div>
+          <div className={`nft-grid ${viewMode === 'instagram' ? 'instagram-mode' : ''}`}>
+            {nfts.map((nft) => (
+              <NFTCard
+                key={nft.tokenId}
+                nft={nft}
+                showOwner={mode === 'owner'}
+                showActions={false}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {!loading && !error && nfts.length === 0 && (

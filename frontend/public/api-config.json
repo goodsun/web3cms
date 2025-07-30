@@ -1,4 +1,4 @@
 {
   "apiEndpoint": "https://te84a7g526.execute-api.ap-northeast-1.amazonaws.com/dev/",
-  "isManaged": false
+  "isManaged": true
 }

@@ -68,10 +68,13 @@ jobs:
 
     - name: Deploy to dev (develop branch)
       if: github.ref == 'refs/heads/develop'
+      env:
+        PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+        AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       run: |
         echo "Environment: dev"
         echo "Running direct CDK deployment"
-        npm run deploy:dev -- --require-approval never
+        npm run deploy:dev
 
     - name: Check CloudFormation stack status (staging)
       if: github.ref == 'refs/heads/staging'
@@ -88,9 +91,12 @@ jobs:
 
     - name: Deploy to staging (staging branch)
       if: github.ref == 'refs/heads/staging'
+      env:
+        PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+        AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       run: |
         echo "Environment: staging"
-        npm run deploy:staging -- --require-approval never
+        npm run deploy:staging
 
     - name: Check CloudFormation stack status (production)
       if: github.ref == 'refs/heads/production'
@@ -107,9 +113,12 @@ jobs:
 
     - name: Deploy to prod (production branch)
       if: github.ref == 'refs/heads/production'
+      env:
+        PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+        AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       run: |
         echo "Environment: production"
-        npm run deploy:prod -- --require-approval never
+        npm run deploy:prod
 
     - name: Show deployment outputs
       run: |

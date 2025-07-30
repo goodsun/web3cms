@@ -1,0 +1,151 @@
+.content-management {
+  padding: var(--spacing-lg);
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.management-header h2 {
+  margin: 0;
+}
+
+.contents-table {
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.contents-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.contents-table th,
+.contents-table td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.contents-table th {
+  background-color: var(--color-gray-50);
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.contents-table tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+.content-title {
+  font-weight: 500;
+}
+
+.status {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.status-draft {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-700);
+}
+
+.status-review {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.status-standby {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-published {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.priority-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.priority-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.btn-icon-small {
+  background: none;
+  border: none;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.btn-icon-small:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.btn-icon-small:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.content-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.btn-icon:hover {
+  opacity: 1;
+}
+
+.btn-danger:hover {
+  color: var(--color-danger);
+}
+
+.loading,
+.error,
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-gray-600);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .contents-table {
+    overflow-x: auto;
+  }
+  
+  .contents-table table {
+    min-width: 700px;
+  }
+}

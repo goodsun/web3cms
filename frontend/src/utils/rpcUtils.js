@@ -58,3 +58,26 @@ export const createProviderWithFallback = (rpcUrlsString, ethers) => {
     return null;
   }
 };
+
+/**
+ * Get RPC provider for read-only operations
+ * @param {string} rpcUrlsString - Comma-separated RPC URLs
+ * @param {number} chainId - Chain ID for the network
+ * @param {object} ethers - ethers.js library instance
+ * @returns {object|null} Provider instance or null
+ */
+export const getRpcProvider = (rpcUrlsString, chainId, ethers) => {
+  if (!rpcUrlsString || !ethers) return null;
+  
+  const rpcUrls = parseRpcUrls(rpcUrlsString);
+  const selectedUrl = getNextRpcUrl(rpcUrls);
+  
+  if (!selectedUrl) return null;
+  
+  try {
+    return new ethers.JsonRpcProvider(selectedUrl);
+  } catch (error) {
+    console.error('Failed to create RPC provider:', error);
+    return null;
+  }
+};

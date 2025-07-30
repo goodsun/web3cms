@@ -17,6 +17,7 @@ const Layout = () => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/nfts', label: 'NFTs' },
+    { path: '/columns', label: 'Columns' },
     { path: '/settings', label: 'Settings' },
   ];
 

@@ -8,17 +8,20 @@ import './MintPage.css';
 
 const MintPage = () => {
   const navigate = useNavigate();
-  const { account, provider, isConnected } = useWeb3();
+  const { account, provider, signer, isConnected } = useWeb3();
   const { settings } = useSettings();
   const [formData, setFormData] = useState({
     recipient: '',
-    tokenURI: '',
-    quantity: '1'
+    tokenURI: ''
   });
   const [minting, setMinting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [contractInfo, setContractInfo] = useState(null);
+  const [metadataPreview, setMetadataPreview] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState(null);
+  const [mintFee, setMintFee] = useState('0');
 
   const web3Config = settings?.web3 || {};
 
@@ -28,11 +31,13 @@ const MintPage = () => {
 
       try {
         const nftContract = getNFTContract(web3Config.nftContract, provider);
-        const [name, symbol] = await Promise.all([
+        const [name, symbol, fee] = await Promise.all([
           nftContract.name(),
-          nftContract.symbol()
+          nftContract.symbol(),
+          nftContract.mintFee().catch(() => ethers.parseEther('0'))
         ]);
         setContractInfo({ name, symbol });
+        setMintFee(ethers.formatEther(fee));
       } catch (err) {
         console.warn('Could not fetch contract info:', err);
       }
@@ -47,6 +52,40 @@ const MintPage = () => {
       setFormData(prev => ({ ...prev, recipient: account }));
     }
   }, [account]);
+
+  // Fetch metadata preview when tokenURI changes
+  useEffect(() => {
+    const fetchMetadataPreview = async () => {
+      if (!formData.tokenURI.trim()) {
+        setMetadataPreview(null);
+        setPreviewError(null);
+        return;
+      }
+
+      try {
+        setPreviewLoading(true);
+        setPreviewError(null);
+
+        const response = await fetch(formData.tokenURI.trim());
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const metadata = await response.json();
+        setMetadataPreview(metadata);
+      } catch (err) {
+        console.error('Failed to fetch metadata:', err);
+        setPreviewError(err.message || 'Failed to fetch metadata');
+        setMetadataPreview(null);
+      } finally {
+        setPreviewLoading(false);
+      }
+    };
+
+    // Debounce the metadata fetch
+    const timeoutId = setTimeout(fetchMetadataPreview, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData.tokenURI]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +107,7 @@ const MintPage = () => {
       return;
     }
 
-    const { recipient, tokenURI, quantity } = formData;
+    const { recipient, tokenURI } = formData;
 
     // Validate inputs
     if (!recipient || !ethers.isAddress(recipient)) {
@@ -81,38 +120,27 @@ const MintPage = () => {
       return;
     }
 
-    const qty = parseInt(quantity);
-    if (isNaN(qty) || qty < 1 || qty > 100) {
-      setError('Please enter a valid quantity (1-100)');
-      return;
-    }
 
     setMinting(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const signer = provider.getSigner();
+      if (!signer) {
+        setError('Wallet not properly connected');
+        return;
+      }
+      
       const nftContract = getNFTContract(web3Config.nftContract, signer);
 
-      // Check if contract has batch mint function
-      let tx;
-      if (qty === 1) {
-        // Single mint
-        tx = await nftContract.mint(recipient, tokenURI);
-      } else {
-        // Try batch mint
-        try {
-          // Create array of same tokenURI for batch mint
-          const tokenURIs = Array(qty).fill(tokenURI);
-          tx = await nftContract.batchMint(recipient, tokenURIs);
-        } catch (err) {
-          // Fallback to multiple single mints if batch not supported
-          setError('Batch minting not supported. Please mint one at a time.');
-          setMinting(false);
-          return;
-        }
-      }
+      // Single mint only - mint(address to, string _metaUrl, uint16 feeRate, bool _sbtFlag)
+      const tx = await nftContract.mint(
+        recipient, 
+        tokenURI,
+        0,     // feeRate: 0 for no royalty
+        false, // sbtFlag: false for transferable NFT
+        { value: ethers.parseEther(mintFee) } // Send mint fee if required
+      );
 
       const receipt = await tx.wait();
       
@@ -124,7 +152,7 @@ const MintPage = () => {
       }
 
       setSuccess({
-        message: `Successfully minted ${qty} NFT${qty > 1 ? 's' : ''}!`,
+        message: 'Successfully minted NFT!',
         tokenId,
         txHash: receipt.transactionHash
       });
@@ -132,12 +160,12 @@ const MintPage = () => {
       // Reset form
       setFormData({
         recipient: account || '',
-        tokenURI: '',
-        quantity: '1'
+        tokenURI: ''
       });
+      setMetadataPreview(null);
 
       // Navigate to token detail after a delay
-      if (tokenId && qty === 1) {
+      if (tokenId) {
         setTimeout(() => {
           navigate(`/nfts/token/${tokenId}`);
         }, 2000);
@@ -157,6 +185,9 @@ const MintPage = () => {
         {contractInfo && (
           <div className="contract-info">
             {contractInfo.name} ({contractInfo.symbol})
+            {parseFloat(mintFee) > 0 && (
+              <span> - Mint Fee: {mintFee} ETH</span>
+            )}
           </div>
         )}
       </div>
@@ -201,21 +232,6 @@ const MintPage = () => {
             <small className="form-hint">URL pointing to the NFT metadata JSON</small>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="quantity">Quantity</label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              min="1"
-              max="100"
-              className="form-input"
-              disabled={minting}
-            />
-            <small className="form-hint">Number of NFTs to mint (1-100)</small>
-          </div>
         </div>
 
         {error && (
@@ -249,21 +265,78 @@ const MintPage = () => {
         </div>
       </form>
 
-      {/* Metadata Template */}
-      <div className="metadata-template">
-        <h3>Metadata Template</h3>
-        <p>Your token URI should point to a JSON file with this structure:</p>
-        <pre>{`{
-  "name": "NFT Name",
-  "description": "NFT Description",
-  "image": "https://example.com/image.png",
-  "attributes": [
-    {
-      "trait_type": "Category",
-      "value": "Art"
-    }
-  ]
-}`}</pre>
+      {/* Metadata Preview */}
+      {previewLoading && (
+        <div className="metadata-preview loading">
+          <h3>Loading metadata preview...</h3>
+        </div>
+      )}
+
+      {previewError && (
+        <div className="metadata-preview error">
+          <h3>Preview Error</h3>
+          <p>{previewError}</p>
+        </div>
+      )}
+
+      {metadataPreview && !previewLoading && !previewError && (
+        <div className="metadata-preview">
+          <h3>Metadata Preview</h3>
+          <div className="preview-content">
+            {metadataPreview.image && (
+              <div className="preview-image">
+                <img
+                  src={metadataPreview.image}
+                  alt={metadataPreview.name || 'NFT Preview'}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            <div className="preview-details">
+              {metadataPreview.name && (
+                <div className="preview-item">
+                  <strong>Name:</strong> {metadataPreview.name}
+                </div>
+              )}
+              {metadataPreview.description && (
+                <div className="preview-item">
+                  <strong>Description:</strong> {metadataPreview.description}
+                </div>
+              )}
+              {metadataPreview.attributes && metadataPreview.attributes.length > 0 && (
+                <div className="preview-item">
+                  <strong>Attributes:</strong>
+                  <div className="attributes-list">
+                    {metadataPreview.attributes.map((attr, index) => (
+                      <div key={index} className="attribute-item">
+                        <span className="trait-type">{attr.trait_type}:</span>
+                        <span className="trait-value">{attr.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Metadata Helper Link */}
+      <div className="metadata-helper">
+        <h3>Need Help Creating Metadata?</h3>
+        <p>
+          Create and host your NFT metadata easily with our metadata generator:
+        </p>
+        <a 
+          href="https://meta.bon-soleil.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="metadata-helper-link"
+        >
+          🔗 Open Metadata Generator
+        </a>
       </div>
     </div>
   );

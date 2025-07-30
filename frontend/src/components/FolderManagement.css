@@ -1,0 +1,122 @@
+.folder-management {
+  padding: var(--spacing-lg);
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.management-header h2 {
+  margin: 0;
+}
+
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.folder-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  transition: box-shadow 0.2s ease;
+}
+
+.folder-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.folder-card h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+}
+
+.parent-info {
+  color: var(--color-gray-600);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.folder-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.status {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+}
+
+.status-public {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.status-limited {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.status-hidden {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-600);
+}
+
+.priority {
+  color: var(--color-gray-600);
+}
+
+.folder-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.priority-controls {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.priority-controls .btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.btn-icon:hover {
+  opacity: 1;
+}
+
+.btn-danger:hover {
+  color: var(--color-danger);
+}
+
+.loading,
+.error,
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-gray-600);
+}
+
+.error {
+  color: var(--color-danger);
+}

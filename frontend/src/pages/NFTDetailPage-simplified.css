@@ -1,0 +1,154 @@
+/* ===========================
+   NFT Detail Page - Simplified CSS
+   =========================== */
+
+/* Base Variables */
+:root {
+  --media-aspect-ratio: 1;
+  --media-border-radius: var(--border-radius);
+  --media-background: var(--color-gray-100);
+}
+
+/* ===========================
+   1. Media Container
+   =========================== */
+.media-container {
+  display: grid;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Desktop: 2 columns */
+@media (min-width: 769px) {
+  .media-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===========================
+   2. Media Display - Unified styles
+   =========================== */
+.media-display {
+  width: 100%;
+  background: var(--color-white);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+}
+
+/* Media wrapper - handles all media types */
+.media-wrapper {
+  width: 100%;
+  aspect-ratio: var(--media-aspect-ratio);
+  overflow: hidden;
+  border-radius: var(--media-border-radius);
+  background-color: var(--media-background);
+  position: relative;
+}
+
+/* Special aspect ratios */
+.media-wrapper--video {
+  --media-aspect-ratio: 16/9;
+}
+
+/* Media content - unified for all types */
+.media-content {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* iframe specific */
+.media-content--iframe {
+  border: none;
+  background-color: var(--color-gray-50);
+}
+
+/* ===========================
+   3. Media Tabs - Simplified
+   =========================== */
+.media-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.media-tab {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-gray-100);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.media-tab:hover:not(.active) {
+  background: var(--color-gray-200);
+}
+
+.media-tab.active {
+  background: var(--color-gray-900);
+  color: var(--color-white);
+  border-color: var(--color-gray-900);
+}
+
+/* ===========================
+   4. Details Section
+   =========================== */
+.details-display {
+  background: var(--color-white);
+  border: var(--border-width) solid var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+}
+
+/* ===========================
+   5. Mobile Overrides - Minimal
+   =========================== */
+@media (max-width: 768px) {
+  /* Remove container padding on mobile */
+  .media-container {
+    margin: 0 var(--spacing-md) var(--spacing-lg);
+  }
+  
+  /* Full-width media on mobile */
+  .media-display,
+  .details-display {
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+  }
+  
+  /* Stack media tabs on small screens */
+  .media-tabs {
+    justify-content: center;
+  }
+}
+
+/* ===========================
+   6. Utility Classes
+   =========================== */
+.error-message {
+  padding: var(--spacing-3xl);
+  text-align: center;
+  color: var(--color-gray-600);
+}
+
+.external-link {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--color-gray-900);
+  color: var(--color-white);
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+}
+
+.external-link:hover {
+  background: var(--color-gray-800);
+  transform: translateY(-1px);
+}

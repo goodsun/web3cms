@@ -1,0 +1,106 @@
+.tba-nft-transfer {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.tba-nft-transfer h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.transfer-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.recipient-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.recipient-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.recipient-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.transfer-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.transfer-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.transfer-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #555;
+}
+
+.cancel-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 14px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.transfer-info {
+  background-color: #e8f5e9;
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.transfer-info p {
+  margin: 5px 0;
+  word-break: break-all;
+}
+
+.transfer-info strong {
+  display: inline-block;
+  min-width: 100px;
+  color: #555;
+}

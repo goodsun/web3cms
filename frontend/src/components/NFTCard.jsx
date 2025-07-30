@@ -1,14 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useSettings } from '../contexts/SettingsContext';
+import { getNFTContract } from '../utils/contractHelpers';
+import { getRpcProvider } from '../utils/rpcUtils';
+import { ethers } from 'ethers';
 import './NFTCard.css';
 
-const NFTCard = ({ nft, onTransfer }) => {
+const NFTCard = ({ nft, showOwner = false, showActions = false, onTransfer }) => {
+  const { settings } = useSettings();
+  const [metadata, setMetadata] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
+  const web3Config = settings?.web3 || {};
+  
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      if (!nft.tokenURI) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetch(nft.tokenURI);
+        const data = await response.json();
+        setMetadata(data);
+      } catch (err) {
+        console.error('Failed to fetch metadata:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMetadata();
+  }, [nft.tokenURI]);
+  
+  const formatAddress = (addr) => {
+    if (!addr) return '';
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+  const imageUrl = metadata?.image || nft.image;
+  const name = metadata?.name || nft.name || `Token #${nft.tokenId}`;
+  const description = metadata?.description || nft.description;
+  
   return (
-    <div className="nft-card">
+    <Link to={`/nfts/token/${nft.tokenId}`} className="nft-card">
       <div className="nft-image-container">
-        {nft.image ? (
+        {loading ? (
+          <div className="nft-placeholder show">
+            <div className="spinner-small"></div>
+          </div>
+        ) : imageUrl ? (
           <img
-            src={nft.image}
-            alt={nft.name}
+            src={imageUrl}
+            alt={name}
             className="nft-image"
             onError={(e) => {
               e.target.style.display = 'none';
@@ -16,25 +58,33 @@ const NFTCard = ({ nft, onTransfer }) => {
             }}
           />
         ) : null}
-        <div className={`nft-placeholder ${!nft.image ? 'show' : ''}`}>
+        <div className={`nft-placeholder ${!imageUrl && !loading ? 'show' : ''}`}>
           🖼️
+        </div>
+        <div className="nft-overlay">
+          <span className="nft-overlay-title">{name}</span>
         </div>
       </div>
       
       <div className="nft-details">
-        <h3 className="nft-name">{nft.name}</h3>
-        {nft.collection && (
-          <p className="nft-collection">{nft.collection}</p>
+        <h3 className="nft-name">{name}</h3>
+        {description && (
+          <p className="nft-description">{description}</p>
         )}
         <p className="nft-id">Token ID: {nft.tokenId}</p>
+        {showOwner && nft.owner && (
+          <p className="nft-owner">Owner: {formatAddress(nft.owner)}</p>
+        )}
       </div>
       
-      <div className="nft-actions">
-        <button className="btn btn-primary" onClick={onTransfer}>
-          Transfer
-        </button>
-      </div>
-    </div>
+      {showActions && (
+        <div className="nft-actions" onClick={(e) => e.preventDefault()}>
+          <button className="btn btn-primary" onClick={onTransfer}>
+            Transfer
+          </button>
+        </div>
+      )}
+    </Link>
   );
 };
 

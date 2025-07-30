@@ -117,6 +117,56 @@ class NFTService {
     }
   }
 
+  // Burn NFT
+  async burnNFT(contractAddress, tokenId, signer) {
+    if (!signer) throw new Error('Signer not available');
+    if (!contractAddress) throw new Error('Contract address not available');
+
+    // Import the full ABI that includes burn function
+    const { getNFTContract } = await import('../utils/contractHelpers');
+    const contract = getNFTContract(contractAddress, signer);
+
+    try {
+      // Add logging for debugging
+      console.log('Burn parameters:', { tokenId });
+      
+      if (window.addDebugLog) {
+        window.addDebugLog('info', 'Initiating NFT burn', {
+          tokenId,
+          contract: contractAddress
+        });
+      }
+      
+      // Estimate gas first for better mobile compatibility
+      const gasEstimate = await contract.burn.estimateGas(tokenId);
+      
+      const tx = await contract.burn(tokenId, {
+        gasLimit: gasEstimate * 120n / 100n // Add 20% buffer
+      });
+      
+      if (window.addDebugLog) {
+        window.addDebugLog('info', 'Burn transaction sent', { hash: tx.hash });
+      }
+      
+      const receipt = await tx.wait();
+
+      return {
+        success: true,
+        hash: tx.hash,
+        receipt,
+      };
+    } catch (error) {
+      console.error('Burn failed:', error);
+      if (window.addDebugLog) {
+        window.addDebugLog('error', 'Burn failed', {
+          error: error.message,
+          code: error.code
+        });
+      }
+      throw error;
+    }
+  }
+
   // Check ownership
   async checkOwnership(contractAddress, tokenId, ownerAddress, provider) {
     if (!provider) throw new Error('Provider not available');
