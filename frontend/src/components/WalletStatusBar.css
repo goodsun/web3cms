@@ -1,0 +1,145 @@
+.wallet-status-bar {
+  position: fixed;
+  top: 60px; /* ヘッダーの高さ分下げる */
+  left: 0;
+  right: 0;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.7); /* 30%透過の黒 */
+  color: white;
+  font-size: 12px;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.wallet-status-content {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.chain-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.chain-id {
+  font-weight: 500;
+}
+
+.chain-mismatch .chain-id {
+  color: #ff6b6b;
+}
+
+.chain-warning {
+  color: #ff6b6b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wallet-status-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.wallet-status-address {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  color: white;
+}
+
+.wallet-status-bar .copy-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.wallet-status-bar .copy-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.wallet-status-bar .copy-button:active {
+  transform: scale(0.95);
+}
+
+.wallet-status-bar .copy-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.wallet-status-balance {
+  font-weight: 500;
+  padding-left: var(--spacing-md);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .wallet-status-bar {
+    font-size: 11px;
+  }
+
+  .wallet-status-content {
+    padding: 0 var(--spacing-md);
+  }
+
+  .chain-info {
+    gap: var(--spacing-sm);
+  }
+
+  .wallet-status-info {
+    gap: var(--spacing-xs);
+  }
+
+  .chain-warning {
+    display: none;
+  }
+
+  .chain-mismatch .chain-id::after {
+    content: " ⚠️";
+  }
+}
+
+/* ダークモード対応（将来的に） */
+@media (prefers-color-scheme: dark) {
+  .wallet-status-bar {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* アニメーション */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.wallet-status-bar {
+  animation: slideDown 0.3s ease-out;
+  transition: top 0.3s ease;
+}
+
+/* Mobile menu open state */
+@media (max-width: 768px) {
+  .wallet-status-bar.mobile-menu-open {
+    animation: none;
+  }
+}

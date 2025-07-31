@@ -8,7 +8,9 @@ import { ethers } from 'ethers';
 import { getRpcProvider } from '../utils/rpcUtils';
 import nftService from '../services/nftService';
 import TBANFTTransfer from '../components/TBANFTTransfer';
-import { copyToClipboard } from '../utils/copyToClipboard';
+import CopyButton from '../components/CopyButton';
+import ChainMismatchModal from '../components/ChainMismatchModal';
+import { useChainGuard } from '../hooks/useChainGuard';
 import './NFTDetailPage.css';
 import './NFTDetailPage-instagram.css';
 
@@ -199,6 +201,17 @@ const NFTDetailPage = () => {
   const [transferringTBANft, setTransferringTBANft] = useState(null);
 
   const web3Config = settings?.web3 || {};
+  
+  // Chain guard hook
+  const {
+    isCorrectChain,
+    currentChainId,
+    expectedChainId,
+    showChainModal,
+    executeWithChainGuard,
+    handleSwitchChain,
+    handleCloseModal,
+  } = useChainGuard();
 
   useEffect(() => {
     const fetchNFTDetails = async () => {
@@ -419,10 +432,12 @@ const NFTDetailPage = () => {
       return;
     }
 
-    setDeployingTBA(true);
-    setError(null);
+    // Execute with chain guard
+    executeWithChainGuard(async () => {
+      setDeployingTBA(true);
+      setError(null);
 
-    try {
+      try {
       const chainId = await provider.getNetwork().then(n => n.chainId);
       const salt = ethers.toBigInt(web3Config.tbaSalt || '0');
       
@@ -455,6 +470,7 @@ const NFTDetailPage = () => {
     } finally {
       setDeployingTBA(false);
     }
+    });
   };
 
   const handleTransfer = async () => {
@@ -473,10 +489,12 @@ const NFTDetailPage = () => {
       return;
     }
 
-    setTransferring(true);
-    setError(null);
+    // Execute with chain guard
+    executeWithChainGuard(async () => {
+      setTransferring(true);
+      setError(null);
 
-    try {
+      try {
       if (!signer) {
         setError('Wallet not properly connected');
         return;
@@ -540,6 +558,7 @@ const NFTDetailPage = () => {
     } finally {
       setTransferring(false);
     }
+    });
   };
 
   const handleBurn = async () => {
@@ -553,10 +572,13 @@ const NFTDetailPage = () => {
     }
     
     setShowBurnConfirmation(false);
-    setBurning(true);
-    setError(null);
     
-    try {
+    // Execute with chain guard
+    executeWithChainGuard(async () => {
+      setBurning(true);
+      setError(null);
+      
+      try {
       if (!signer) {
         setError('Wallet not properly connected');
         return;
@@ -574,6 +596,7 @@ const NFTDetailPage = () => {
       setError(err.message || 'Failed to burn NFT');
       setBurning(false);
     }
+    });
   };
 
   const formatAddress = (addr) => {
@@ -581,14 +604,6 @@ const NFTDetailPage = () => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  const handleCopyToClipboard = async (text, label = 'Text') => {
-    const success = await copyToClipboard(text);
-    if (success) {
-      alert(`${label} copied to clipboard!`);
-    } else {
-      alert(`Failed to copy ${label.toLowerCase()}. Please copy manually: ${text}`);
-    }
-  };
 
   const handleTBANftTransferComplete = async (nft, recipientAddress) => {
     // Hide the transfer UI
@@ -857,13 +872,7 @@ const NFTDetailPage = () => {
                       <Link to={`/nfts/owner/${nft.owner}`} className="detail-value address">
                         {formatAddress(nft.owner)}
                       </Link>
-                      <button 
-                        onClick={() => handleCopyToClipboard(nft.owner, 'Owner address')} 
-                        className="copy-button"
-                        title="Copy address"
-                      >
-                        📋
-                      </button>
+                      <CopyButton text={nft.owner} label="Owner address" />
                     </div>
                   </div>
                   {nft.creator && (
@@ -873,13 +882,7 @@ const NFTDetailPage = () => {
                         <Link to={`/nfts/creator/${nft.creator}`} className="detail-value address">
                           {formatAddress(nft.creator)}
                         </Link>
-                        <button 
-                          onClick={() => handleCopyToClipboard(nft.creator, 'Creator address')} 
-                          className="copy-button"
-                          title="Copy address"
-                        >
-                          📋
-                        </button>
+                        <CopyButton text={nft.creator} label="Creator address" />
                       </div>
                     </div>
                   )}
@@ -887,13 +890,7 @@ const NFTDetailPage = () => {
                     <span className="detail-label">Contract:</span>
                     <div className="detail-value-wrapper">
                       <span className="detail-value address">{formatAddress(nft.contractAddress)}</span>
-                      <button 
-                        onClick={() => handleCopyToClipboard(nft.contractAddress, 'Contract address')} 
-                        className="copy-button"
-                        title="Copy address"
-                      >
-                        📋
-                      </button>
+                      <CopyButton text={nft.contractAddress} label="Contract address" />
                     </div>
                   </div>
                   {nft.tokenURI && (
@@ -940,13 +937,7 @@ const NFTDetailPage = () => {
                       <span className="detail-label">TBA Address:</span>
                       <div className="detail-value-wrapper">
                         <span className="detail-value address">{formatAddress(tbaAddress)}</span>
-                        <button 
-                          onClick={() => handleCopyToClipboard(tbaAddress, 'TBA address')} 
-                          className="copy-button"
-                          title="Copy address"
-                        >
-                          📋
-                        </button>
+                        <CopyButton text={tbaAddress} label="TBA address" />
                         {tbaDeployed && (
                           <span className="tba-status deployed">Deployed</span>
                         )}
@@ -1170,6 +1161,15 @@ const NFTDetailPage = () => {
           </div>
         </div>
       )}
+      
+      {/* Chain Mismatch Modal */}
+      <ChainMismatchModal
+        isOpen={showChainModal}
+        onClose={handleCloseModal}
+        currentChainId={currentChainId}
+        expectedChainId={expectedChainId}
+        onSwitchChain={handleSwitchChain}
+      />
     </div>
   );
 };

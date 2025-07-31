@@ -69,9 +69,6 @@
 /* Content Container */
 .content-container {
   background: var(--color-white);
-  border: var(--border-width) solid var(--color-gray-200);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-2xl);
   min-height: 300px;
 }
 
@@ -254,6 +251,47 @@
   margin-top: var(--spacing-xl);
 }
 
+.content-editor .editor-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--color-gray-100);
+  padding: 4px;
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
+  width: fit-content;
+}
+
+.content-editor .tab-button {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--color-gray-600);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  border-radius: calc(var(--border-radius) - 2px);
+  transition: all var(--transition-fast);
+}
+
+.content-editor .tab-button:hover {
+  color: var(--color-gray-900);
+}
+
+.content-editor .tab-button.active {
+  background: var(--color-white);
+  color: var(--color-gray-900);
+  box-shadow: var(--shadow-sm);
+}
+
+.content-editor .markdown-preview {
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--border-radius);
+  min-height: 400px;
+  background: var(--color-gray-50);
+  overflow-y: auto;
+  max-height: 600px;
+}
+
 .editor-actions {
   margin-top: var(--spacing-lg);
   display: flex;
@@ -301,22 +339,21 @@
   background-color: var(--color-primary-hover);
 }
 
-/* Markdown Editor Styles */
-.w-md-editor {
-  background-color: var(--color-white) !important;
-  color: var(--color-gray-900) !important;
+/* Simple Textarea Editor Styles */
+.edit-textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--border-radius);
+  font-family: monospace;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 400px;
 }
 
-.w-md-editor-toolbar {
-  background-color: var(--color-gray-50) !important;
-  border-bottom: 1px solid var(--color-gray-200) !important;
-}
-
-.w-md-editor-preview {
-  background-color: var(--color-white) !important;
-}
-
-.w-md-editor.w-md-editor-focus {
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+.edit-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }

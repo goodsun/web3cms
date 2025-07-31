@@ -91,6 +91,23 @@ const SitemapPage = () => {
     <div className="columns-page">
       <div className="page-header">
         <h1>Sitemap Editor</h1>
+        <div className="sitemap-actions">
+          <button
+            className="btn btn-secondary sitemap-action-btn"
+            data-action="edit-root"
+            title="トップページコンテンツを編集"
+          >
+            トップページ編集
+          </button>
+          <button
+            className="btn btn-primary sitemap-action-btn"
+            data-action="add-folder"
+            title="ルートフォルダを作成"
+          >
+            <span style={{ marginRight: '0.5rem' }}>📁</span>
+            フォルダ追加
+          </button>
+        </div>
       </div>
       <SitemapView folders={folders} contents={contents} onRefresh={fetchData} />
     </div>

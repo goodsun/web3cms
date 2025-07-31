@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import SimpleMDE from 'react-simplemde-editor';
-import 'easymde/dist/easymde.min.css';
+import { useSettings } from '../contexts/SettingsContext';
 import api from '../services/api';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
@@ -12,12 +11,14 @@ import './ContentViewPage.css';
 const ContentViewPage = () => {
   const { contentId } = useParams();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const [content, setContent] = useState(null);
   const [folder, setFolder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchContentData();
@@ -86,34 +87,43 @@ const ContentViewPage = () => {
     if (isEditing) {
       return (
         <div className="content-editor">
-          <SimpleMDE
-            value={editedContent}
-            onChange={setEditedContent}
-            options={{
-              spellChecker: false,
-              placeholder: "コンテンツを編集",
-              status: false,
-              toolbar: [
-                "bold", "italic", "heading", "|",
-                "quote", "unordered-list", "ordered-list", "|",
-                "link", "image", "|",
-                "preview", "side-by-side", "fullscreen"
-              ],
-              previewRender: (plainText) => {
-                const div = document.createElement('div');
-                const root = require('react-dom/client').createRoot(div);
-                root.render(
-                  React.createElement(ReactMarkdown, { remarkPlugins: [remarkGfm] }, plainText)
-                );
-                return div.innerHTML;
-              }
-            }}
-          />
+          <div className="editor-tabs">
+            <button
+              type="button"
+              className={`tab-button ${!showPreview ? 'active' : ''}`}
+              onClick={() => setShowPreview(false)}
+            >
+              編集
+            </button>
+            <button
+              type="button"
+              className={`tab-button ${showPreview ? 'active' : ''}`}
+              onClick={() => setShowPreview(true)}
+            >
+              プレビュー
+            </button>
+          </div>
+          {showPreview ? (
+            <div className="markdown-preview">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {editedContent || '*プレビューする内容がありません*'}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="edit-textarea"
+              rows="20"
+              placeholder="コンテンツを編集（Markdown形式対応）"
+            />
+          )}
           <div className="editor-actions">
             <button onClick={handleSave} className="save-button">保存</button>
             <button onClick={() => {
               setIsEditing(false);
               setEditedContent(content.content || content.data || '');
+              setShowPreview(false);
             }} className="cancel-button">キャンセル</button>
           </div>
         </div>
@@ -206,11 +216,11 @@ const ContentViewPage = () => {
     <div className="content-view-page">
       <div className="page-header">
         <div className="breadcrumb">
-          <Link to="/columns">Columns</Link>
+          <Link to="/">{settings?.title || 'Web3CMS'}</Link>
           {folder && (
             <>
               <span className="separator">/</span>
-              <Link to={`/columns/folder/${folder.id}`}>{folder.name}</Link>
+              <Link to={`/folder/${folder.id}`}>{folder.name}</Link>
             </>
           )}
           <span className="separator">/</span>

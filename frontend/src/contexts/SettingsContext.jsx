@@ -52,6 +52,10 @@ export const SettingsProvider = ({ children }) => {
         tbaRegistry: settingsData.web3?.tbaRegistry || "",
         tbaImplementation: settingsData.web3?.tbaImplementation || "",
         tbaSalt: settingsData.web3?.tbaSalt || "0",
+        chainId: settingsData.web3?.defaultChainId || settingsData.web3?.chainId || settingsData.chainId || 1,
+        requireAuthentication: settingsData.features?.requireAuthentication || false,
+        maintenanceMode: settingsData.features?.maintenanceMode || false,
+        adminEmail: settingsData.admin?.email || "",
         ...settingsData,
       };
       console.log("Flattened settings:", flattenedSettings);

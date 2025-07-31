@@ -4,6 +4,7 @@ import Modal from './Modal';
 import ActionModal from './ActionModal';
 import FolderForm from './FolderForm';
 import ContentForm from './ContentForm';
+import RootContentEditor from './RootContentEditor';
 import { FolderIcon, FileIcon, FolderPlusIcon } from './Icons';
 import './SitemapView.css';
 
@@ -16,6 +17,43 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
   const [newItemName, setNewItemName] = useState('');
   const [modalState, setModalState] = useState({ isOpen: false, type: null, item: null });
   const [actionModalState, setActionModalState] = useState({ isOpen: false, item: null, type: null });
+  const [rootContent, setRootContent] = useState(null);
+  const [showRootEditor, setShowRootEditor] = useState(false);
+
+  // Load root content
+  useEffect(() => {
+    loadRootContent();
+  }, []);
+
+  // Connect page-level buttons to component actions
+  useEffect(() => {
+    const handleButtonClick = (e) => {
+      const btn = e.target.closest('.sitemap-action-btn');
+      if (!btn) return;
+      
+      const action = btn.dataset.action;
+      if (action === 'edit-root') {
+        setShowRootEditor(true);
+      } else if (action === 'add-folder') {
+        setShowNewFolder('root');
+      }
+    };
+
+    document.addEventListener('click', handleButtonClick);
+    return () => document.removeEventListener('click', handleButtonClick);
+  }, []);
+
+  const loadRootContent = async () => {
+    try {
+      const root = await api.getRootContent();
+      if (root) {
+        setRootContent(root.content || '');
+      }
+    } catch (err) {
+      console.error('Error loading root content:', err);
+    }
+  };
+
 
   // フォルダまたはコンテンツを削除
   const handleDelete = async (item, type) => {
@@ -438,20 +476,40 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDropToRoot}
     >
-      <div className="sitemap-header">
-        <h2>サイトマップ</h2>
-        <div className="root-actions">
-          <button
-            className="btn-icon-add"
-            onClick={() => setShowNewFolder('root')}
-            title="ルートフォルダを作成"
-          >
-            <FolderPlusIcon size={24} />
-          </button>
-        </div>
-      </div>
       {folders.length === 0 && contents.length === 0 ? (
-        <p className="empty-state">フォルダとコンテンツがありません</p>
+        <div className="empty-state-container">
+          <p className="empty-state">フォルダとコンテンツがありません</p>
+          {showNewFolder === 'root' ? (
+            <div className="new-item-form">
+              <FolderIcon size={20} className="folder-icon" />
+              <input
+                type="text"
+                placeholder="新規フォルダ名"
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && createNewFolder(null)}
+                onBlur={() => {
+                  if (newItemName.trim()) {
+                    createNewFolder(null);
+                  } else {
+                    setShowNewFolder(null);
+                    setNewItemName('');
+                  }
+                }}
+                autoFocus
+                className="inline-edit"
+              />
+            </div>
+          ) : (
+            <button
+              className="btn btn-primary create-first-folder"
+              onClick={() => setShowNewFolder('root')}
+            >
+              <FolderPlusIcon size={20} />
+              <span>最初のフォルダを作成</span>
+            </button>
+          )}
+        </div>
       ) : (
         <div className="folders-tree">
           {/* ルートレベルの新規フォルダ作成フォーム */}
@@ -540,6 +598,29 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
             onCancel={closeModal}
           />
         )}
+      </Modal>
+
+      {/* Root Content Editor Modal */}
+      <Modal
+        isOpen={showRootEditor}
+        onClose={() => setShowRootEditor(false)}
+        title="トップページコンテンツを編集"
+      >
+        <RootContentEditor
+          initialContent={rootContent}
+          onSubmit={async (content) => {
+            try {
+              await api.saveRootContent(content);
+              setShowRootEditor(false);
+              setRootContent(content);
+              loadRootContent();
+            } catch (err) {
+              console.error('Error saving root content:', err);
+              alert('トップページコンテンツの保存に失敗しました');
+            }
+          }}
+          onCancel={() => setShowRootEditor(false)}
+        />
       </Modal>
 
       {/* アクションモーダル */}

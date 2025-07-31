@@ -85,6 +85,9 @@
   padding: 10px;
   background-color: #ffebee;
   border-radius: 4px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .transfer-info {

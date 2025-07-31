@@ -8,9 +8,11 @@
 .main-header {
   background-color: var(--color-white);
   border-bottom: var(--border-width) solid var(--color-gray-200);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  z-index: 200;
 }
 
 .header-container {
@@ -71,6 +73,19 @@
   margin-left: auto;
 }
 
+/* Mobile Header Actions */
+.mobile-header-actions {
+  display: none;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
+.mobile-wallet-button {
+  display: flex;
+  align-items: center;
+}
+
 /* Mobile Menu */
 .menu-toggle {
   display: none;
@@ -78,7 +93,6 @@
   border: none;
   padding: var(--spacing-xs);
   cursor: pointer;
-  margin-left: auto;
 }
 
 .menu-toggle span {
@@ -118,22 +132,22 @@
   display: block;
   padding: var(--spacing-sm) 0;
   font-size: var(--font-size-base);
+  text-align: right;
 }
 
 .mobile-nav .nav-link.active::after {
   display: none;
 }
 
-.mobile-wallet-container {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: var(--border-width) solid var(--color-gray-200);
-}
-
 /* Main Content */
 .main-content {
   flex: 1;
   padding: var(--spacing-3xl) 0;
+  margin-top: 60px; /* ヘッダーの高さ */
+}
+
+.main-content.with-wallet-bar {
+  margin-top: 84px; /* ヘッダー + ウォレットバーの高さ */
 }
 
 /* Footer */
@@ -169,6 +183,10 @@
   
   .wallet-container {
     display: none;
+  }
+  
+  .mobile-header-actions {
+    display: flex;
   }
   
   .menu-toggle {

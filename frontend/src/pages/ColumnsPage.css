@@ -64,7 +64,7 @@
 }
 
 .nav-tab.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -85,6 +85,61 @@
   color: var(--color-danger);
 }
 
+/* Page Content */
+.page-content {
+  margin-bottom: var(--spacing-3xl);
+  background: var(--color-white);
+  border: 0;
+}
+
+.markdown-content {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-gray-800);
+}
+
+.markdown-content > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.markdown-content p {
+  margin-bottom: var(--spacing-md);
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-xl);
+}
+
+.markdown-content code {
+  background-color: var(--color-gray-100);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.markdown-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  text-decoration: none;
+}
 
 .folders-grid {
   display: grid;
@@ -179,7 +234,6 @@
 .contents-list li:last-child {
   border-bottom: none;
 }
-
 
 .folders-management,
 .contents-management {

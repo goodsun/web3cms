@@ -60,6 +60,9 @@
 .error-message {
   color: var(--color-danger);
   font-size: var(--font-size-base);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* NFT Grid - Instagram style */
@@ -127,28 +130,7 @@
   font-size: var(--font-size-xs);
 }
 
-/* Copy button */
-.copy-button {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--color-white);
-  border: var(--border-width) solid var(--color-gray-300);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  line-height: 1;
-  transition: all var(--transition-fast);
-  margin-left: auto;
-}
-
-.copy-button:hover {
-  background-color: var(--color-gray-50);
-  border-color: var(--color-gray-400);
-  transform: translateY(-1px);
-}
-
-.copy-button:active {
-  transform: translateY(0);
-}
+/* Copy button - removed duplicate styles, using CopyButton component styles */
 
 .stats {
   text-align: center;

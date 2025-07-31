@@ -1,355 +1,271 @@
-# fullstack-serverless-cdkセットアップガイド
+# Web3CMS
 
-## 📋 プロジェクト概要
+A modern, serverless Content Management System with Web3 wallet authentication, built on AWS infrastructure.
 
-フルスタックサーバーレスアプリケーションを素早く構築するためのCDKテンプレート。
+## Overview
 
-### 背景と価値提案
-- サーバーレスアプリケーション開発の「またゼロからCDK書くのか...」問題を解決
-- 実証済みのAWSアーキテクチャを即座に利用可能
-- 0からAPI稼働までの時間を大幅に短縮（目標: 30分以内）
+Web3CMS is a fullstack application that combines traditional CMS features with Web3 capabilities. It provides a secure, scalable content management platform with Ethereum wallet-based authentication and NFT integration.
 
-### 特徴
-- Lambda + API Gateway + DynamoDB + S3 + CloudFrontの統合構成
-- 環境別デプロイ対応（dev/staging/prod）
-- シンプルなCRUD API実装済み
-- プレーンなHTML/CSS/JSのフロントエンド（フレームワーク非依存）
-- CORS対応済み
+### Key Features
 
-## 🚀 クイックスタート
+- 🔐 **Web3 Authentication**: MetaMask wallet integration for secure login
+- 📝 **Content Management**: Hierarchical folder structure with rich content support
+- 🚀 **Serverless Architecture**: Built on AWS Lambda, API Gateway, and DynamoDB
+- 🌐 **Public & Private Content**: Flexible access control for content visibility
+- 📱 **Mobile Optimized**: Responsive design with mobile wallet support
+- ⚡ **High Performance**: CloudFront CDN and optimized API design
+- 🔧 **Infrastructure as Code**: Complete AWS CDK setup
 
-### 1. リポジトリのクローン
+## Tech Stack
+
+### Backend
+- AWS Lambda (Node.js 20.x)
+- AWS API Gateway
+- DynamoDB
+- AWS CDK (TypeScript)
+- S3 + CloudFront
+
+### Frontend
+- React 19.1.0
+- Vite
+- MetaMask SDK
+- ethers.js
+- React Router
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 20.x or higher
+- AWS CLI configured with appropriate credentials
+- AWS CDK CLI (`npm install -g aws-cdk`)
+- Git
+
+### Installation
+
+1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/fullstack-serverless-cdk.git
-cd fullstack-serverless-cdk
+git clone https://github.com/yourusername/web3cms.git
+cd web3cms
 ```
 
-### 2. 初期セットアップ
+2. Install dependencies:
 ```bash
-# 依存関係のインストール
+# Install root dependencies
 npm install
 
-# 環境変数ファイルの作成
-cp .env.example .env
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
 
-# .envファイルを編集してプロジェクト名を設定
-# PROJECT_NAME=my-awesome-app
+# Install backend dependencies
+cd backend
+npm install
+cd ..
 ```
 
-### 3. AWS認証情報の設定
+3. Deploy to AWS:
 ```bash
-# AWS CLIの設定
-aws configure
+# Deploy to development environment
+npm run deploy:dev
 
-# または環境変数で設定
-export AWS_PROFILE=your-profile-name
+# Deploy to staging
+npm run deploy:staging
+
+# Deploy to production
+npm run deploy:prod
 ```
 
-## 📦 プロジェクト構造
-
-```
-fullstack-serverless-cdk/
-├── infrastructure/             # CDKコード
-│   ├── bin/
-│   │   └── app.ts             # CDKアプリエントリポイント
-│   └── lib/
-│       └── fullstack-serverless-stack.ts  # メインスタック定義
-├── backend/                    # Lambda関数
-│   └── src/
-│       └── handlers/          # APIハンドラー
-│           └── crud.ts        # CRUD操作ハンドラー
-├── frontend/                   # フロントエンド（プレーンHTML/CSS/JS）
-│   ├── assets/                # 画像等のアセット
-│   ├── css/                   # スタイルシート
-│   │   └── style.css
-│   ├── js/                    # JavaScriptファイル
-│   │   ├── api.js            # APIクライアント
-│   │   ├── app.js            # メインアプリケーション
-│   │   └── config.js         # 設定ファイル
-│   ├── index.html             # メインページ
-│   └── error.html             # エラーページ
-├── scripts/                    # デプロイメントスクリプト
-│   ├── update-frontend-config.sh  # API設定更新スクリプト
-│   ├── get-api-endpoint.sh        # APIエンドポイント取得スクリプト
-│   └── README.md                  # スクリプトのドキュメント
-├── docs/                       # ドキュメント
-│   └── *.md                   # 各種ガイドドキュメント
-├── cdk.json                   # CDK設定
-├── package.json               # ルートpackage.json
-├── tsconfig.json              # TypeScript設定
-└── README.md
-```
-
-## 💻 開発フロー
-
-### ローカル開発（推奨）
+4. Start local development:
 ```bash
-# 1. ローカル環境の起動
-npm run dev:db    # DynamoDB Local起動
-npm run dev       # API + フロントエンド起動
-
-# 2. ブラウザでテスト
-# http://localhost:8080
-```
-
-詳細は[ローカル開発ガイド](docs/local-development-guide.md)を参照
-
-## 🔧 開発コマンド
-
-### ビルドとテスト
-```bash
-# TypeScriptのビルド
-npm run build
-
-# ビルドの監視モード
+# Terminal 1: Start backend watch mode
 npm run watch
 
-# テスト（※テストコードは今後実装予定）
-npm run test
+# Terminal 2: Start frontend dev server
+cd frontend
+npm run dev
 ```
 
-### CDKコマンド
-```bash
-# CDK合成（CloudFormationテンプレート生成）
-npm run synth
+## Project Structure
 
-# 変更内容の確認
-npm run diff
+```
+web3cms/
+├── backend/                    # Lambda functions and backend code
+│   ├── src/
+│   │   ├── handlers/          # Lambda function handlers
+│   │   │   ├── crud.ts       # Basic CRUD operations
+│   │   │   ├── settings.ts   # Settings management
+│   │   │   └── columns.ts    # CMS content operations
+│   │   └── constants.ts      # Shared constants
+│   ├── repositories/          # Data access layer
+│   ├── utils/                 # Utility functions
+│   └── tsconfig.json
+├── frontend/                   # React frontend application
+│   ├── src/
+│   │   ├── components/        # React components
+│   │   ├── pages/            # Page components
+│   │   ├── services/         # API services
+│   │   ├── contexts/         # React contexts
+│   │   ├── hooks/            # Custom hooks
+│   │   └── utils/            # Utility functions
+│   └── vite.config.js
+├── lib/                       # CDK infrastructure code
+│   └── fullstack-serverless-cdk-stack.ts
+├── scripts/                   # Deployment and utility scripts
+├── shared/                    # Shared code between frontend and backend
+│   └── constants/            # Shared constants
+└── docs/                     # Documentation
 
-# デプロイ
-npm run deploy:dev      # 開発環境
-npm run deploy:staging  # ステージング環境
-npm run deploy:prod     # 本番環境
-
-# スタックの削除
-npm run destroy:dev     # 開発環境
-npm run destroy:staging # ステージング環境
-npm run destroy:prod    # 本番環境
 ```
 
-## 🌐 エンドポイントとリソース名
+## API Documentation
 
-### リソースの命名規則
-すべてのリソースはプロジェクト名を接頭辞として使用します：
-- **スタック名**: `{ProjectName}-{Env}` （例: MyAwesomeApp-Dev）
-- **DynamoDBテーブル**: `{project-name}-items-{env}`
-- **Lambda関数**: `{project-name}-crud-{env}`
-- **API Gateway**: `{project-name}-api-{env}`
-- **S3バケット**: `{project-name}-frontend-{env}-{account-id}`
+See [API.md](docs/API.md) for detailed API documentation.
 
-### デプロイ後の出力
-デプロイ後、CDKの出力に以下のURLが表示されます：
+### Quick API Reference
 
-- **CloudFront URL**: CloudFrontのディストリビューションURL（フロントエンド）
-- **API Gateway URL**: API GatewayのエンドポイントURL（バックエンド）
-- **DynamoDB Table Name**: 作成されたDynamoDBテーブル名
+- `GET /items` - List all items
+- `POST /items` - Create new item
+- `GET /items/{id}` - Get specific item
+- `PUT /items/{id}` - Update item
+- `DELETE /items/{id}` - Delete item
+- `GET /columns/folders` - List folders
+- `POST /columns/folders` - Create folder
+- `GET /columns/contents` - List contents
+- `POST /columns/contents` - Create content
 
-### API仕様
-- `GET /items` - 全アイテムの取得
-- `POST /items` - 新規アイテムの作成
-- `GET /items/{id}` - 特定アイテムの取得
-- `PUT /items/{id}` - アイテムの更新
-- `DELETE /items/{id}` - アイテムの削除
+## Configuration
 
-## ⚙️ 環境変数設定
+### Environment Variables
 
-### 必須の環境変数
+#### Backend (Lambda)
+- `TABLE_NAME` - DynamoDB table for items
+- `SETTINGS_TABLE_NAME` - DynamoDB table for settings
+- `REGION` - AWS region
+- `ENV` - Environment (dev/staging/prod)
+
+#### Frontend
+- `VITE_API_ENDPOINT` - API Gateway endpoint URL
+
+### AWS Resources
+
+The CDK stack creates the following resources:
+- API Gateway REST API
+- Lambda functions
+- DynamoDB tables (3)
+- S3 bucket for frontend
+- CloudFront distribution
+- IAM roles and policies
+
+## Development
+
+### Local Development
+
+1. Start the backend in watch mode:
 ```bash
-# .envファイルに設定
-PROJECT_NAME=my-serverless-app  # プロジェクト固有の名前（小文字とハイフン）
+npm run watch
 ```
 
-### オプションの環境変数
+2. Start the frontend dev server:
 ```bash
-AWS_REGION=us-east-1           # AWSリージョン（デフォルト: us-east-1）
-AWS_PROFILE=default            # AWS CLIプロファイル名
+cd frontend
+npm run dev
 ```
 
-### GitHub Actionsでの設定（CI/CD使用時）
-GitHub Secretsに以下を設定：
-- `PROJECT_NAME`: プロジェクト名
-- `AWS_ACCESS_KEY_ID`: AWSアクセスキー
-- `AWS_SECRET_ACCESS_KEY`: AWSシークレットキー
-- `AWS_REGION`: AWSリージョン（オプション）
+3. Access the application at `http://localhost:5173`
 
-## 🔒 セキュリティ設定
+### Testing
 
-### AWS認証
-CDKは以下の優先順位でAWS認証情報を使用します：
-1. 環境変数（`AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY`）
-2. AWS Profile（`AWS_PROFILE`環境変数または`--profile`オプション）
-3. デフォルトプロファイル
-
-### 現在実装済みのセキュリティ機能
-- S3バケットのパブリックアクセスブロック
-- CloudFront Origin Access Identity (OAI)
-- HTTPSリダイレクト
-- API GatewayのCORS設定
-
-## 📚 ドキュメント
-
-### 主要ドキュメント
-- `docs/local-development-guide.md` - **ローカル開発ガイド**（推奨）
-- `docs/cdk-simplification-guide.md` - CDKシンプル化ガイド
-- `docs/local-cicd-sync-guide.md` - ローカル/CI-CD同期化ガイド
-- `docs/cloudfront-custom-domain-guide.md` - カスタムドメイン設定ガイド
-- `docs/fullstack-serverless-template.md` - テンプレート詳細
-
-## 🔄 CI/CDパイプライン
-
-### GitHub Actionsの設定
-
-1. **GitHubリポジトリのSecrets設定**
-   
-   Settings → Secrets and variables → Actions → New repository secret
-   
-   以下のシークレットを追加：
-   ```
-   AWS_ACCESS_KEY_ID       # 必須: AWS IAMユーザーのアクセスキー
-   AWS_SECRET_ACCESS_KEY   # 必須: AWS IAMユーザーのシークレットキー
-   PROJECT_NAME            # 必須: プロジェクト名（例: my-app）
-   AWS_REGION              # オプション: リージョン（デフォルト: ap-northeast-1）
-   API_ENDPOINT_DEV        # オプション: 開発環境のAPI URL（自動取得も可能）
-   API_ENDPOINT_STAGING    # オプション: ステージング環境のAPI URL（自動取得も可能）
-   API_ENDPOINT_PROD       # オプション: 本番環境のAPI URL（自動取得も可能）
-   ```
-
-2. **IAMユーザーの必要な権限**
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": [
-           "cloudformation:*",
-           "s3:*",
-           "lambda:*",
-           "apigateway:*",
-           "dynamodb:*",
-           "cloudfront:*",
-           "iam:*",
-           "logs:*"
-         ],
-         "Resource": "*"
-       }
-     ]
-   }
-   ```
-   ※ 本番環境では最小権限の原則に従って調整してください
-
-3. **自動デプロイの動作**
-   - `develop`ブランチへのプッシュ → 開発環境（dev）へデプロイ
-   - `staging`ブランチへのプッシュ → ステージング環境へデプロイ
-   - `production`ブランチへのプッシュ → 本番環境（prod）へデプロイ
-
-### ローカルとCI/CDの完全一致
-
-**重要**: ローカルで実行するコマンドとGitHub Actionsで実行するコマンドは完全に同一です。
 ```bash
-# ローカル
+# Run backend tests
+npm test
+
+# Run frontend tests
+cd frontend
+npm test
+```
+
+### Code Quality
+
+```bash
+# Build TypeScript
+npm run build
+
+# Type check
+npm run typecheck
+```
+
+## Deployment
+
+### Automated Deployment
+
+Use the provided npm scripts for deployment:
+
+```bash
+# Deploy to specific environment
 npm run deploy:dev
+npm run deploy:staging
+npm run deploy:prod
 
-# GitHub Actions（.github/workflows/deploy.yml）
-npm run deploy:dev -- --require-approval never
+# Deploy with automatic frontend config update
+./scripts/deploy-with-config.sh dev
 ```
 
-## ✅ 初回セットアップチェックリスト
+### Manual Deployment
 
-- [ ] Node.js 20.x以上のインストール
-- [ ] AWS CLIのインストールと設定
-- [ ] リポジトリのクローン
-- [ ] `npm install`の実行
-- [ ] AWS認証情報の設定
-- [ ] 初回CDKブートストラップの実行（必要な場合）
-  ```bash
-  npx cdk bootstrap
-  ```
-
-## 📚 関連ドキュメント
-
-- [プロジェクトロードマップ](docs/ROADMAP.md)
-- [ベストプラクティス](docs/guides/best-practices.md)
-- [CDKシンプル化ガイド](docs/guides/cdk-simplification.md)
-- [ローカル/CI-CD同期ガイド](docs/guides/local-cicd-sync.md)
-
-## 🔧 使用方法
-
-### API エンドポイントの設定
-
-#### 自動設定（推奨）
-デプロイ時に自動的にAPI URLが設定されます：
-- **2段階プロセス**で確実に設定：
-  1. CDKでインフラをデプロイ
-  2. API エンドポイントを取得してフロントエンドを更新
-- `npm run deploy:[env]` コマンドがこれを自動実行
-
-#### デプロイプロセスの詳細
+1. Build the project:
 ```bash
-# 開発環境へのデプロイ（自動でAPI設定も実行）
-npm run deploy:dev
-
-# 内部では以下が実行される：
-# 1. CDKデプロイ: npm run deploy:dev:base
-# 2. API設定更新: npm run update-config:dev
+npm run build
 ```
 
-#### スクリプトツール
-`scripts/` ディレクトリに便利なツールを用意：
-- `update-frontend-config.sh` - フロントエンドのAPI設定を更新
-- `get-api-endpoint.sh` - デプロイ済みスタックからAPIエンドポイントを取得
-
+2. Deploy using CDK:
 ```bash
-# APIエンドポイントの確認とローカル設定の更新
-./scripts/get-api-endpoint.sh dev
+cdk deploy --context env=dev
 ```
 
-#### 手動設定（フォールバック）
-自動設定されていない場合：
-1. デプロイ後、CloudFront URLにアクセス
-2. 画面上部のテキストボックスにAPI Gateway URLを入力
-   - デプロイ時に出力される `ApiEndpoint` の値を使用
-   - 例: `https://xxx.execute-api.region.amazonaws.com/dev`
-3. 「Save」ボタンをクリック
+3. Update frontend configuration:
+```bash
+./scripts/update-frontend-config.sh dev
+```
 
-※ 手動設定したAPI URLはブラウザのlocalStorageに保存されます
+## Architecture
 
-## 🎆 次のステップ
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentation.
 
-### 現在実装済み
-- ✅ 基本的なCRUD API
-- ✅ シンプルなフロントエンド
-- ✅ DynamoDBとの連携
-- ✅ CloudFront配信
+### High-Level Overview
 
-### 今後の拡張案
-1. **認証・認可の追加**
-   - AWS Cognitoの統合
-   - APIキー認証
+- **Frontend**: React SPA hosted on S3/CloudFront
+- **API**: REST API via API Gateway
+- **Backend**: Lambda functions for business logic
+- **Database**: DynamoDB for data storage
+- **Authentication**: MetaMask wallet-based auth
 
-2. **フロントエンドのアップグレード**
-   - お好みのフレームワーク（React/Vue/Next.js等）への移行
-   - より高度なUIの実装
+## Contributing
 
-3. **機能拡張**
-   - ファイルアップロード（S3統合）
-   - リアルタイム更新（WebSocket/AppSync）
-   - 検索機能（OpenSearch統合）
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.
 
-4. **運用機能**
-   - CloudWatchダッシュボード
-   - X-Rayトレーシング
-   - CI/CDパイプライン
+## License
 
-## 👥 コントリビュート
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
-プルリクエスト歓迎！以下のガイドラインに従ってください：
+## Support
 
-1. フォークしてブランチを作成
-2. 変更を加えてコミット
-3. テストがパスすることを確認
-4. プルリクエストを作成
+- Documentation: [docs/](docs/)
+- Issues: [GitHub Issues](https://github.com/yourusername/web3cms/issues)
+- Discussions: [GitHub Discussions](https://github.com/yourusername/web3cms/discussions)
 
-## 📝 ライセンス
+## Roadmap
 
-MIT License
+- [ ] Enhanced Web3 authentication with signature verification
+- [ ] NFT-gated content
+- [ ] Multi-chain support
+- [ ] Real-time updates with WebSocket
+- [ ] Advanced search with OpenSearch
+- [ ] Internationalization (i18n)
+- [ ] Plugin system
+- [ ] GraphQL API option
+
+## Acknowledgments
+
+Built with modern web technologies and AWS serverless services.

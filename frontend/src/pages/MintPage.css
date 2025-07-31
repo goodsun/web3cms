@@ -97,6 +97,9 @@
   background-color: var(--color-danger-bg);
   color: var(--color-danger);
   border: var(--border-width) solid var(--color-danger);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .success-message {

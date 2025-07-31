@@ -4,6 +4,8 @@ import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
 import { ethers } from 'ethers';
+import ChainMismatchModal from '../components/ChainMismatchModal';
+import { useChainGuard } from '../hooks/useChainGuard';
 import './MintPage.css';
 
 const MintPage = () => {
@@ -24,6 +26,17 @@ const MintPage = () => {
   const [mintFee, setMintFee] = useState('0');
 
   const web3Config = settings?.web3 || {};
+  
+  // Chain guard hook
+  const {
+    isCorrectChain,
+    currentChainId,
+    expectedChainId,
+    showChainModal,
+    executeWithChainGuard,
+    handleSwitchChain,
+    handleCloseModal,
+  } = useChainGuard();
 
   useEffect(() => {
     const fetchContractInfo = async () => {
@@ -121,11 +134,13 @@ const MintPage = () => {
     }
 
 
-    setMinting(true);
-    setError(null);
-    setSuccess(null);
+    // Execute with chain guard
+    executeWithChainGuard(async () => {
+      setMinting(true);
+      setError(null);
+      setSuccess(null);
 
-    try {
+      try {
       if (!signer) {
         setError('Wallet not properly connected');
         return;
@@ -176,6 +191,7 @@ const MintPage = () => {
     } finally {
       setMinting(false);
     }
+    });
   };
 
   return (
@@ -338,6 +354,15 @@ const MintPage = () => {
           🔗 Open Metadata Generator
         </a>
       </div>
+      
+      {/* Chain Mismatch Modal */}
+      <ChainMismatchModal
+        isOpen={showChainModal}
+        onClose={handleCloseModal}
+        currentChainId={currentChainId}
+        expectedChainId={expectedChainId}
+        onSwitchChain={handleSwitchChain}
+      />
     </div>
   );
 };

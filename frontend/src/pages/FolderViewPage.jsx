@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import LoadingState from '../components/LoadingState';
-import ErrorState from '../components/ErrorState';
-import './FolderViewPage.css';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useSettings } from "../contexts/SettingsContext";
+import api from "../services/api";
+import LoadingState from "../components/LoadingState";
+import ErrorState from "../components/ErrorState";
+import "./FolderViewPage.css";
 
 const FolderViewPage = () => {
   const { folderId } = useParams();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const [folder, setFolder] = useState(null);
   const [subfolders, setSubfolders] = useState([]);
   const [contents, setContents] = useState([]);
@@ -26,22 +30,23 @@ const FolderViewPage = () => {
       // Fetch all data using public API endpoints
       const [foldersResponse, contentsResponse] = await Promise.all([
         api.getPublicFolders(),
-        api.getPublicContents()
+        api.getPublicContents(),
       ]);
 
       const allFolders = foldersResponse.folders || [];
       const allContents = contentsResponse.contents || [];
 
       // Find current folder
-      const currentFolder = allFolders.find(f => f.id === folderId);
+      const currentFolder = allFolders.find((f) => f.id === folderId);
       if (!currentFolder) {
-        setError('Folder not found');
+        setError("Folder not found");
         setIsLoading(false);
         return;
       }
 
       // Find subfolders (check both parent_id and parentId for compatibility)
-      const subfolders = allFolders.filter(f => (f.parent_id || f.parentId) === folderId)
+      const subfolders = allFolders
+        .filter((f) => (f.parent_id || f.parentId) === folderId)
         .sort((a, b) => {
           if (b.priority !== a.priority) {
             return (b.priority || 0) - (a.priority || 0);
@@ -50,7 +55,8 @@ const FolderViewPage = () => {
         });
 
       // Find contents in this folder (check both folder_id and folderId for compatibility)
-      const folderContents = allContents.filter(c => (c.folder_id || c.folderId) === folderId)
+      const folderContents = allContents
+        .filter((c) => (c.folder_id || c.folderId) === folderId)
         .sort((a, b) => {
           if (b.priority !== a.priority) {
             return (b.priority || 0) - (a.priority || 0);
@@ -62,8 +68,8 @@ const FolderViewPage = () => {
       setSubfolders(subfolders);
       setContents(folderContents);
     } catch (err) {
-      console.error('Error fetching folder data:', err);
-      setError('Failed to load folder data. Please try again.');
+      console.error("Error fetching folder data:", err);
+      setError("Failed to load folder data. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +95,7 @@ const FolderViewPage = () => {
     <div className="folder-view-page">
       <div className="page-header">
         <div className="breadcrumb">
-          <Link to="/columns">Columns</Link>
+          <Link to="/">{settings?.title || "Web3CMS"}</Link>
           <span className="separator">/</span>
           <span>{folder?.name}</span>
         </div>
@@ -99,22 +105,29 @@ const FolderViewPage = () => {
         )}
       </div>
 
+      {folder?.contents && (
+        <div className="folder-contents-section">
+          <div className="markdown-content">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {folder.contents}
+            </ReactMarkdown>
+          </div>
+        </div>
+      )}
+
       {subfolders.length > 0 && (
         <div className="subfolders-section">
           <h2>Subfolders</h2>
           <div className="subfolders-grid">
-            {subfolders.map(subfolder => (
+            {subfolders.map((subfolder) => (
               <Link
                 key={subfolder.id}
-                to={`/columns/folder/${subfolder.id}`}
+                to={`/folder/${subfolder.id}`}
                 className="subfolder-card"
               >
-                <div className="folder-icon">📁</div>
                 <div className="folder-info">
                   <h3>{subfolder.name}</h3>
-                  {subfolder.description && (
-                    <p>{subfolder.description}</p>
-                  )}
+                  {subfolder.description && <p>{subfolder.description}</p>}
                 </div>
               </Link>
             ))}
@@ -126,10 +139,10 @@ const FolderViewPage = () => {
         <div className="contents-section">
           <h2>Contents</h2>
           <div className="contents-list">
-            {contents.map(content => (
+            {contents.map((content) => (
               <Link
                 key={content.id}
-                to={`/columns/content/${content.id}`}
+                to={`/content/${content.id}`}
                 className="content-item"
               >
                 <div className="content-info">
@@ -140,7 +153,9 @@ const FolderViewPage = () => {
                   <div className="content-meta">
                     <span className="content-type">{content.type}</span>
                     {content.priority > 0 && (
-                      <span className="content-priority">Priority: {content.priority}</span>
+                      <span className="content-priority">
+                        Priority: {content.priority}
+                      </span>
                     )}
                   </div>
                 </div>

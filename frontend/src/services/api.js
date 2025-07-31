@@ -233,6 +233,51 @@ class ApiService {
     const response = await this.client.delete(`/columns/contents/${id}`);
     return response.data;
   }
+
+  // Root content operations (using contents endpoint)
+  async getRootContent() {
+    await this.ensureInitialized();
+    try {
+      const response = await this.client.get('/columns/contents/root');
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async saveRootContent(content) {
+    await this.ensureInitialized();
+    const rootData = {
+      id: 'root',
+      title: 'トップページコンテンツ',
+      content: content,
+      status: 'published',
+      priority: 999999
+    };
+    
+    try {
+      // Try to get existing first
+      const existing = await this.getRootContent();
+      if (existing) {
+        // Update existing
+        const response = await this.client.put('/columns/contents/root', {
+          ...existing,
+          content: content,
+          updatedAt: new Date().toISOString()
+        });
+        return response.data;
+      } else {
+        // Create new
+        const response = await this.client.post('/columns/contents', rootData);
+        return response.data;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

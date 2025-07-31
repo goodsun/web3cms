@@ -35,6 +35,9 @@
 .error-message {
   color: var(--color-danger);
   font-size: var(--font-size-base);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Creators Grid */

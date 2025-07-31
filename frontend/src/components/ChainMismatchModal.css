@@ -1,0 +1,61 @@
+.chain-mismatch-modal .modal-content {
+  max-width: 480px;
+}
+
+.chain-mismatch-content {
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.warning-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.chain-mismatch-content h2 {
+  color: var(--color-danger);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xl);
+}
+
+.warning-message {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-md);
+}
+
+.warning-message strong {
+  color: var(--color-gray-900);
+}
+
+.expected-message {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-xl);
+}
+
+.expected-message strong {
+  color: var(--color-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+}
+
+.modal-actions .btn {
+  min-width: 120px;
+}
+
+.modal-actions .btn-secondary {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
+}
+
+.modal-actions .btn-secondary:hover {
+  background: var(--color-gray-200);
+  color: var(--color-gray-900);
+}

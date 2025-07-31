@@ -199,33 +199,13 @@ export const Web3Provider = ({ children }) => {
       if (accounts.length > 0) {
         await handleAccountsChanged(accounts, ethereum);
       } else if (isMobile) {
-        // On mobile, sometimes accounts come back empty initially
-        // Poll for accounts a few times
-        let retries = 0;
-        const maxRetries = 5;
-        const pollInterval = setInterval(async () => {
-          try {
-            const pollAccounts = await ethereum.request({ method: "eth_accounts" });
-            console.log(`Poll attempt ${retries + 1}:`, pollAccounts);
-            if (window.addDebugLog) {
-              window.addDebugLog('info', `Poll attempt ${retries + 1}/${maxRetries}`, { accounts: pollAccounts });
-            }
-            if (pollAccounts.length > 0) {
-              clearInterval(pollInterval);
-              await handleAccountsChanged(pollAccounts, ethereum);
-            } else if (++retries >= maxRetries) {
-              clearInterval(pollInterval);
-              console.error("Max retries reached, no accounts found");
-              if (window.addDebugLog) {
-                window.addDebugLog('error', 'Max retries reached - no accounts found');
-              }
-              setError("Unable to get accounts after authorization");
-            }
-          } catch (err) {
-            clearInterval(pollInterval);
-            console.error("Polling error:", err);
-          }
-        }, 1000);
+        // On mobile, if accounts are empty after authorization, show error
+        // Do not poll to avoid MetaMask popups
+        console.error("No accounts returned after authorization on mobile");
+        if (window.addDebugLog) {
+          window.addDebugLog('error', 'No accounts returned after mobile authorization');
+        }
+        setError("Unable to connect wallet. Please try again.");
       }
     } catch (err) {
       console.error("Connection failed:", err);
@@ -291,29 +271,8 @@ export const Web3Provider = ({ children }) => {
     [ethereum]
   );
 
-  // Add focus event listener for mobile
-  useEffect(() => {
-    const handleFocus = async () => {
-      // Check connection status when app regains focus on mobile
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-      
-      if (isMobile && ethereum && isInitialized && !account) {
-        try {
-          const accounts = await ethereum.request({ method: "eth_accounts" });
-          if (accounts.length > 0) {
-            await handleAccountsChanged(accounts, ethereum);
-          }
-        } catch (err) {
-          console.error("Focus check error:", err);
-        }
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [ethereum, isInitialized, account, handleAccountsChanged]);
+  // Remove focus event listener - it causes MetaMask to pop up repeatedly
+  // Focus handling is not necessary for maintaining connection
 
   const value = {
     account,

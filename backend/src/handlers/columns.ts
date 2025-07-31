@@ -8,24 +8,14 @@ import {
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { HTTP_STATUS, ERROR_MESSAGES, generateTimestamp } from '../constants';
+import { createResponse } from '../../utils/response';
+import { handleError, ValidationError, NotFoundError, ForbiddenError } from '../../utils/errors';
+import { generateId } from '../../utils/id-generator';
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const docClient = DynamoDBDocumentClient.from(client);
 const tableName = process.env.TABLE_NAME!;
 
-// Common response headers
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-};
-
-// Helper function to create response
-const createResponse = (statusCode: number, body: any): APIGatewayProxyResult => ({
-  statusCode,
-  headers: CORS_HEADERS,
-  body: JSON.stringify(body),
-});
 
 // Get user EOA from authorization header
 const getUserEOA = (event: APIGatewayProxyEvent): string | null => {
@@ -46,6 +36,7 @@ interface Folder {
   description?: string;
   status: 'public' | 'limited' | 'hidden';
   priority?: number;
+  contents?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,7 +44,7 @@ interface Folder {
 interface Content {
   id: string;
   type: 'content';
-  folderId: string;
+  folderId?: string | null;
   eoa: string;
   status: 'draft' | 'review' | 'standby' | 'published';
   title: string;
@@ -217,8 +208,26 @@ export const handler = async (
           }
 
           const timestamp = generateTimestamp();
+          const folderId = body.id || generateId('folder');
+          
+          // Check if ID already exists (especially important for 'root')
+          if (body.id) {
+            const existingItem = await docClient.send(
+              new GetCommand({
+                TableName: tableName,
+                Key: { id: body.id },
+              })
+            );
+            
+            if (existingItem.Item) {
+              return createResponse(HTTP_STATUS.CONFLICT, {
+                message: 'Item with this ID already exists'
+              });
+            }
+          }
+          
           const newFolder: Folder = {
-            id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: folderId,
             type: 'folder',
             eoa: userEOA,
             name: body.name,
@@ -228,6 +237,7 @@ export const handler = async (
             parentId: body.parentId,
             createdAt: timestamp,
             updatedAt: timestamp,
+            ...(body.contents && { contents: body.contents })
           };
 
           await docClient.send(
@@ -473,18 +483,36 @@ export const handler = async (
         case 'POST':
           // Create new content
           const body = event.body ? JSON.parse(event.body) : null;
-          if (!body || !body.title || !body.folderId) {
+          if (!body || !body.title) {
             return createResponse(HTTP_STATUS.BAD_REQUEST, {
-              message: 'Title and folderId are required'
+              message: 'Title is required'
             });
           }
 
           const timestamp = generateTimestamp();
+          const contentId = body.id || `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          
+          // Check if ID already exists (especially important for 'root')
+          if (body.id) {
+            const existingItem = await docClient.send(
+              new GetCommand({
+                TableName: tableName,
+                Key: { id: body.id },
+              })
+            );
+            
+            if (existingItem.Item) {
+              return createResponse(HTTP_STATUS.CONFLICT, {
+                message: 'Item with this ID already exists'
+              });
+            }
+          }
+
           const newContent: Content = {
-            id: `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: contentId,
             type: 'content',
             eoa: userEOA,
-            folderId: body.folderId,
+            ...(body.folderId && { folderId: body.folderId }),
             title: body.title,
             description: body.description,
             content: body.content || '',

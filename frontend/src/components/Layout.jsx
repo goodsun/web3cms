@@ -2,13 +2,16 @@ import React, { useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useSettings } from '../contexts/SettingsContext';
+import { useWeb3 } from '../contexts/Web3Context';
 import WalletConnectButton from './WalletConnectButton';
+import WalletStatusBar from './WalletStatusBar';
 import './Layout.css';
 
 const Layout = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { settings, loading } = useSettings();
+  const { account } = useWeb3();
 
   React.useEffect(() => {
     console.log('Layout settings:', settings);
@@ -16,8 +19,8 @@ const Layout = () => {
 
   const navLinks = [
     { path: '/', label: 'Home' },
+    { path: '/items', label: 'Items' },
     { path: '/nfts', label: 'NFTs' },
-    { path: '/columns', label: 'Columns' },
     { path: '/settings', label: 'Settings' },
   ];
 
@@ -54,15 +57,20 @@ const Layout = () => {
             <WalletConnectButton />
           </div>
 
-          <button
-            className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          <div className="mobile-header-actions">
+            <div className="mobile-wallet-button">
+              <WalletConnectButton />
+            </div>
+            <button
+              className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
         </div>
 
         <nav className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`}>
@@ -76,13 +84,12 @@ const Layout = () => {
               {link.label}
             </Link>
           ))}
-          <div className="mobile-wallet-container">
-            <WalletConnectButton />
-          </div>
         </nav>
       </header>
 
-      <main className="main-content">
+      {account && <WalletStatusBar isMobileMenuOpen={mobileMenuOpen} />}
+
+      <main className={`main-content ${account ? 'with-wallet-bar' : ''} ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}>
         <div className="container">
           <Outlet />
         </div>

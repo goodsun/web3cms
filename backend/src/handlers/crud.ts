@@ -9,24 +9,14 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { HTTP_STATUS, ERROR_MESSAGES, generateTimestamp } from '../constants';
+import { createResponse } from '../../utils/response';
+import { handleError, ValidationError, NotFoundError } from '../../utils/errors';
+import { generateId } from '../../utils/id-generator';
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const docClient = DynamoDBDocumentClient.from(client);
 const tableName = process.env.TABLE_NAME!;
 
-// Common response headers
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
-// Helper function to create response
-const createResponse = (statusCode: number, body: any): APIGatewayProxyResult => ({
-  statusCode,
-  headers: CORS_HEADERS,
-  body: JSON.stringify(body),
-});
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -49,7 +39,7 @@ export const handler = async (
           );
 
           if (!getResult.Item) {
-            return createResponse(HTTP_STATUS.NOT_FOUND, { message: ERROR_MESSAGES.ITEM_NOT_FOUND });
+            throw new NotFoundError(ERROR_MESSAGES.ITEM_NOT_FOUND);
           }
 
           return createResponse(HTTP_STATUS.OK, getResult.Item);
@@ -69,14 +59,26 @@ export const handler = async (
 
       case 'POST':
         if (!body) {
-          return createResponse(HTTP_STATUS.BAD_REQUEST, { message: ERROR_MESSAGES.BODY_REQUIRED });
+          throw new ValidationError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.BODY_REQUIRED);
         }
 
         const newItem = JSON.parse(body);
         
         // Generate ID if not provided
         if (!newItem.id) {
-          newItem.id = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          newItem.id = generateId('item');
+        }
+        
+        // Check if ID already exists (especially important for 'root')
+        const existingItem = await docClient.send(
+          new GetCommand({
+            TableName: tableName,
+            Key: { id: newItem.id },
+          })
+        );
+        
+        if (existingItem.Item) {
+          throw new ValidationError(HTTP_STATUS.CONFLICT, 'Item with this ID already exists');
         }
         
         // Add timestamp
@@ -95,9 +97,7 @@ export const handler = async (
 
       case 'PUT':
         if (!pathParameters?.id || !body) {
-          return createResponse(HTTP_STATUS.BAD_REQUEST, {
-            message: ERROR_MESSAGES.ID_AND_BODY_REQUIRED,
-          });
+          throw new ValidationError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.ID_AND_BODY_REQUIRED);
         }
 
         const updateData = JSON.parse(body);
@@ -137,7 +137,7 @@ export const handler = async (
 
       case 'DELETE':
         if (!pathParameters?.id) {
-          return createResponse(HTTP_STATUS.BAD_REQUEST, { message: ERROR_MESSAGES.ID_REQUIRED });
+          throw new ValidationError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.ID_REQUIRED);
         }
 
         await docClient.send(
@@ -153,13 +153,6 @@ export const handler = async (
         return createResponse(HTTP_STATUS.METHOD_NOT_ALLOWED, { message: ERROR_MESSAGES.METHOD_NOT_ALLOWED });
     }
   } catch (error) {
-    console.error('Error:', error);
-    return createResponse(HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      message: ERROR_MESSAGES.INTERNAL_ERROR,
-      // Only expose error details in non-production environments
-      ...(process.env.ENV !== 'prod' && { 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      })
-    });
+    return handleError(error);
   }
 };

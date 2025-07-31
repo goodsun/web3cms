@@ -5,22 +5,13 @@ import {
   GetCommand,
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { createResponse } from '../../utils/response';
+import { handleError, ValidationError, NotFoundError } from '../../utils/errors';
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 const docClient = DynamoDBDocumentClient.from(client);
 const tableName = process.env.SETTINGS_TABLE_NAME!;
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
-const createResponse = (statusCode: number, body: any): APIGatewayProxyResult => ({
-  statusCode,
-  headers: CORS_HEADERS,
-  body: JSON.stringify(body),
-});
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -45,7 +36,7 @@ export const handler = async (
         );
 
         if (!result.Item) {
-          return createResponse(404, { message: 'Settings not found' });
+          throw new NotFoundError('Settings not found');
         }
 
         return createResponse(200, result.Item);
@@ -53,7 +44,7 @@ export const handler = async (
       case 'PUT':
         // Update setting
         if (!event.body) {
-          return createResponse(400, { message: 'Request body is required' });
+          throw new ValidationError(400, 'Request body is required');
         }
 
         const body = JSON.parse(event.body);
@@ -75,15 +66,9 @@ export const handler = async (
         return createResponse(200, settingItem);
 
       default:
-        return createResponse(405, { message: 'Method not allowed' });
+        throw new ValidationError(405, 'Method not allowed');
     }
   } catch (error) {
-    console.error('Error:', error);
-    return createResponse(500, {
-      message: 'Internal server error',
-      ...(process.env.ENV !== 'prod' && {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    });
+    return handleError(error);
   }
 };

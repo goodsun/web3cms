@@ -35,6 +35,101 @@
   min-height: 200px;
 }
 
+.markdown-textarea {
+  font-family: monospace !important;
+  line-height: 1.6;
+}
+
+/* Editor Header and Tabs */
+.content-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.editor-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--color-gray-100);
+  padding: 4px;
+  border-radius: var(--border-radius);
+}
+
+.tab-button {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--color-gray-600);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  border-radius: calc(var(--border-radius) - 2px);
+  transition: all var(--transition-fast);
+}
+
+.tab-button:hover {
+  color: var(--color-gray-900);
+}
+
+.tab-button.active {
+  background: var(--color-white);
+  color: var(--color-gray-900);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Markdown Preview */
+.markdown-preview {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--border-radius);
+  min-height: 300px;
+  background: var(--color-gray-50);
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.markdown-preview p {
+  margin-bottom: var(--spacing-md);
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-xl);
+}
+
+.markdown-preview code {
+  background: var(--color-gray-200);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.markdown-preview pre {
+  background: var(--color-gray-200);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+  margin-bottom: var(--spacing-md);
+}
+
+.markdown-preview blockquote {
+  border-left: 4px solid var(--color-gray-300);
+  padding-left: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  color: var(--color-gray-700);
+}
+
 .content-form .form-group input:focus,
 .content-form .form-group select:focus,
 .content-form .form-group textarea:focus {

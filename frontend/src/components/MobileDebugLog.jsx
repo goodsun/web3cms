@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './MobileDebugLog.css';
+import React, { useState, useEffect, useRef } from "react";
+import "./MobileDebugLog.css";
 
 const MobileDebugLog = () => {
   const [logs, setLogs] = useState([]);
@@ -9,12 +9,13 @@ const MobileDebugLog = () => {
 
   useEffect(() => {
     // Check if mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-    
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
     // Only show on mobile or if debug mode is enabled
-    if (!isMobile && !window.localStorage.getItem('debugMode')) {
+    if (!isMobile && !window.localStorage.getItem("debugMode")) {
       setIsVisible(false);
       return;
     }
@@ -27,10 +28,10 @@ const MobileDebugLog = () => {
         timestamp,
         type,
         message,
-        data: data ? JSON.stringify(data, null, 2) : null
+        data: data ? JSON.stringify(data, null, 2) : null,
       };
-      
-      setLogs(prev => [...prev, newLog].slice(-50)); // Keep last 50 logs
+
+      setLogs((prev) => [...prev, newLog].slice(-50)); // Keep last 50 logs
     };
 
     // Override console methods
@@ -40,17 +41,17 @@ const MobileDebugLog = () => {
 
     console.log = (...args) => {
       originalLog(...args);
-      window.addDebugLog('info', args.join(' '));
+      window.addDebugLog("info", args.join(" "));
     };
 
     console.error = (...args) => {
       originalError(...args);
-      window.addDebugLog('error', args.join(' '));
+      window.addDebugLog("error", args.join(" "));
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      window.addDebugLog('warn', args.join(' '));
+      window.addDebugLog("warn", args.join(" "));
     };
 
     // Cleanup
@@ -79,50 +80,55 @@ const MobileDebugLog = () => {
 
   const getLogClassName = (type) => {
     switch (type) {
-      case 'error':
-        return 'debug-log-error';
-      case 'warn':
-        return 'debug-log-warn';
-      case 'success':
-        return 'debug-log-success';
+      case "error":
+        return "debug-log-error";
+      case "warn":
+        return "debug-log-warn";
+      case "success":
+        return "debug-log-success";
       default:
-        return 'debug-log-info';
+        return "debug-log-info";
     }
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className={`mobile-debug-log ${isMinimized ? 'minimized' : ''}`}>
+    <div className={`mobile-debug-log ${isMinimized ? "minimized" : ""}`}>
       {isMinimized ? (
         <button onClick={toggleMinimize} className="debug-log-open-btn">
           <span className="debug-log-icon">▲</span>
         </button>
       ) : (
         <div className="debug-log-header">
-          <span className="debug-log-title">MetaMask Debug Log</span>
+          <span className="debug-log-title">console monitor</span>
           <div className="debug-log-controls">
-            <button onClick={clearLogs} className="debug-log-btn">Clear</button>
+            <button onClick={clearLogs} className="debug-log-btn">
+              Clear
+            </button>
             <button onClick={toggleMinimize} className="debug-log-btn">
               ✕
             </button>
           </div>
         </div>
       )}
-      
+
       {!isMinimized && (
         <div className="debug-log-container" ref={logContainerRef}>
           {logs.length === 0 ? (
             <div className="debug-log-empty">No logs yet...</div>
           ) : (
-            logs.map(log => (
-              <div key={log.id} className={`debug-log-entry ${getLogClassName(log.type)}`}>
+            logs.map((log) => (
+              <div
+                key={log.id}
+                className={`debug-log-entry ${getLogClassName(log.type)}`}
+              >
                 <span className="debug-log-time">[{log.timestamp}]</span>
-                <span className="debug-log-type">[{log.type.toUpperCase()}]</span>
+                <span className="debug-log-type">
+                  [{log.type.toUpperCase()}]
+                </span>
                 <span className="debug-log-message">{log.message}</span>
-                {log.data && (
-                  <pre className="debug-log-data">{log.data}</pre>
-                )}
+                {log.data && <pre className="debug-log-data">{log.data}</pre>}
               </div>
             ))
           )}

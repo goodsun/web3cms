@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import SimpleMDE from 'react-simplemde-editor';
-import 'easymde/dist/easymde.min.css';
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './ContentForm.css';
 
 const ContentForm = ({ content, folders, onSubmit, onCancel }) => {
@@ -9,6 +9,7 @@ const ContentForm = ({ content, folders, onSubmit, onCancel }) => {
     content: '',
     status: 'draft',
   });
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (content) {
@@ -49,32 +50,42 @@ const ContentForm = ({ content, folders, onSubmit, onCancel }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="content">内容</label>
-        <SimpleMDE
-          value={formData.content}
-          onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-          options={{
-            spellChecker: false,
-            placeholder: "コンテンツの内容を入力（Markdown形式対応）",
-            status: false,
-            toolbar: [
-              "bold", "italic", "heading", "|",
-              "quote", "unordered-list", "ordered-list", "|",
-              "link", "image", "|",
-              "preview", "side-by-side", "fullscreen"
-            ],
-            previewRender: (plainText) => {
-              const ReactMarkdown = require('react-markdown').default;
-              const remarkGfm = require('remark-gfm').default;
-              const div = document.createElement('div');
-              const root = require('react-dom/client').createRoot(div);
-              root.render(
-                React.createElement(ReactMarkdown, { remarkPlugins: [remarkGfm] }, plainText)
-              );
-              return div.innerHTML;
-            }
-          }}
-        />
+        <div className="content-editor-header">
+          <label htmlFor="content">内容（Markdown形式対応）</label>
+          <div className="editor-tabs">
+            <button
+              type="button"
+              className={`tab-button ${!showPreview ? 'active' : ''}`}
+              onClick={() => setShowPreview(false)}
+            >
+              編集
+            </button>
+            <button
+              type="button"
+              className={`tab-button ${showPreview ? 'active' : ''}`}
+              onClick={() => setShowPreview(true)}
+            >
+              プレビュー
+            </button>
+          </div>
+        </div>
+        {showPreview ? (
+          <div className="markdown-preview">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {formData.content || '*プレビューする内容がありません*'}
+            </ReactMarkdown>
+          </div>
+        ) : (
+          <textarea
+            id="content"
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            rows="15"
+            placeholder="コンテンツの内容を入力&#10;&#10;## 見出し&#10;**太字** *斜体*&#10;- リスト&#10;[リンク](url)"
+            className="markdown-textarea"
+          />
+        )}
       </div>
 
       <div className="form-group">

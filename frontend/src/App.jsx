@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Web3Provider } from './contexts/Web3Context';
 import { SettingsProvider } from './contexts/SettingsContext';
 import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
+import ItemsPage from './pages/ItemsPage';
 import NFTsPage from './pages/NFTsPage';
 import NFTListPage from './pages/NFTListPage';
 import CreatorsPage from './pages/CreatorsPage';
@@ -25,17 +25,17 @@ function App() {
           <MobileDebugLog />
           <Routes>
             <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
+              <Route index element={<ColumnsPage />} />
+              <Route path="items" element={<ItemsPage />} />
+              <Route path="folder/:folderId" element={<FolderViewPage />} />
+              <Route path="content/:contentId" element={<ContentViewPage />} />
+              <Route path="sitemap" element={<SitemapPage />} />
               <Route path="nfts" element={<NFTsPage />} />
               <Route path="nfts/mint" element={<MintPage />} />
               <Route path="nfts/token/:id" element={<NFTDetailPage />} />
               <Route path="nfts/creator" element={<CreatorsPage />} />
               <Route path="nfts/creator/:address" element={<NFTListPage mode="creator" />} />
               <Route path="nfts/owner/:address" element={<NFTListPage mode="owner" />} />
-              <Route path="columns" element={<ColumnsPage />} />
-              <Route path="columns/sitemap" element={<SitemapPage />} />
-              <Route path="columns/folder/:folderId" element={<FolderViewPage />} />
-              <Route path="columns/content/:contentId" element={<ContentViewPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import ItemCard from '../components/ItemCard';
 import ItemForm from '../components/ItemForm';
-import './HomePage.css';
+import './ItemsPage.css';
 
-const HomePage = () => {
+const ItemsPage = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -135,4 +135,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default ItemsPage;
