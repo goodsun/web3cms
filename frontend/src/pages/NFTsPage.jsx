@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useSettings } from "../contexts/SettingsContext";
+import { useI18n } from "../contexts/I18nContext";
 import { getNFTContract } from "../utils/contractHelpers";
 import { getRpcProvider } from "../utils/rpcUtils";
 import { ethers } from "ethers";
@@ -10,6 +11,7 @@ import "./NFTsPage.css";
 const NFTsPage = () => {
   const { account, isConnected, chainId, provider } = useWeb3();
   const { settings, loading: settingsLoading } = useSettings();
+  const { t } = useI18n();
   const [nftInfo, setNftInfo] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -103,7 +105,7 @@ const NFTsPage = () => {
       <div className="nfts-page">
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Loading settings...</p>
+          <p>{t("common.loading", "Loading...")}</p>
         </div>
       </div>
     );
@@ -117,32 +119,38 @@ const NFTsPage = () => {
 
       {/* Quick Links */}
       <section className="config-section">
-        <h2>Quick Links</h2>
         <div className="quick-links">
           {isConnected && account && (
             <>
               <Link to={`/nfts/owner/${account}`} className="quick-link">
-                <span className="link-text">View My NFTs</span>
-                <span className="link-desc">NFTs owned by your wallet</span>
+                <span className="link-text">
+                  {t("nfts.viewMyNfts", "View My NFTs")}
+                </span>
+                <span className="link-desc">
+                  {t("nfts.viewMyNftsDesc", "NFTs owned by your wallet")}
+                </span>
               </Link>
               <Link to={`/nfts/creator/${account}`} className="quick-link">
-                <span className="link-text">View My Created NFTs</span>
-                <span className="link-desc">NFTs created by your wallet</span>
+                <span className="link-text">
+                  {t("nfts.viewMyCreatedNfts", "View My Created NFTs")}
+                </span>
+                <span className="link-desc">
+                  {t(
+                    "nfts.viewMyCreatedNftsDesc",
+                    "NFTs created by your wallet"
+                  )}
+                </span>
               </Link>
             </>
           )}
           <Link to="/nfts/creator" className="quick-link">
-            <span className="link-text">View All Creators</span>
-            <span className="link-desc">Browse all NFT creators</span>
+            <span className="link-text">
+              {t("nfts.viewAllCreators", "View All Creators")}
+            </span>
+            <span className="link-desc">
+              {t("nfts.viewAllCreatorsDesc", "Browse all NFT creators")}
+            </span>
           </Link>
-          {isConnected && account && (
-            <>
-              <Link to="/nfts/mint" className="quick-link">
-                <span className="link-text">Mint NFT</span>
-                <span className="link-desc">Create a new NFT</span>
-              </Link>
-            </>
-          )}
         </div>
       </section>
 
@@ -223,7 +231,6 @@ const NFTsPage = () => {
           </div>
         </div>
       </section>
-
     </div>
   );
 };

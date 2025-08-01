@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import { useSettings } from '../contexts/SettingsContext';
+import { useI18n } from '../contexts/I18nContext';
 import { getNFTContract } from '../utils/contractHelpers';
 import { ethers } from 'ethers';
 import ChainMismatchModal from '../components/ChainMismatchModal';
@@ -12,6 +13,7 @@ const MintPage = () => {
   const navigate = useNavigate();
   const { account, provider, signer, isConnected } = useWeb3();
   const { settings } = useSettings();
+  const { t } = useI18n();
   const [formData, setFormData] = useState({
     recipient: '',
     tokenURI: ''
@@ -219,7 +221,7 @@ const MintPage = () => {
           <h2>NFT Details</h2>
           
           <div className="form-group">
-            <label htmlFor="recipient">Recipient Address</label>
+            <label htmlFor="recipient">{t('nfts.mint.recipientAddress', 'Recipient Address')}</label>
             <input
               type="text"
               id="recipient"
@@ -230,7 +232,7 @@ const MintPage = () => {
               className="form-input"
               disabled={minting}
             />
-            <small className="form-hint">The address that will receive the NFT</small>
+            <small className="form-hint">{t('nfts.mint.recipientHint', 'The address that will receive the NFT')}</small>
           </div>
 
           <div className="form-group">
@@ -245,7 +247,7 @@ const MintPage = () => {
               className="form-input"
               disabled={minting}
             />
-            <small className="form-hint">URL pointing to the NFT metadata JSON</small>
+            <small className="form-hint">{t('nfts.mint.tokenUriHint', 'URL pointing to the NFT metadata JSON')}</small>
           </div>
 
         </div>
@@ -341,9 +343,9 @@ const MintPage = () => {
 
       {/* Metadata Helper Link */}
       <div className="metadata-helper">
-        <h3>Need Help Creating Metadata?</h3>
+        <h3>{t('nfts.mint.needHelp', 'Need Help Creating Metadata?')}</h3>
         <p>
-          Create and host your NFT metadata easily with our metadata generator:
+          {t('nfts.mint.metadataHelperDesc', 'Create and host your NFT metadata easily with our metadata generator:')}
         </p>
         <a 
           href="https://meta.bon-soleil.com/" 

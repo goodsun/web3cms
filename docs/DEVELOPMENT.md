@@ -1,16 +1,16 @@
-# Web3CMS Development Guide
+# Web3CMS 開発ガイド
 
-## Getting Started
+## はじめに
 
-This guide will help you set up your local development environment for Web3CMS.
+このガイドでは、Web3CMS のローカル開発環境のセットアップ方法について説明します。
 
-## Development Environment Setup
+## 開発環境のセットアップ
 
-### Prerequisites
+### 前提条件
 
-1. **Node.js v20.x or higher**
+1. **Node.js v20.x 以上**
    ```bash
-   # Install via nvm (recommended)
+   # nvm 経由でのインストール（推奨）
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
    nvm install 20
    nvm use 20
@@ -21,202 +21,202 @@ This guide will help you set up your local development environment for Web3CMS.
    git --version
    ```
 
-3. **AWS CLI** (for deployment)
+3. **AWS CLI**（デプロイ用）
    ```bash
    # macOS
    brew install awscli
    
-   # Others
+   # その他
    pip install awscli
    ```
 
-4. **VS Code** (recommended) with extensions:
+4. **VS Code**（推奨）と拡張機能：
    - ESLint
    - Prettier
    - TypeScript and JavaScript
    - AWS Toolkit
    - GitLens
 
-### Initial Setup
+### 初期セットアップ
 
-1. **Clone the repository**
+1. **リポジトリのクローン**
    ```bash
    git clone https://github.com/yourusername/web3cms.git
    cd web3cms
    ```
 
-2. **Install dependencies**
+2. **依存関係のインストール**
    ```bash
-   # Install all dependencies
+   # すべての依存関係をインストール
    npm run install:all
    
-   # Or manually
+   # または手動で
    npm install
    cd frontend && npm install && cd ..
    cd backend && npm install && cd ..
    ```
 
-3. **Set up environment variables**
+3. **環境変数の設定**
    ```bash
-   # Frontend (.env.development)
+   # フロントエンド (.env.development)
    cd frontend
    cp .env.example .env.development
-   # Edit .env.development with your values
+   # .env.development を編集して値を設定
    
-   # For local development, you can use:
+   # ローカル開発では以下を使用可能：
    echo "VITE_API_ENDPOINT=http://localhost:3000" > .env.development
    ```
 
-## Development Workflow
+## 開発ワークフロー
 
-### Running the Application
+### アプリケーションの実行
 
-#### Option 1: Full Stack Development
+#### オプション 1: フルスタック開発
 
 ```bash
-# Terminal 1: Watch TypeScript compilation
+# ターミナル 1: TypeScript コンパイルの監視
 npm run watch
 
-# Terminal 2: Run frontend dev server
+# ターミナル 2: フロントエンド開発サーバーの実行
 cd frontend
 npm run dev
 
-# Terminal 3: Run local API (requires SAM CLI)
+# ターミナル 3: ローカル API の実行（SAM CLI が必要）
 npm run start:api
 ```
 
-#### Option 2: Frontend Only Development
+#### オプション 2: フロントエンドのみの開発
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Access the application at `http://localhost:5173`
+アプリケーションには `http://localhost:5173` でアクセスできます
 
-### Code Structure
+### コード構造
 
 ```
 web3cms/
-├── backend/                 # Lambda functions
+├── backend/                 # Lambda 関数
 │   ├── src/
-│   │   ├── handlers/       # Lambda handlers
-│   │   ├── constants.ts    # Shared constants
-│   │   └── types.ts        # TypeScript types
-│   ├── repositories/       # Data access layer
-│   ├── utils/             # Utility functions
-│   └── tests/             # Backend tests
-├── frontend/               # React application
+│   │   ├── handlers/       # Lambda ハンドラ
+│   │   ├── constants.ts    # 共有定数
+│   │   └── types.ts        # TypeScript 型
+│   ├── repositories/       # データアクセスレイヤー
+│   ├── utils/             # ユーティリティ関数
+│   └── tests/             # バックエンドテスト
+├── frontend/               # React アプリケーション
 │   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── contexts/      # React contexts
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # API services
-│   │   ├── utils/         # Utilities
-│   │   └── App.jsx        # Main app component
-│   └── public/            # Static assets
-├── lib/                    # CDK infrastructure
-├── scripts/                # Utility scripts
-└── shared/                 # Shared code
-    └── constants/          # Shared constants
+│   │   ├── components/    # React コンポーネント
+│   │   ├── contexts/      # React コンテキスト
+│   │   ├── hooks/         # カスタムフック
+│   │   ├── pages/         # ページコンポーネント
+│   │   ├── services/      # API サービス
+│   │   ├── utils/         # ユーティリティ
+│   │   └── App.jsx        # メインアプリコンポーネント
+│   └── public/            # 静的アセット
+├── lib/                    # CDK インフラストラクチャ
+├── scripts/                # ユーティリティスクリプト
+└── shared/                 # 共有コード
+    └── constants/          # 共有定数
 ```
 
-## Development Guidelines
+## 開発ガイドライン
 
-### Code Style
+### コードスタイル
 
 #### TypeScript/JavaScript
-- Use ESLint and Prettier for code formatting
-- Follow existing code patterns
-- Use meaningful variable and function names
-- Add JSDoc comments for public APIs
+- ESLint と Prettier を使用してコードをフォーマット
+- 既存のコードパターンに従う
+- 意味のある変数名と関数名を使用
+- パブリック API には JSDoc コメントを追加
 
 ```typescript
 /**
- * Creates a new folder in the system
- * @param data - Folder creation data
- * @returns Created folder object
+ * システムに新しいフォルダを作成
+ * @param data - フォルダ作成データ
+ * @returns 作成されたフォルダオブジェクト
  */
 export async function createFolder(data: FolderInput): Promise<Folder> {
-  // Implementation
+  // 実装
 }
 ```
 
-#### React Components
-- Use functional components with hooks
-- Keep components small and focused
-- Use proper prop types or TypeScript interfaces
+#### React コンポーネント
+- フックを使用した関数コンポーネントを使用
+- コンポーネントは小さく、焦点を絞って保つ
+- 適切な prop types または TypeScript インターフェースを使用
 
 ```jsx
-// Good example
+// 良い例
 const FolderCard = ({ folder, onEdit, onDelete }) => {
   return (
     <div className="folder-card">
       <h3>{folder.name}</h3>
       <p>{folder.description}</p>
-      <button onClick={() => onEdit(folder.id)}>Edit</button>
-      <button onClick={() => onDelete(folder.id)}>Delete</button>
+      <button onClick={() => onEdit(folder.id)}>編集</button>
+      <button onClick={() => onDelete(folder.id)}>削除</button>
     </div>
   );
 };
 ```
 
-### Git Workflow
+### Git ワークフロー
 
-1. **Create a feature branch**
+1. **機能ブランチを作成**
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
-2. **Make your changes**
+2. **変更を行う**
    ```bash
-   # Make changes
+   # 変更を加える
    git add .
-   git commit -m "feat: add new feature"
+   git commit -m "feat: 新機能を追加"
    ```
 
-3. **Follow conventional commits**
-   - `feat:` New feature
-   - `fix:` Bug fix
-   - `docs:` Documentation changes
-   - `style:` Code style changes
-   - `refactor:` Code refactoring
-   - `test:` Test changes
-   - `chore:` Maintenance tasks
+3. **Conventional Commits に従う**
+   - `feat:` 新機能
+   - `fix:` バグ修正
+   - `docs:` ドキュメント変更
+   - `style:` コードスタイル変更
+   - `refactor:` コードリファクタリング
+   - `test:` テスト変更
+   - `chore:` メンテナンスタスク
 
-4. **Push and create PR**
+4. **プッシュして PR を作成**
    ```bash
    git push origin feature/your-feature-name
    ```
 
-## Testing
+## テスト
 
-### Backend Testing
+### バックエンドテスト
 
 ```bash
-# Run all backend tests
+# すべてのバックエンドテストを実行
 npm test
 
-# Run with coverage
+# カバレッジ付きで実行
 npm run test:coverage
 
-# Watch mode
+# ウォッチモード
 npm run test:watch
 ```
 
-#### Writing Backend Tests
+#### バックエンドテストの記述
 
 ```typescript
 // backend/tests/handlers/crud.test.ts
 import { handler } from '../../src/handlers/crud';
 
-describe('CRUD Handler', () => {
-  it('should return all items', async () => {
+describe('CRUD ハンドラ', () => {
+  it('すべてのアイテムを返すべき', async () => {
     const event = {
       httpMethod: 'GET',
       path: '/items',
-      // ... other event properties
+      // ... その他のイベントプロパティ
     };
     
     const response = await handler(event);
@@ -227,19 +227,19 @@ describe('CRUD Handler', () => {
 });
 ```
 
-### Frontend Testing
+### フロントエンドテスト
 
 ```bash
 cd frontend
 
-# Run tests
+# テストを実行
 npm test
 
-# Run with coverage
+# カバレッジ付きで実行
 npm run test:coverage
 ```
 
-#### Writing Frontend Tests
+#### フロントエンドテストの記述
 
 ```jsx
 // frontend/src/components/__tests__/FolderCard.test.jsx
@@ -249,33 +249,33 @@ import FolderCard from '../FolderCard';
 describe('FolderCard', () => {
   const mockFolder = {
     id: '123',
-    name: 'Test Folder',
-    description: 'Test Description'
+    name: 'テストフォルダ',
+    description: 'テスト説明'
   };
 
-  it('renders folder information', () => {
+  it('フォルダ情報をレンダリング', () => {
     render(<FolderCard folder={mockFolder} />);
     
-    expect(screen.getByText('Test Folder')).toBeInTheDocument();
-    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByText('テストフォルダ')).toBeInTheDocument();
+    expect(screen.getByText('テスト説明')).toBeInTheDocument();
   });
 });
 ```
 
-## Local Development Tools
+## ローカル開発ツール
 
 ### DynamoDB Local
 
-For local DynamoDB development:
+ローカル DynamoDB 開発用：
 
 ```bash
-# Install DynamoDB Local
+# DynamoDB Local をインストール
 npm install -g dynamodb-local
 
-# Start DynamoDB Local
+# DynamoDB Local を開始
 dynamodb-local start --port 8000
 
-# Create tables locally
+# ローカルでテーブルを作成
 aws dynamodb create-table \
   --table-name web3cms-items-dev \
   --attribute-definitions AttributeName=id,AttributeType=S \
@@ -286,21 +286,21 @@ aws dynamodb create-table \
 
 ### SAM Local
 
-For local Lambda testing:
+ローカル Lambda テスト用：
 
 ```bash
-# Install SAM CLI
+# SAM CLI をインストール
 brew install aws-sam-cli
 
-# Start local API
+# ローカル API を開始
 sam local start-api --template template.yaml
 ```
 
-## Debugging
+## デバッグ
 
-### VS Code Debug Configuration
+### VS Code デバッグ設定
 
-Create `.vscode/launch.json`:
+`.vscode/launch.json` を作成：
 
 ```json
 {
@@ -309,7 +309,7 @@ Create `.vscode/launch.json`:
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Lambda",
+      "name": "Lambda をデバッグ",
       "program": "${workspaceFolder}/backend/src/handlers/crud.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"]
@@ -317,7 +317,7 @@ Create `.vscode/launch.json`:
     {
       "type": "chrome",
       "request": "launch",
-      "name": "Debug Frontend",
+      "name": "フロントエンドをデバッグ",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/frontend/src"
     }
@@ -325,84 +325,84 @@ Create `.vscode/launch.json`:
 }
 ```
 
-### Browser DevTools
+### ブラウザ DevTools
 
 1. **React DevTools**
-   - Install React DevTools extension
-   - Inspect component hierarchy and state
+   - React DevTools 拡張機能をインストール
+   - コンポーネント階層と状態を調査
 
-2. **Network Tab**
-   - Monitor API calls
-   - Check request/response headers
-   - Verify authentication tokens
+2. **Network タブ**
+   - API 呼び出しを監視
+   - リクエスト/レスポンスヘッダーを確認
+   - 認証トークンを確認
 
-3. **Console Debugging**
+3. **コンソールデバッグ**
    ```javascript
-   // Add debug logs
-   console.log('API Response:', response);
-   console.debug('Component State:', state);
+   // デバッグログを追加
+   console.log('API レスポンス:', response);
+   console.debug('コンポーネント状態:', state);
    ```
 
-## Common Development Tasks
+## 一般的な開発タスク
 
-### Adding a New API Endpoint
+### 新しい API エンドポイントの追加
 
-1. **Create Lambda handler**
+1. **Lambda ハンドラを作成**
    ```typescript
    // backend/src/handlers/newFeature.ts
    export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-     // Implementation
+     // 実装
    };
    ```
 
-2. **Update CDK stack**
+2. **CDK スタックを更新**
    ```typescript
    // lib/fullstack-serverless-cdk-stack.ts
    const newFeatureFunction = new NodejsFunction(this, 'NewFeatureFunction', {
      entry: path.join(__dirname, '../backend/src/handlers/newFeature.ts'),
-     // ... configuration
+     // ... 設定
    });
    ```
 
-3. **Add API route**
+3. **API ルートを追加**
    ```typescript
    const newFeatureResource = api.root.addResource('new-feature');
    newFeatureResource.addMethod('GET', new LambdaIntegration(newFeatureFunction));
    ```
 
-### Adding a New Frontend Page
+### 新しいフロントエンドページの追加
 
-1. **Create page component**
+1. **ページコンポーネントを作成**
    ```jsx
    // frontend/src/pages/NewPage.jsx
    const NewPage = () => {
      return (
        <div>
-         <h1>New Page</h1>
+         <h1>新しいページ</h1>
        </div>
      );
    };
    export default NewPage;
    ```
 
-2. **Add route**
+2. **ルートを追加**
    ```jsx
    // frontend/src/App.jsx
    import NewPage from './pages/NewPage';
    
-   // In router
+   // ルーター内
    <Route path="/new-page" element={<NewPage />} />
    ```
 
-3. **Add navigation**
+3. **ナビゲーションを追加**
    ```jsx
    // frontend/src/components/Layout.jsx
-   <Link to="/new-page">New Page</Link>
+   <Link to="/new-page">新しいページ</Link>
    ```
 
-### Working with Web3
+### Web3 での作業
 
-1. **Connect MetaMask**
+1. **MetaMask を接続**
    ```javascript
    const connectWallet = async () => {
      if (window.ethereum) {
@@ -414,7 +414,7 @@ Create `.vscode/launch.json`:
    };
    ```
 
-2. **Use Web3 Context**
+2. **Web3 コンテキストを使用**
    ```jsx
    import { useWeb3 } from '../contexts/Web3Context';
    
@@ -424,22 +424,22 @@ Create `.vscode/launch.json`:
      return (
        <div>
          {isConnected ? (
-           <p>Connected: {account}</p>
+           <p>接続済み: {account}</p>
          ) : (
-           <button onClick={connectWallet}>Connect Wallet</button>
+           <button onClick={connectWallet}>ウォレットを接続</button>
          )}
        </div>
      );
    };
    ```
 
-## Performance Optimization
+## パフォーマンス最適化
 
-### Frontend Performance
+### フロントエンドパフォーマンス
 
-1. **Code Splitting**
+1. **コード分割**
    ```jsx
-   // Lazy load heavy components
+   // 重いコンポーネントを遅延読み込み
    const HeavyComponent = lazy(() => import('./HeavyComponent'));
    
    <Suspense fallback={<Loading />}>
@@ -447,7 +447,7 @@ Create `.vscode/launch.json`:
    </Suspense>
    ```
 
-2. **Memoization**
+2. **メモ化**
    ```jsx
    const ExpensiveComponent = memo(({ data }) => {
      const processedData = useMemo(() => 
@@ -458,21 +458,21 @@ Create `.vscode/launch.json`:
    });
    ```
 
-3. **Image Optimization**
+3. **画像最適化**
    ```jsx
-   // Use appropriate image formats and lazy loading
+   // 適切な画像フォーマットと遅延読み込みを使用
    <img 
      src="image.webp" 
      loading="lazy" 
-     alt="Description"
+     alt="説明"
    />
    ```
 
-### Backend Performance
+### バックエンドパフォーマンス
 
-1. **Batch Operations**
+1. **バッチ操作**
    ```typescript
-   // Instead of multiple single operations
+   // 複数の単一操作の代わりに
    const batchWrite = {
      RequestItems: {
        [tableName]: items.map(item => ({
@@ -483,9 +483,9 @@ Create `.vscode/launch.json`:
    await docClient.batchWrite(batchWrite);
    ```
 
-2. **Caching**
+2. **キャッシング**
    ```typescript
-   // Simple in-memory cache
+   // シンプルなインメモリキャッシュ
    const cache = new Map();
    
    export const getCachedData = async (key: string) => {
@@ -499,53 +499,53 @@ Create `.vscode/launch.json`:
    };
    ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### Common Issues
+### 一般的な問題
 
-1. **CORS Errors**
-   - Check API Gateway CORS configuration
-   - Verify headers in Lambda responses
-   - Check browser console for specific errors
+1. **CORS エラー**
+   - API Gateway の CORS 設定を確認
+   - Lambda レスポンスのヘッダーを確認
+   - ブラウザコンソールで特定のエラーを確認
 
-2. **Authentication Issues**
-   - Verify MetaMask is connected
-   - Check authorization header format
-   - Ensure wallet address is lowercase
+2. **認証の問題**
+   - MetaMask が接続されていることを確認
+   - Authorization ヘッダーのフォーマットを確認
+   - ウォレットアドレスが小文字であることを確認
 
-3. **Build Errors**
+3. **ビルドエラー**
    ```bash
-   # Clear caches and reinstall
+   # キャッシュをクリアして再インストール
    rm -rf node_modules package-lock.json
    npm install
    
-   # Clear TypeScript cache
+   # TypeScript キャッシュをクリア
    rm -rf backend/dist
    npm run build
    ```
 
-4. **Hot Reload Not Working**
+4. **ホットリロードが動作しない**
    ```bash
-   # Restart Vite dev server
+   # Vite 開発サーバーを再起動
    cd frontend
    npm run dev -- --force
    ```
 
-## Resources
+## リソース
 
-### Documentation
-- [React Documentation](https://react.dev/)
-- [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/)
-- [Vite Documentation](https://vitejs.dev/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+### ドキュメント
+- [React ドキュメント](https://react.dev/)
+- [AWS CDK ドキュメント](https://docs.aws.amazon.com/cdk/)
+- [Vite ドキュメント](https://vitejs.dev/)
+- [TypeScript ドキュメント](https://www.typescriptlang.org/docs/)
 
-### Tools
-- [Postman](https://www.postman.com/) - API testing
+### ツール
+- [Postman](https://www.postman.com/) - API テスト
 - [AWS Toolkit for VS Code](https://aws.amazon.com/visualstudiocode/)
 - [React DevTools](https://react.dev/learn/react-developer-tools)
 - [MetaMask](https://metamask.io/)
 
-### Community
-- GitHub Issues for bug reports
-- GitHub Discussions for questions
-- Discord/Slack for real-time help
+### コミュニティ
+- バグレポート用の GitHub Issues
+- 質問用の GitHub Discussions
+- リアルタイムヘルプ用の Discord/Slack

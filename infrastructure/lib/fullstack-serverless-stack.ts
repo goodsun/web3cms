@@ -253,6 +253,181 @@ export class FullstackServerlessStack extends cdk.Stack {
     // Grant permissions to NFTs Lambda
     nftsTable.grantReadWriteData(nftsLambda);
 
+    // Lambda function for NFT tokenURI operations
+    const nftTokenUriLambda = new NodejsFunction(this, 'NFTTokenUriHandler', {
+      functionName: `${projectName}-nft-tokenuri-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftTokenUri.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftTokenUriLambda);
+    nftsTable.grantReadWriteData(nftTokenUriLambda);
+
+    // Lambda function for NFT creator operations
+    const nftCreatorLambda = new NodejsFunction(this, 'NFTCreatorHandler', {
+      functionName: `${projectName}-nft-creator-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftCreator.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftCreatorLambda);
+    nftsTable.grantReadWriteData(nftCreatorLambda);
+
+    // Lambda function for NFT owner operations
+    const nftOwnerLambda = new NodejsFunction(this, 'NFTOwnerHandler', {
+      functionName: `${projectName}-nft-owner-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftOwner.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftOwnerLambda);
+    nftsTable.grantReadWriteData(nftOwnerLambda);
+
+    // Lambda function for NFT TBA operations
+    const nftTbaLambda = new NodejsFunction(this, 'NFTTbaHandler', {
+      functionName: `${projectName}-nft-tba-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftTba.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftTbaLambda);
+    nftsTable.grantReadWriteData(nftTbaLambda);
+
+    // Lambda function for combined NFT info operations
+    const nftInfoLambda = new NodejsFunction(this, 'NFTInfoHandler', {
+      functionName: `${projectName}-nft-info-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftInfo.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftInfoLambda);
+    nftsTable.grantReadWriteData(nftInfoLambda);
+
+    // Lambda function for NFT SBT flag operations
+    const nftSbtFlagLambda = new NodejsFunction(this, 'NFTSbtFlagHandler', {
+      functionName: `${projectName}-nft-sbt-flag-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftSbtFlag.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftSbtFlagLambda);
+    nftsTable.grantReadWriteData(nftSbtFlagLambda);
+
+    // Lambda function for NFT royalty info operations
+    const nftRoyaltyInfoLambda = new NodejsFunction(this, 'NFTRoyaltyInfoHandler', {
+      functionName: `${projectName}-nft-royalty-info-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nftRoyaltyInfo.ts'),
+      environment: {
+        REGION: this.region,
+        ENV: env,
+        SETTINGS_TABLE_NAME: settingsTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to read settings and read/write NFTs
+    settingsTable.grantReadData(nftRoyaltyInfoLambda);
+    nftsTable.grantReadWriteData(nftRoyaltyInfoLambda);
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'ItemsApi', {
       restApiName: `${projectName}-api-${env}`,
@@ -278,6 +453,13 @@ export class FullstackServerlessStack extends cdk.Stack {
     const columnsIntegration = new apigateway.LambdaIntegration(columnsLambda);
     const usersIntegration = new apigateway.LambdaIntegration(usersLambda);
     const nftsIntegration = new apigateway.LambdaIntegration(nftsLambda);
+    const nftTokenUriIntegration = new apigateway.LambdaIntegration(nftTokenUriLambda);
+    const nftCreatorIntegration = new apigateway.LambdaIntegration(nftCreatorLambda);
+    const nftOwnerIntegration = new apigateway.LambdaIntegration(nftOwnerLambda);
+    const nftTbaIntegration = new apigateway.LambdaIntegration(nftTbaLambda);
+    const nftInfoIntegration = new apigateway.LambdaIntegration(nftInfoLambda);
+    const nftSbtFlagIntegration = new apigateway.LambdaIntegration(nftSbtFlagLambda);
+    const nftRoyaltyInfoIntegration = new apigateway.LambdaIntegration(nftRoyaltyInfoLambda);
 
     // API endpoints
     const items = api.root.addResource('items');
@@ -348,6 +530,34 @@ export class FullstackServerlessStack extends cdk.Stack {
     nftToken.addMethod('GET', nftsIntegration); // GET /nfts/{ca}/{id} - Get specific NFT
     nftToken.addMethod('PUT', nftsIntegration); // PUT /nfts/{ca}/{id} - Update NFT
     nftToken.addMethod('DELETE', nftsIntegration); // DELETE /nfts/{ca}/{id} - Delete NFT
+    
+    // Add tokenURI endpoint
+    const nftTokenUri = nftToken.addResource('tokenURI');
+    nftTokenUri.addMethod('GET', nftTokenUriIntegration); // GET /nfts/{ca}/{id}/tokenURI - Get tokenURI from blockchain
+    
+    // Add creator endpoint
+    const nftCreator = nftToken.addResource('creator');
+    nftCreator.addMethod('GET', nftCreatorIntegration); // GET /nfts/{ca}/{id}/creator - Get creator from blockchain
+    
+    // Add owner endpoint
+    const nftOwner = nftToken.addResource('owner');
+    nftOwner.addMethod('GET', nftOwnerIntegration); // GET /nfts/{ca}/{id}/owner - Get owner from blockchain
+    
+    // Add TBA endpoint
+    const nftTba = nftToken.addResource('tba');
+    nftTba.addMethod('GET', nftTbaIntegration); // GET /nfts/{ca}/{id}/tba - Get TBA address
+    
+    // Add combined info endpoint
+    const nftInfo = nftToken.addResource('info');
+    nftInfo.addMethod('GET', nftInfoIntegration); // GET /nfts/{ca}/{id}/info - Get all NFT info
+    
+    // Add SBT flag endpoint
+    const nftSbtFlag = nftToken.addResource('sbtFlag');
+    nftSbtFlag.addMethod('GET', nftSbtFlagIntegration); // GET /nfts/{ca}/{id}/sbtFlag - Get SBT flag
+    
+    // Add royalty info endpoint
+    const nftRoyaltyInfo = nftToken.addResource('royaltyInfo');
+    nftRoyaltyInfo.addMethod('GET', nftRoyaltyInfoIntegration); // GET /nfts/{ca}/{id}/royaltyInfo - Get royalty info
 
     // S3 Bucket for frontend
     const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {

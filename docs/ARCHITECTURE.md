@@ -1,10 +1,10 @@
-# Web3CMS Architecture Documentation
+# Web3CMS アーキテクチャドキュメント
 
-## System Overview
+## システム概要
 
-Web3CMS is a serverless, event-driven content management system built on AWS infrastructure with Web3 wallet authentication capabilities. The architecture follows cloud-native best practices with a focus on scalability, security, and cost optimization.
+Web3CMS は、Web3 ウォレット認証機能を備えた AWS インフラストラクチャ上に構築されたサーバーレス、イベント駆動型のコンテンツ管理システムです。アーキテクチャは、スケーラビリティ、セキュリティ、コスト最適化に重点を置いたクラウドネイティブのベストプラクティスに従っています。
 
-## Architecture Diagram
+## アーキテクチャ図
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -14,7 +14,7 @@ Web3CMS is a serverless, event-driven content management system built on AWS inf
                      │                       │
                      ▼                       ▼
             ┌────────────────┐      ┌────────────────┐
-            │   S3 Bucket    │      │  API Gateway   │
+            │   S3 バケット  │      │  API Gateway   │
             │ (React SPA)    │      │   (REST API)   │
             └────────────────┘      └────────┬───────┘
                                             │
@@ -23,14 +23,14 @@ Web3CMS is a serverless, event-driven content management system built on AWS inf
                     ▼                       ▼                       ▼
             ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
             │ Lambda:      │      │ Lambda:      │      │ Lambda:      │
-            │ CRUD Handler │      │ Settings     │      │ Columns      │
-            │              │      │ Handler      │      │ Handler      │
+            │ CRUD ハンドラ│      │ Settings     │      │ Columns      │
+            │              │      │ ハンドラ     │      │ ハンドラ     │
             └──────┬───────┘      └──────┬───────┘      └──────┬───────┘
                    │                     │                      │
                    │              ┌──────┴───────┐      ┌──────┴───────┐
                    │              │ Lambda:      │      │ Lambda:      │
                    │              │ Users        │      │ NFTs         │
-                   │              │ Handler      │      │ Handler      │
+                   │              │ ハンドラ     │      │ ハンドラ     │
                    │              └──────┬───────┘      └──────┬───────┘
                    │                     │                      │
                    └─────────────────────┴──────────────────────┘
@@ -39,116 +39,116 @@ Web3CMS is a serverless, event-driven content management system built on AWS inf
                             ┌───────────────────────┐
                             │      DynamoDB         │
                             │  ┌─────────────────┐  │
-                            │  │  Items Table    │  │
+                            │  │  Items テーブル │  │
                             │  ├─────────────────┤  │
-                            │  │ Settings Table  │  │
+                            │  │Settings テーブル│  │
                             │  ├─────────────────┤  │
-                            │  │ Columns Table   │  │
+                            │  │Columns テーブル │  │
                             │  ├─────────────────┤  │
-                            │  │  Users Table    │  │
+                            │  │ Users テーブル  │  │
                             │  ├─────────────────┤  │
-                            │  │  NFTs Table     │  │
+                            │  │  NFTs テーブル  │  │
                             │  └─────────────────┘  │
                             └───────────────────────┘
 ```
 
-## Core Components
+## コアコンポーネント
 
-### 1. Frontend Layer
+### 1. フロントエンドレイヤー
 
-#### React Single Page Application (SPA)
-- **Technology**: React 19.1.0 with Vite
-- **Hosting**: S3 bucket with CloudFront CDN
-- **Key Features**:
-  - Web3 wallet integration (MetaMask SDK)
-  - Responsive design
-  - Client-side routing
-  - Real-time markdown preview
-  - Progressive Web App capabilities
+#### React シングルページアプリケーション (SPA)
+- **技術**: React 19.1.0 と Vite
+- **ホスティング**: CloudFront CDN を使用した S3 バケット
+- **主な機能**:
+  - Web3 ウォレット統合 (MetaMask SDK)
+  - レスポンシブデザイン
+  - クライアントサイドルーティング
+  - リアルタイムマークダウンプレビュー
+  - プログレッシブウェブアプリ機能
 
-#### Key Frontend Services
+#### 主要なフロントエンドサービス
 
 ```javascript
 frontend/src/services/
 ├── api/
-│   ├── base.service.js      // Base API client with auth
-│   ├── item.service.js      // Items CRUD operations
-│   ├── folder.service.js    // Folder management
-│   ├── content.service.js   // Content management
-│   └── settings.service.js  // Settings management
-├── api.js                   // Legacy API service
-└── nftService.js           // NFT-related operations
+│   ├── base.service.js      // 認証付きベース API クライアント
+│   ├── item.service.js      // アイテム CRUD 操作
+│   ├── folder.service.js    // フォルダ管理
+│   ├── content.service.js   // コンテンツ管理
+│   └── settings.service.js  // 設定管理
+├── api.js                   // レガシー API サービス
+└── nftService.js           // NFT 関連操作
 ```
 
-### 2. API Layer
+### 2. API レイヤー
 
-#### API Gateway Configuration
-- **Type**: REST API
-- **Authentication**: Bearer token (wallet address)
-- **CORS**: Enabled for all origins
-- **Rate Limiting**: Default AWS limits (10K RPS)
+#### API Gateway 設定
+- **タイプ**: REST API
+- **認証**: Bearer トークン (ウォレットアドレス)
+- **CORS**: すべてのオリジンで有効
+- **レート制限**: デフォルトの AWS 制限 (10K RPS)
 
-#### Lambda Functions
+#### Lambda 関数
 
-**CRUD Handler** (`backend/src/handlers/crud.ts`)
-- Generic CRUD operations for items
-- Auto-generated IDs and timestamps
-- Supports complex update expressions
+**CRUD ハンドラ** (`backend/src/handlers/crud.ts`)
+- アイテムの汎用 CRUD 操作
+- 自動生成 ID とタイムスタンプ
+- 複雑な更新式をサポート
 
-**Settings Handler** (`backend/src/handlers/settings.ts`)
-- Application configuration management
-- Versioned settings with "latest" as default
-- Key-value store pattern
+**Settings ハンドラ** (`backend/src/handlers/settings.ts`)
+- アプリケーション設定管理
+- デフォルトとして "latest" を使用したバージョン管理された設定
+- キーバリューストアパターン
 
-**Columns Handler** (`backend/src/handlers/columns.ts`)
-- Content management system core
-- Folder hierarchy support
-- Content workflow states
-- Public/private access patterns
-- Cascade delete functionality
+**Columns ハンドラ** (`backend/src/handlers/columns.ts`)
+- コンテンツ管理システムのコア
+- フォルダ階層サポート
+- コンテンツワークフロー状態
+- パブリック/プライベートアクセスパターン
+- カスケード削除機能
 
-**Users Handler** (`backend/src/handlers/users.ts`)
-- User profile management
-- EOA (Ethereum Owner Address) as primary key
-- Discord integration support
-- Role-based access control
+**Users ハンドラ** (`backend/src/handlers/users.ts`)
+- ユーザープロフィール管理
+- プライマリキーとしての EOA (Ethereum Owner Address)
+- Discord 統合サポート
+- ロールベースのアクセス制御
 
-**NFTs Handler** (`backend/src/handlers/nfts.ts`)
-- NFT metadata management
-- Query by owner or creator
-- Support for multiple contract addresses
-- Token metadata caching
+**NFTs ハンドラ** (`backend/src/handlers/nfts.ts`)
+- NFT メタデータ管理
+- 所有者または作成者によるクエリ
+- 複数のコントラクトアドレスのサポート
+- トークンメタデータキャッシング
 
-### 3. Data Layer
+### 3. データレイヤー
 
-#### DynamoDB Tables
+#### DynamoDB テーブル
 
-**Items Table**
+**Items テーブル**
 ```
-Primary Key: id (String)
+プライマリキー: id (String)
 GSI: eoa-type-index
-  - Partition Key: eoa
-  - Sort Key: type
+  - パーティションキー: eoa
+  - ソートキー: type
 ```
 
-**Settings Table**
+**Settings テーブル**
 ```
-Primary Key: settingKey (String)
-Sort Key: version (String)
+プライマリキー: settingKey (String)
+ソートキー: version (String)
 ```
 
-**Columns Table**
+**Columns テーブル**
 ```
-Primary Key: id (String)
+プライマリキー: id (String)
 GSI: type-index
-  - Partition Key: type
-Supports: folders, contents, root
+  - パーティションキー: type
+サポート: folders, contents, root
 ```
 
-**Users Table**
+**Users テーブル**
 ```
-Primary Key: eoa (String)
-Attributes:
+プライマリキー: eoa (String)
+属性:
   - discordAddress: String
   - name: String
   - avatar: String
@@ -156,15 +156,15 @@ Attributes:
   - admin: Boolean
 ```
 
-**NFTs Table**
+**NFTs テーブル**
 ```
-Partition Key: ca (String) - Contract Address
-Sort Key: id (String) - Token ID
+パーティションキー: ca (String) - コントラクトアドレス
+ソートキー: id (String) - トークン ID
 GSI: owner-index
-  - Partition Key: owner
+  - パーティションキー: owner
 GSI: creator-index
-  - Partition Key: creator
-Attributes:
+  - パーティションキー: creator
+属性:
   - tokenUrl: String
   - name: String
   - image: String
@@ -172,9 +172,9 @@ Attributes:
   - owner: String
 ```
 
-#### Data Models
+#### データモデル
 
-**Folder Entity**
+**フォルダエンティティ**
 ```typescript
 interface Folder {
   id: string;
@@ -190,7 +190,7 @@ interface Folder {
 }
 ```
 
-**Content Entity**
+**コンテンツエンティティ**
 ```typescript
 interface Content {
   id: string;
@@ -208,53 +208,53 @@ interface Content {
 }
 ```
 
-### 4. Infrastructure Layer
+### 4. インフラストラクチャレイヤー
 
-#### AWS CDK Stack Components
+#### AWS CDK スタックコンポーネント
 
 ```typescript
 lib/fullstack-serverless-cdk-stack.ts
-├── DynamoDB Tables (5)
-│   ├── Items Table
-│   ├── Settings Table
-│   ├── Columns Table
-│   ├── Users Table
-│   └── NFTs Table
-├── Lambda Functions (5)
-│   ├── CRUD Handler
-│   ├── Settings Handler
-│   ├── Columns Handler
-│   ├── Users Handler
-│   └── NFTs Handler
+├── DynamoDB テーブル (5)
+│   ├── Items テーブル
+│   ├── Settings テーブル
+│   ├── Columns テーブル
+│   ├── Users テーブル
+│   └── NFTs テーブル
+├── Lambda 関数 (5)
+│   ├── CRUD ハンドラ
+│   ├── Settings ハンドラ
+│   ├── Columns ハンドラ
+│   ├── Users ハンドラ
+│   └── NFTs ハンドラ
 ├── API Gateway REST API
-├── S3 Bucket (Frontend hosting)
-├── CloudFront Distribution
-├── IAM Roles and Policies
-└── Lambda Layers (shared dependencies)
+├── S3 バケット (フロントエンドホスティング)
+├── CloudFront ディストリビューション
+├── IAM ロールとポリシー
+└── Lambda レイヤー (共有依存関係)
 ```
 
-#### Environment Configuration
-- **Environments**: dev, staging, prod
-- **Naming Convention**: `{project}-{resource}-{env}`
-- **Region**: Configurable (default: us-east-1)
+#### 環境設定
+- **環境**: dev, staging, prod
+- **命名規則**: `{project}-{resource}-{env}`
+- **リージョン**: 設定可能 (デフォルト: us-east-1)
 
-## Design Patterns
+## デザインパターン
 
-### 1. Repository Pattern
+### 1. リポジトリパターン
 
-Base repository provides common CRUD operations:
+ベースリポジトリは共通の CRUD 操作を提供:
 
 ```typescript
 backend/repositories/
-├── base.repository.ts    // Abstract base class
-├── item.repository.ts    // Items repository
-├── folder.repository.ts  // Folders repository
-└── content.repository.ts // Contents repository
+├── base.repository.ts    // 抽象ベースクラス
+├── item.repository.ts    // アイテムリポジトリ
+├── folder.repository.ts  // フォルダリポジトリ
+└── content.repository.ts // コンテンツリポジトリ
 ```
 
-### 2. Service Layer Pattern
+### 2. サービスレイヤーパターン
 
-Frontend services encapsulate API calls:
+フロントエンドサービスは API 呼び出しをカプセル化:
 
 ```javascript
 class BaseApiService {
@@ -268,9 +268,9 @@ class BaseApiService {
 }
 ```
 
-### 3. Error Handling Pattern
+### 3. エラーハンドリングパターン
 
-Centralized error handling with custom error types:
+カスタムエラータイプによる集中エラー処理:
 
 ```typescript
 backend/utils/errors.ts
@@ -280,154 +280,154 @@ backend/utils/errors.ts
 └── handleError()
 ```
 
-### 4. Response Pattern
+### 4. レスポンスパターン
 
-Standardized API responses:
+標準化された API レスポンス:
 
 ```typescript
-// Success
+// 成功
 {
   statusCode: 200,
   headers: CORS_HEADERS,
   body: JSON.stringify(data)
 }
 
-// Error
+// エラー
 {
   statusCode: 400,
   headers: CORS_HEADERS,
   body: JSON.stringify({
-    message: "Error message",
-    error: "Details (non-prod only)"
+    message: "エラーメッセージ",
+    error: "詳細 (非本番環境のみ)"
   })
 }
 ```
 
-## Security Architecture
+## セキュリティアーキテクチャ
 
-### Authentication Flow
+### 認証フロー
 
 ```
 ┌─────────┐     ┌──────────┐     ┌────────────┐     ┌─────────┐
-│ Browser │────▶│ MetaMask │────▶│  Frontend  │────▶│   API   │
+│ブラウザ │────▶│ MetaMask │────▶│フロントエンド│────▶│   API   │
 └─────────┘     └──────────┘     └────────────┘     └─────────┘
      │               │                   │                 │
-     │   Connect     │                   │                 │
+     │   接続        │                   │                 │
      │──────────────▶│                   │                 │
      │               │                   │                 │
-     │   Address     │                   │                 │
+     │   アドレス    │                   │                 │
      │◀──────────────│                   │                 │
      │               │                   │                 │
-     │   Store EOA   │                   │                 │
+     │   EOA 保存    │                   │                 │
      │───────────────────────────────────▶                 │
      │               │                   │                 │
-     │           API Request            │                 │
+     │           API リクエスト          │                 │
      │───────────────────────────────────────────────────▶│
      │               │                   │  Bearer: EOA    │
      │               │                   │                 │
-     │           Response               │                 │
+     │           レスポンス              │                 │
      │◀────────────────────────────────────────────────────│
 ```
 
-### Security Features
+### セキュリティ機能
 
-1. **API Security**
-   - Bearer token authentication
-   - Request validation
-   - Input sanitization
-   - Rate limiting
+1. **API セキュリティ**
+   - Bearer トークン認証
+   - リクエスト検証
+   - 入力のサニタイゼーション
+   - レート制限
 
-2. **Infrastructure Security**
-   - S3 bucket with blocked public access
-   - CloudFront OAI for S3 access
-   - HTTPS enforcement
-   - IAM least privilege principle
+2. **インフラストラクチャセキュリティ**
+   - パブリックアクセスをブロックした S3 バケット
+   - S3 アクセス用の CloudFront OAI
+   - HTTPS 強制
+   - IAM 最小権限の原則
 
-3. **Data Security**
-   - User isolation by EOA
-   - Permission checks on mutations
-   - Audit trails via timestamps
+3. **データセキュリティ**
+   - EOA によるユーザー分離
+   - 変更時の権限チェック
+   - タイムスタンプによる監査証跡
 
-## Performance Optimization
+## パフォーマンス最適化
 
-### Frontend Optimization
+### フロントエンド最適化
 
-1. **Code Splitting**
-   - Dynamic imports for large components
-   - Route-based code splitting
-   - Lazy loading of features
+1. **コード分割**
+   - 大きなコンポーネントの動的インポート
+   - ルートベースのコード分割
+   - 機能の遅延読み込み
 
-2. **Caching Strategy**
-   - CloudFront caching for static assets
-   - Browser caching headers
-   - API response caching
+2. **キャッシング戦略**
+   - 静的アセット用の CloudFront キャッシング
+   - ブラウザキャッシュヘッダー
+   - API レスポンスキャッシング
 
-3. **Bundle Optimization**
-   - Tree shaking
-   - Minification
-   - Compression
+3. **バンドル最適化**
+   - ツリーシェイキング
+   - 最小化
+   - 圧縮
 
-### Backend Optimization
+### バックエンド最適化
 
-1. **Lambda Optimization**
-   - Minimal cold starts with small bundles
-   - Connection pooling for DynamoDB
-   - Efficient query patterns
+1. **Lambda 最適化**
+   - 小さなバンドルによる最小限のコールドスタート
+   - DynamoDB のコネクションプーリング
+   - 効率的なクエリパターン
 
-2. **Database Optimization**
-   - GSI for common query patterns
-   - Batch operations where possible
-   - Projection expressions
+2. **データベース最適化**
+   - 一般的なクエリパターン用の GSI
+   - 可能な限りバッチ操作
+   - プロジェクション式
 
-3. **API Optimization**
-   - Response compression
-   - Pagination support
-   - Field filtering
+3. **API 最適化**
+   - レスポンス圧縮
+   - ページネーションサポート
+   - フィールドフィルタリング
 
-## Scalability Considerations
+## スケーラビリティの考慮事項
 
-### Horizontal Scaling
-- Lambda auto-scaling
-- DynamoDB on-demand scaling
-- CloudFront global edge locations
+### 水平スケーリング
+- Lambda 自動スケーリング
+- DynamoDB オンデマンドスケーリング
+- CloudFront グローバルエッジロケーション
 
-### Vertical Scaling
-- Lambda memory/timeout configuration
-- DynamoDB throughput adjustment
-- API Gateway throttling limits
+### 垂直スケーリング
+- Lambda メモリ/タイムアウト設定
+- DynamoDB スループット調整
+- API Gateway スロットリング制限
 
-### Cost Optimization
-- Pay-per-use serverless model
-- S3 lifecycle policies
-- CloudWatch log retention
-- Reserved capacity for production
+### コスト最適化
+- 従量課金制のサーバーレスモデル
+- S3 ライフサイクルポリシー
+- CloudWatch ログ保持
+- 本番環境用の予約容量
 
-## Monitoring and Observability
+## モニタリングと可観測性
 
-### CloudWatch Integration
-- Lambda function metrics
-- API Gateway metrics
-- DynamoDB metrics
-- Custom application metrics
+### CloudWatch 統合
+- Lambda 関数メトリクス
+- API Gateway メトリクス
+- DynamoDB メトリクス
+- カスタムアプリケーションメトリクス
 
-### Logging Strategy
-- Structured JSON logging
-- Log levels (ERROR, WARN, INFO, DEBUG)
-- Correlation IDs for request tracking
-- Log aggregation and analysis
+### ロギング戦略
+- 構造化 JSON ロギング
+- ログレベル (ERROR, WARN, INFO, DEBUG)
+- リクエスト追跡用の相関 ID
+- ログの集約と分析
 
-### Alerting
-- CloudWatch Alarms for errors
-- SNS notifications
-- Dashboard for real-time monitoring
+### アラート
+- エラー用の CloudWatch アラーム
+- SNS 通知
+- リアルタイムモニタリング用のダッシュボード
 
-## Deployment Architecture
+## デプロイメントアーキテクチャ
 
-### CI/CD Pipeline
+### CI/CD パイプライン
 
 ```
 ┌─────────┐     ┌──────────┐     ┌─────────┐     ┌────────────┐
-│  GitHub │────▶│  GitHub  │────▶│   AWS   │────▶│ CloudFront │
+│ GitHub  │────▶│  GitHub  │────▶│   AWS   │────▶│ CloudFront │
 │  Push   │     │ Actions  │     │   CDK   │     │   + S3     │
 └─────────┘     └──────────┘     └─────────┘     └────────────┘
                       │                 │
@@ -443,70 +443,70 @@ Standardized API responses:
                                 └──────────────┘
 ```
 
-### Deployment Process
+### デプロイメントプロセス
 
-1. **Build Phase**
-   - TypeScript compilation
-   - Frontend bundling
-   - Dependency optimization
+1. **ビルドフェーズ**
+   - TypeScript コンパイル
+   - フロントエンドバンドリング
+   - 依存関係の最適化
 
-2. **Deploy Phase**
-   - CDK synthesis
-   - CloudFormation deployment
-   - Lambda function updates
-   - S3 sync
-   - CloudFront invalidation
+2. **デプロイフェーズ**
+   - CDK 合成
+   - CloudFormation デプロイメント
+   - Lambda 関数の更新
+   - S3 同期
+   - CloudFront 無効化
 
-3. **Post-Deploy**
-   - Configuration updates
-   - Health checks
-   - Smoke tests
+3. **デプロイ後**
+   - 設定の更新
+   - ヘルスチェック
+   - スモークテスト
 
-## Future Architecture Enhancements
+## 将来のアーキテクチャ拡張
 
-### Planned Improvements
+### 計画された改善
 
-1. **Authentication Enhancement**
-   - Signature-based authentication
-   - JWT token generation
-   - Session management
-   - Multi-wallet support
+1. **認証の強化**
+   - 署名ベースの認証
+   - JWT トークン生成
+   - セッション管理
+   - マルチウォレットサポート
 
-2. **Real-time Features**
-   - WebSocket API via API Gateway
-   - AppSync for GraphQL subscriptions
-   - Live collaboration features
+2. **リアルタイム機能**
+   - API Gateway 経由の WebSocket API
+   - GraphQL サブスクリプション用の AppSync
+   - ライブコラボレーション機能
 
-3. **Search Capabilities**
-   - Amazon OpenSearch integration
-   - Full-text search
-   - Faceted search
-   - Search analytics
+3. **検索機能**
+   - Amazon OpenSearch 統合
+   - 全文検索
+   - ファセット検索
+   - 検索分析
 
-4. **Advanced Features**
-   - Multi-language support (i18n)
-   - Plugin architecture
-   - Webhook system
-   - Advanced analytics
+4. **高度な機能**
+   - 多言語サポート (i18n)
+   - プラグインアーキテクチャ
+   - Webhook システム
+   - 高度な分析
 
-### Architectural Evolution
+### アーキテクチャの進化
 
-1. **Microservices Migration**
-   - Service mesh consideration
-   - Event-driven architecture
-   - Domain-driven design
+1. **マイクロサービス移行**
+   - サービスメッシュの検討
+   - イベント駆動型アーキテクチャ
+   - ドメイン駆動設計
 
-2. **Multi-Region Support**
-   - Global Tables for DynamoDB
-   - Multi-region replication
-   - Geo-routing
+2. **マルチリージョンサポート**
+   - DynamoDB のグローバルテーブル
+   - マルチリージョンレプリケーション
+   - ジオルーティング
 
-3. **Enhanced Security**
-   - AWS WAF integration
-   - DDoS protection
-   - Encryption at rest
-   - Key management service
+3. **セキュリティの強化**
+   - AWS WAF 統合
+   - DDoS 保護
+   - 保管時の暗号化
+   - キー管理サービス
 
-## Conclusion
+## まとめ
 
-The Web3CMS architecture provides a solid foundation for a scalable, secure, and performant content management system. The serverless approach ensures cost-effectiveness while maintaining high availability. The modular design allows for easy extension and modification as requirements evolve.
+Web3CMS アーキテクチャは、スケーラブルで安全、かつ高性能なコンテンツ管理システムのための強固な基盤を提供します。サーバーレスアプローチにより、高可用性を維持しながらコスト効率を確保しています。モジュラー設計により、要件の進化に応じて簡単に拡張や変更が可能です。

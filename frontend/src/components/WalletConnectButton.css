@@ -13,14 +13,18 @@
   position: relative;
 }
 
-.wallet-icon-btn:hover:not(:disabled) {
+.wallet-icon-btn:hover:not(:disabled):not(.connected) {
   background-color: var(--color-gray-100);
   color: var(--color-black);
 }
 
+.wallet-icon-btn.connected:hover:not(:disabled) {
+  background-color: transparent;
+  opacity: 0.8;
+}
+
 .wallet-icon-btn:focus {
-  outline: 2px solid var(--color-black);
-  outline-offset: 2px;
+  outline: none;
 }
 
 .wallet-icon-btn:disabled {

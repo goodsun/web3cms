@@ -13,6 +13,7 @@ import ErrorState from '../components/ErrorState';
 import NFTCard from '../components/NFTCard';
 import UserDisplay from '../components/UserDisplay';
 import { userService } from '../services/api';
+import nftApiService from '../services/nftApiService';
 import './NFTListPage.css';
 
 const NFTListPage = ({ mode = 'owner' }) => {
@@ -24,10 +25,9 @@ const NFTListPage = ({ mode = 'owner' }) => {
   const [error, setError] = useState(null);
   const [contractInfo, setContractInfo] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState({ current: 0, total: 0 });
-  const [viewMode, setViewMode] = useState(() => {
-    // Default to instagram mode on mobile
-    return window.innerWidth <= 768 ? 'instagram' : 'grid';
-  });
+  // Fixed view mode based on device
+  const isMobile = window.innerWidth <= 768;
+  const viewMode = isMobile ? 'instagram' : 'grid';
   const [copySuccess, setCopySuccess] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
 
@@ -125,10 +125,12 @@ const NFTListPage = ({ mode = 'owner' }) => {
         } else {
           // Get tokens owned by this address
           try {
+            console.log('RPC Call: balanceOf', { contractAddress: web3Config.nftContract, owner: address });
             const balance = await nftContract.balanceOf(address);
             const balanceNum = parseInt(balance.toString());
             
             for (let i = 0; i < balanceNum; i++) {
+              console.log('RPC Call: tokenOfOwnerByIndex', { contractAddress: web3Config.nftContract, owner: address, index: i });
               const tokenId = await nftContract.tokenOfOwnerByIndex(address, i);
               tokenIds.push(tokenId.toString());
             }
@@ -138,23 +140,58 @@ const NFTListPage = ({ mode = 'owner' }) => {
           }
         }
 
-        // Fetch metadata for each token
+        // Fetch metadata for each token using API
         const nftPromises = tokenIds.map(async (tokenId) => {
           try {
-            const [owner, tokenURI] = await Promise.all([
-              nftContract.ownerOf(tokenId),
-              nftContract.tokenURI(tokenId)
-            ]);
-
+            // Try API first
+            console.log('API Call: getNFTInfo', { contractAddress: web3Config.nftContract, tokenId });
+            const nftInfo = await nftApiService.getNFTInfo(web3Config.nftContract, tokenId);
+            console.log('API Success:', { tokenId, nftInfo });
+            
             return {
               tokenId,
-              owner,
-              tokenURI,
-              contractAddress: web3Config.nftContract
+              owner: nftInfo.owner,
+              tokenURI: nftInfo.tokenURI,
+              contractAddress: web3Config.nftContract,
+              // Include additional metadata from API
+              metadata: {
+                name: nftInfo.name,
+                description: nftInfo.description,
+                imageUrl: nftInfo.imageUrl,
+                animation_url: nftInfo.animation_url,
+                youtube_url: nftInfo.youtube_url,
+                model: nftInfo.model,
+                attributes: nftInfo.attributes
+              }
             };
-          } catch (err) {
-            console.error(`Failed to fetch NFT ${tokenId}:`, err);
-            return null;
+          } catch (apiErr) {
+            console.error(`API failed for NFT ${tokenId}, falling back to RPC:`, apiErr);
+            console.error('API Error details:', {
+              message: apiErr.message,
+              stack: apiErr.stack,
+              tokenId,
+              contractAddress: web3Config.nftContract
+            });
+            
+            // Fallback to RPC
+            try {
+              console.log('RPC Call: ownerOf', { contractAddress: web3Config.nftContract, tokenId });
+              console.log('RPC Call: tokenURI', { contractAddress: web3Config.nftContract, tokenId });
+              const [owner, tokenURI] = await Promise.all([
+                nftContract.ownerOf(tokenId),
+                nftContract.tokenURI(tokenId)
+              ]);
+
+              return {
+                tokenId,
+                owner,
+                tokenURI,
+                contractAddress: web3Config.nftContract
+              };
+            } catch (err) {
+              console.error(`Failed to fetch NFT ${tokenId}:`, err);
+              return null;
+            }
           }
         });
 
@@ -237,24 +274,7 @@ const NFTListPage = ({ mode = 'owner' }) => {
       )}
 
       {!loading && !error && nfts.length > 0 && (
-        <>
-          <div className="view-toggle">
-            <button 
-              className={viewMode === 'grid' ? 'active' : ''}
-              onClick={() => setViewMode('grid')}
-              title="Card view"
-            >
-              ⬜
-            </button>
-            <button 
-              className={viewMode === 'instagram' ? 'active' : ''}
-              onClick={() => setViewMode('instagram')}
-              title="Grid view"
-            >
-              ⚏
-            </button>
-          </div>
-          <div className={`nft-grid ${viewMode === 'instagram' ? 'instagram-mode' : ''}`}>
+        <div className={`nft-grid ${viewMode === 'instagram' ? 'instagram-mode' : ''}`}>
             {nfts.map((nft) => (
               <NFTCard
                 key={nft.tokenId}
@@ -264,7 +284,6 @@ const NFTListPage = ({ mode = 'owner' }) => {
               />
             ))}
           </div>
-        </>
       )}
 
       {!loading && !error && nfts.length === 0 && (

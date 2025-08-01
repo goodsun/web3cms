@@ -5,11 +5,11 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useWeb3 } from '../contexts/Web3Context';
 import WalletConnectButton from './WalletConnectButton';
 import WalletStatusBar from './WalletStatusBar';
+import MobileBottomNav from './MobileBottomNav';
 import './Layout.css';
 
 const Layout = () => {
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { settings, loading } = useSettings();
   const { account, isMember } = useWeb3();
 
@@ -20,8 +20,10 @@ const Layout = () => {
 
   const navLinks = [
     { path: '/', label: 'Home' },
-    { path: '/items', label: 'Items' },
     { path: '/nfts', label: 'NFTs' },
+    { path: '/nfts/mint', label: 'Mint' },
+    { path: '/items', label: 'Items' },
+    { path: '/settings', label: 'Settings' },
   ];
 
   const isActive = (path) => {
@@ -37,16 +39,6 @@ const Layout = () => {
       <div className="app-layout">
       <header className="main-header">
         <div className="header-container">
-          <button
-            className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          
           <div className="logo">
             {settings?.title || 'Web3CMS'}
           </div>
@@ -74,23 +66,11 @@ const Layout = () => {
           </div>
         </div>
 
-        <nav className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`}>
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`nav-link ${isActive(link.path) ? 'active' : ''}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
       </header>
 
-      {account && <WalletStatusBar isMobileMenuOpen={mobileMenuOpen} />}
+      {account && <WalletStatusBar />}
 
-      <main className={`main-content ${account ? 'with-wallet-bar' : ''} ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+      <main className={`main-content ${account ? 'with-wallet-bar' : ''}`}>
         <div className="container">
           <Outlet />
         </div>
@@ -100,6 +80,8 @@ const Layout = () => {
         {settings?.copyrightText && <p>{settings.copyrightText}</p>}
         {settings?.footerText && <p>{settings.footerText}</p>}
       </footer>
+      
+      <MobileBottomNav />
       </div>
     </>
   );

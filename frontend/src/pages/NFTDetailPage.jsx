@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useSettings } from "../contexts/SettingsContext";
+import { useI18n } from "../contexts/I18nContext";
 import {
   getNFTContract,
   getTBARegistry,
@@ -13,6 +14,7 @@ import {
 import { ethers } from "ethers";
 import { getRpcProvider } from "../utils/rpcUtils";
 import nftService from "../services/nftService";
+import nftApiService from "../services/nftApiService";
 import TBANFTTransfer from "../components/TBANFTTransfer";
 import CopyButton from "../components/CopyButton";
 import ChainMismatchModal from "../components/ChainMismatchModal";
@@ -24,6 +26,7 @@ import "./NFTDetailPage-instagram.css";
 
 // Component for rendering URL attributes with MIME type detection
 const AttributeUrlCard = ({ trait_type, value, index }) => {
+  const { t } = useI18n();
   const [loadingMime, setLoadingMime] = useState(true);
   const [mimeType, setMimeType] = useState(null);
   const [showLightbox, setShowLightbox] = useState(false);
@@ -75,7 +78,7 @@ const AttributeUrlCard = ({ trait_type, value, index }) => {
     if (loadingMime) {
       return (
         <div className="attr-content">
-          <div className="attr-loading">Loading...</div>
+          <div className="attr-loading">{t('nfts.detail.loading', 'Loading...')}</div>
         </div>
       );
     }
@@ -94,7 +97,7 @@ const AttributeUrlCard = ({ trait_type, value, index }) => {
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              title="Click to view full image"
+              title={t('nfts.detail.viewFullImage', 'Click to view full image')}
             />
           </div>
           {showLightbox &&
@@ -110,7 +113,7 @@ const AttributeUrlCard = ({ trait_type, value, index }) => {
                     <button
                       className="lightbox-close"
                       onClick={() => setShowLightbox(false)}
-                      aria-label="Close"
+                      aria-label={t('nfts.detail.close', 'Close')}
                     >
                       ×
                     </button>
@@ -159,7 +162,7 @@ const AttributeUrlCard = ({ trait_type, value, index }) => {
         <div className="attr-content">
           <video controls className="attr-video">
             <source src={url} type={mimeType} />
-            Your browser does not support the video tag.
+            {t('nfts.detail.noVideoSupport', 'Your browser does not support the video tag.')}
           </video>
         </div>
       );
@@ -195,6 +198,7 @@ const NFTDetailPage = () => {
   const navigate = useNavigate();
   const { account, provider, signer } = useWeb3();
   const { settings } = useSettings();
+  const { t } = useI18n();
   const [nft, setNft] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -245,7 +249,7 @@ const NFTDetailPage = () => {
       }
 
       if (!activeProvider) {
-        setError("No provider available. Please check RPC configuration.");
+        setError(t('nfts.detail.noProvider', 'No provider available. Please check RPC configuration.'));
         setLoading(false);
         return;
       }
@@ -254,59 +258,159 @@ const NFTDetailPage = () => {
       setError(null);
 
       try {
-        const nftContract = getNFTContract(
-          web3Config.nftContract,
-          activeProvider
-        );
-
-        // Get basic NFT info
-        const [owner, tokenURI] = await Promise.all([
-          nftContract.ownerOf(id),
-          nftContract.tokenURI(id),
-        ]);
-
-        // Get contract info
-        let contractInfo = {};
+        // Try to get NFT info from API first
+        let nftData = null;
+        let apiData = null;
+        
         try {
-          const [name, symbol] = await Promise.all([
-            nftContract.name(),
-            nftContract.symbol(),
+          // Use force refresh if requested (you can add this feature later)
+          const forceRefresh = false;
+          console.log('API Call: getNFTInfo', { contractAddress: web3Config.nftContract, tokenId: id, forceRefresh });
+          apiData = await nftApiService.getNFTInfo(web3Config.nftContract, id, forceRefresh);
+          
+          // Check if NFT is burned
+          if (apiData.burned) {
+            setError(t('nfts.detail.burned', 'This NFT has been burned and no longer exists.'));
+            setLoading(false);
+            return;
+          }
+          
+          // Transform API data to match existing format
+          nftData = {
+            tokenId: id,
+            owner: apiData.owner,
+            creator: apiData.creator,
+            isSbt: apiData.sbtFlag || false,
+            tokenURI: apiData.tokenURI,
+            contractAddress: web3Config.nftContract,
+            contractInfo: {}, // We'll get this from RPC as fallback
+            name: apiData.name,
+            description: apiData.description,
+            imageUrl: apiData.imageUrl,
+            tba: apiData.tba,
+            royalty: apiData.royalty,
+          };
+        } catch (apiError) {
+          console.warn("Failed to fetch from API, falling back to RPC:", apiError);
+          
+          // Fallback to direct RPC calls
+          const nftContract = getNFTContract(
+            web3Config.nftContract,
+            activeProvider
+          );
+
+          // Get basic NFT info
+          console.log('RPC Call: ownerOf', { contractAddress: web3Config.nftContract, tokenId: id });
+          console.log('RPC Call: tokenURI', { contractAddress: web3Config.nftContract, tokenId: id });
+          const [owner, tokenURI] = await Promise.all([
+            nftContract.ownerOf(id),
+            nftContract.tokenURI(id),
           ]);
-          contractInfo = { name, symbol };
-        } catch (err) {
-          console.warn("Could not fetch contract info:", err);
+
+          // Get contract info
+          let contractInfo = {};
+          try {
+            console.log('RPC Call: name', { contractAddress: web3Config.nftContract });
+            console.log('RPC Call: symbol', { contractAddress: web3Config.nftContract });
+            const [name, symbol] = await Promise.all([
+              nftContract.name(),
+              nftContract.symbol(),
+            ]);
+            contractInfo = { name, symbol };
+          } catch (err) {
+            console.warn("Could not fetch contract info:", err);
+          }
+
+          // Get creator and SBT flag if available
+          let creator = null;
+          let isSbt = false;
+          try {
+            console.log('RPC Call: tokenCreator', { contractAddress: web3Config.nftContract, tokenId: id });
+            creator = await nftContract.tokenCreator(id);
+          } catch (err) {
+            console.warn("Could not fetch creator:", err);
+          }
+          try {
+            console.log('RPC Call: sbtFlag', { contractAddress: web3Config.nftContract, tokenId: id });
+            isSbt = await nftContract.sbtFlag(id);
+          } catch (err) {
+            console.warn("Could not fetch SBT flag:", err);
+          }
+
+          nftData = {
+            tokenId: id,
+            owner,
+            creator,
+            isSbt,
+            tokenURI,
+            contractAddress: web3Config.nftContract,
+            contractInfo,
+          };
         }
 
-        // Get creator and SBT flag if available
-        let creator = null;
-        let isSbt = false;
-        try {
-          creator = await nftContract.tokenCreator(id);
-        } catch (err) {
-          console.warn("Could not fetch creator:", err);
+        // If we got data from API but need contract info, get it from RPC
+        if (apiData && (!nftData.contractInfo || !nftData.contractInfo.name)) {
+          try {
+            const nftContract = getNFTContract(
+              web3Config.nftContract,
+              activeProvider
+            );
+            console.log('RPC Call: name (for API data)', { contractAddress: web3Config.nftContract });
+            console.log('RPC Call: symbol (for API data)', { contractAddress: web3Config.nftContract });
+            const [name, symbol] = await Promise.all([
+              nftContract.name(),
+              nftContract.symbol(),
+            ]);
+            nftData.contractInfo = { name, symbol };
+          } catch (err) {
+            console.warn("Could not fetch contract info:", err);
+            nftData.contractInfo = {};
+          }
         }
-        try {
-          isSbt = await nftContract.sbtFlag(id);
-        } catch (err) {
-          console.warn("Could not fetch SBT flag:", err);
-        }
-
-        const nftData = {
-          tokenId: id,
-          owner,
-          creator,
-          isSbt,
-          tokenURI,
-          contractAddress: web3Config.nftContract,
-          contractInfo,
-        };
 
         setNft(nftData);
 
         // Fetch metadata if tokenURI is available
-        if (tokenURI) {
+        if (apiData && (apiData.name || apiData.description || apiData.imageUrl)) {
+          // If we got metadata from API, use it directly
+          const metadataFromApi = {
+            name: apiData.name,
+            description: apiData.description,
+            image: apiData.imageUrl,
+            animation_url: apiData.animation_url,
+            youtube_url: apiData.youtube_url,
+            model: apiData.model,
+            attributes: apiData.attributes,
+            external_url: apiData.external_url,
+            background_color: apiData.background_color,
+            properties: apiData.properties,
+            // Keep any other fields from apiData
+            ...apiData,
+          };
+          setMetadata(metadataFromApi);
+          
+          // Set default tab based on available media
+          if (!activeTab) {
+            if (metadataFromApi.animation_url) {
+              setActiveTab("animation");
+              fetchAnimationMimeType(metadataFromApi.animation_url);
+            } else if (metadataFromApi.youtube_url) {
+              setActiveTab("youtube");
+            } else if (metadataFromApi.model) {
+              setActiveTab("3d");
+            } else if (metadataFromApi.image) {
+              setActiveTab("image");
+            }
+          }
+          
+          // Check animation_url MIME type if available
+          if (metadataFromApi.animation_url) {
+            fetchAnimationMimeType(metadataFromApi.animation_url);
+          }
+        } else if (nftData.tokenURI) {
+          // Fallback to fetching metadata from tokenURI
           try {
-            const response = await fetch(tokenURI);
+            const response = await fetch(nftData.tokenURI);
             const data = await response.json();
             setMetadata(data);
 
@@ -336,42 +440,52 @@ const NFTDetailPage = () => {
         // Calculate TBA address if configured
         if (web3Config.tbaRegistry && web3Config.tbaImplementation) {
           try {
-            const registry = getTBARegistry(
-              web3Config.tbaRegistry,
-              activeProvider
-            );
-            const chainId = await activeProvider
-              .getNetwork()
-              .then((n) => n.chainId);
-            const salt = ethers.toBigInt(web3Config.tbaSalt || "0");
+            let tba;
+            // If we got TBA from API, use it
+            if (apiData && apiData.tba) {
+              tba = apiData.tba;
+              setTbaAddress(tba);
+            } else {
+              // Fallback to calculating TBA
+              const registry = getTBARegistry(
+                web3Config.tbaRegistry,
+                activeProvider
+              );
+              const chainId = await activeProvider
+                .getNetwork()
+                .then((n) => n.chainId);
+              const salt = ethers.toBigInt(web3Config.tbaSalt || "0");
 
-            // Log parameters for debugging
-            console.log("TBA calculation params:", {
-              registry: web3Config.tbaRegistry,
-              implementation: web3Config.tbaImplementation,
-              chainId: chainId.toString(),
-              nftContract: web3Config.nftContract,
-              tokenId: id,
-              salt: salt.toString(),
-            });
+              // Log parameters for debugging
+              console.log("TBA calculation params:", {
+                registry: web3Config.tbaRegistry,
+                implementation: web3Config.tbaImplementation,
+                chainId: chainId.toString(),
+                nftContract: web3Config.nftContract,
+                tokenId: id,
+                salt: salt.toString(),
+              });
 
-            const tba = await calculateTBAAddress(
-              web3Config.tbaRegistry,
-              web3Config.tbaImplementation,
-              salt.toString(),
-              Number(chainId),
-              web3Config.nftContract,
-              id,
-              activeProvider
-            );
-            setTbaAddress(tba);
+              tba = await calculateTBAAddress(
+                web3Config.tbaRegistry,
+                web3Config.tbaImplementation,
+                salt.toString(),
+                Number(chainId),
+                web3Config.nftContract,
+                id,
+                activeProvider
+              );
+              setTbaAddress(tba);
+            }
 
             // Check if TBA is deployed
+            console.log('RPC Call: getCode (check TBA deployment)', { address: tba });
             const isDeployed = await isTBADeployed(tba, activeProvider);
             setTbaDeployed(isDeployed);
 
             if (isDeployed) {
               // Get TBA balance
+              console.log('RPC Call: getBalance', { address: tba });
               const balance = await activeProvider.getBalance(tba);
               setTbaBalance(ethers.formatEther(balance));
 
@@ -388,7 +502,7 @@ const NFTDetailPage = () => {
         }
       } catch (err) {
         console.error("Failed to fetch NFT details:", err);
-        setError(err.message || "Failed to fetch NFT details");
+        setError(err.message || t('nfts.detail.fetchError', 'Failed to fetch NFT details'));
       } finally {
         setLoading(false);
       }
@@ -419,6 +533,7 @@ const NFTDetailPage = () => {
       // Get total supply and check ownership for each token
       // This is a simplified approach - in production, you'd want to use events or a more efficient method
       try {
+        console.log('RPC Call: balanceOf (TBA)', { contractAddress: web3Config.nftContract, owner: tbaAddr });
         const balance = await nftContract.balanceOf(tbaAddr);
         const balanceNum = Number(balance);
 
@@ -427,7 +542,9 @@ const NFTDetailPage = () => {
           for (let i = 0; i < balanceNum && i < 10; i++) {
             // Limit to 10 for performance
             try {
+              console.log('RPC Call: tokenOfOwnerByIndex', { contractAddress: web3Config.nftContract, owner: tbaAddr, index: i });
               const tokenId = await nftContract.tokenOfOwnerByIndex(tbaAddr, i);
+              console.log('RPC Call: tokenURI (TBA owned)', { contractAddress: web3Config.nftContract, tokenId: tokenId.toString() });
               const tokenURI = await nftContract.tokenURI(tokenId);
 
               // Fetch metadata
@@ -463,12 +580,12 @@ const NFTDetailPage = () => {
 
   const handleDeployTBA = async () => {
     if (!account || !provider || !signer) {
-      setError("Please connect your wallet");
+      setError(t('nfts.detail.connectWallet', 'Please connect your wallet'));
       return;
     }
 
     if (nft.owner.toLowerCase() !== account.toLowerCase()) {
-      setError("You are not the owner of this NFT");
+      setError(t('nfts.detail.notOwner', 'You are not the owner of this NFT'));
       return;
     }
 
@@ -508,10 +625,10 @@ const NFTDetailPage = () => {
         setTbaBalance(ethers.formatEther(balance));
         await fetchTBAOwnedNFTs(tbaAddress, activeProvider);
 
-        alert("TBA deployed successfully!");
+        alert(t('nfts.detail.tbaDeploySuccess', 'TBA deployed successfully!'));
       } catch (err) {
         console.error("Failed to deploy TBA:", err);
-        setError(err.message || "Failed to deploy TBA");
+        setError(err.message || t('nfts.detail.tbaDeployError', 'Failed to deploy TBA'));
       } finally {
         setDeployingTBA(false);
       }
@@ -520,17 +637,17 @@ const NFTDetailPage = () => {
 
   const handleTransfer = async () => {
     if (!transferTo || !ethers.isAddress(transferTo)) {
-      setError("Please enter a valid address");
+      setError(t('nfts.detail.invalidAddress', 'Please enter a valid address'));
       return;
     }
 
     if (!account) {
-      setError("Please connect your wallet");
+      setError(t('nfts.detail.connectWallet', 'Please connect your wallet'));
       return;
     }
 
     if (nft.owner.toLowerCase() !== account.toLowerCase()) {
-      setError("You are not the owner of this NFT");
+      setError(t('nfts.detail.notOwner', 'You are not the owner of this NFT'));
       return;
     }
 
@@ -541,7 +658,7 @@ const NFTDetailPage = () => {
 
       try {
         if (!signer) {
-          setError("Wallet not properly connected");
+          setError(t('nfts.detail.walletNotConnected', 'Wallet not properly connected'));
           return;
         }
 
@@ -585,7 +702,7 @@ const NFTDetailPage = () => {
         const newOwner = await nftContract.ownerOf(id);
         setNft({ ...nft, owner: newOwner });
         setTransferTo("");
-        alert("Transfer successful!");
+        alert(t('nfts.detail.transferSuccess', 'Transfer successful!'));
       } catch (err) {
         console.error("Transfer failed:", err);
         if (window.addDebugLog) {
@@ -594,7 +711,7 @@ const NFTDetailPage = () => {
             code: err.code,
           });
         }
-        setError(err.message || "Transfer failed");
+        setError(err.message || t('nfts.detail.transferError', 'Transfer failed'));
       } finally {
         setTransferring(false);
       }
@@ -603,11 +720,11 @@ const NFTDetailPage = () => {
 
   const handleBurn = async () => {
     if (!account) {
-      setError("Please connect your wallet");
+      setError(t('nfts.detail.connectWallet', 'Please connect your wallet'));
       return;
     }
     if (nft.owner.toLowerCase() !== account.toLowerCase()) {
-      setError("You are not the owner of this NFT");
+      setError(t('nfts.detail.notOwner', 'You are not the owner of this NFT'));
       return;
     }
 
@@ -620,7 +737,7 @@ const NFTDetailPage = () => {
 
       try {
         if (!signer) {
-          setError("Wallet not properly connected");
+          setError(t('nfts.detail.walletNotConnected', 'Wallet not properly connected'));
           return;
         }
 
@@ -631,13 +748,13 @@ const NFTDetailPage = () => {
         );
 
         if (result.success) {
-          alert("NFT burned successfully!");
+          alert(t('nfts.detail.burnSuccess', 'NFT burned successfully!'));
           // Navigate to the NFTs list page since this NFT no longer exists
           navigate("/nfts");
         }
       } catch (err) {
         console.error("Burn failed:", err);
-        setError(err.message || "Failed to burn NFT");
+        setError(err.message || t('nfts.detail.burnError', 'Failed to burn NFT'));
         setBurning(false);
       }
     });
@@ -664,7 +781,7 @@ const NFTDetailPage = () => {
       await fetchTBAOwnedNFTs(tbaAddress, activeProvider);
     }
 
-    alert(`NFT transferred successfully to ${recipientAddress}`);
+    alert(t('nfts.detail.transferSuccessTo', 'NFT transferred successfully to {{address}}').replace('{{address}}', recipientAddress));
   };
 
   const fetchAnimationMimeType = async (url) => {
@@ -736,7 +853,7 @@ const NFTDetailPage = () => {
       {loading && (
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Loading NFT details...</p>
+          <p>{t('nfts.detail.loading', 'Loading NFT details...')}</p>
         </div>
       )}
 
@@ -842,7 +959,7 @@ const NFTDetailPage = () => {
                           src={`https://3d.bon-soleil.com/?src=${encodeURIComponent(
                             metadata.animation_url
                           )}`}
-                          title="3D Model Viewer"
+                          title={t('nfts.detail.3dViewer', '3D Model Viewer')}
                           width="100%"
                           height="600"
                           frameBorder="0"
@@ -857,7 +974,7 @@ const NFTDetailPage = () => {
                             rel="noopener noreferrer"
                             className="external-link"
                           >
-                            Open in 3D Viewer
+                            {t('nfts.detail.open3D', 'Open in 3D Viewer')}
                           </a>
                         </div>
                       </div>
@@ -865,7 +982,7 @@ const NFTDetailPage = () => {
                       <div className="nft-animation">
                         <video controls loop autoPlay muted>
                           <source src={metadata.animation_url} />
-                          Your browser does not support the video tag.
+                          {t('nfts.detail.noVideoSupport', 'Your browser does not support the video tag.')}
                         </video>
                       </div>
                     ))}
@@ -915,7 +1032,7 @@ const NFTDetailPage = () => {
                           {videoId ? (
                             <iframe
                               src={`https://www.youtube.com/embed/${videoId}`}
-                              title="YouTube video player"
+                              title={t('nfts.detail.youtubePlayer', 'YouTube video player')}
                               width="100%"
                               height="500"
                               frameBorder="0"
@@ -924,14 +1041,14 @@ const NFTDetailPage = () => {
                             />
                           ) : (
                             <div className="youtube-error">
-                              <p>Unable to embed YouTube video</p>
+                              <p>{t('nfts.detail.youtubeEmbedError', 'Unable to embed YouTube video')}</p>
                               <a
                                 href={metadata.youtube_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="external-link"
                               >
-                                Watch on YouTube
+                                {t('nfts.detail.watchYouTube', 'Watch on YouTube')}
                               </a>
                             </div>
                           )}
@@ -941,21 +1058,21 @@ const NFTDetailPage = () => {
                 </div>
                 {/* Details Section moved here */}
                 <div className="details-section">
-                  <h3>Details</h3>
+                  <h3>{t('nfts.detail.details', 'Details')}</h3>
                   <div className="detail-item">
-                    <span className="detail-label">Owner:</span>
+                    <span className="detail-label">{t('nfts.owner', 'Owner')}:</span>
                     <div className="detail-value-wrapper">
                       <UserDisplay
                         address={nft.owner}
                         size="medium"
                         linkToProfile={true}
                       />
-                      <CopyButton text={nft.owner} label="Owner address" />
+                      <CopyButton text={nft.owner} label={t('nfts.detail.ownerAddress', 'Owner address')} />
                     </div>
                   </div>
                   {nft.creator && (
                     <div className="detail-item">
-                      <span className="detail-label">Creator:</span>
+                      <span className="detail-label">{t('nfts.creator', 'Creator')}:</span>
                       <div className="detail-value-wrapper">
                         <UserDisplay
                           address={nft.creator}
@@ -964,20 +1081,20 @@ const NFTDetailPage = () => {
                         />
                         <CopyButton
                           text={nft.creator}
-                          label="Creator address"
+                          label={t('nfts.detail.creatorAddress', 'Creator address')}
                         />
                       </div>
                     </div>
                   )}
                   <div className="detail-item">
-                    <span className="detail-label">Contract:</span>
+                    <span className="detail-label">{t('nfts.contractAddress', 'Contract')}:</span>
                     <div className="detail-value-wrapper">
                       <span className="detail-value address">
                         {formatAddress(nft.contractAddress)}
                       </span>
                       <CopyButton
                         text={nft.contractAddress}
-                        label="Contract address"
+                        label={t('nfts.detail.contractAddress', 'Contract address')}
                       />
                     </div>
                   </div>
@@ -990,7 +1107,7 @@ const NFTDetailPage = () => {
                         rel="noopener noreferrer"
                         className="detail-value link"
                       >
-                        View JSON
+                        {t('nfts.detail.viewJSON', 'View JSON')}
                       </a>
                     </div>
                   )}
@@ -1003,7 +1120,7 @@ const NFTDetailPage = () => {
                         rel="noopener noreferrer"
                         className="detail-value link"
                       >
-                        🔗 Visit Website
+                        🔗 {t('nfts.detail.visitWebsite', 'Visit Website')}
                       </a>
                     </div>
                   )}
@@ -1016,19 +1133,18 @@ const NFTDetailPage = () => {
                         rel="noopener noreferrer"
                         className="detail-value link"
                       >
-                        ▶️ Watch Video
+                        ▶️ {t('nfts.detail.watchVideo', 'Watch Video')}
                       </a>
                     </div>
                   )}
                   {tbaAddress && tbaDeployed && (
                     <div className="detail-item">
-                      <span className="detail-label">TBA Address:</span>
+                      <span className="detail-label">{t('nfts.detail.tbaAddress', 'TBA Address')}:</span>
                       <div className="detail-value-wrapper">
                         <span className="detail-value address">
                           {formatAddress(tbaAddress)}
                         </span>
-                        <CopyButton text={tbaAddress} label="TBA address" />
-                        <span className="tba-status deployed">Deployed</span>
+                        <CopyButton text={tbaAddress} label={t('nfts.detail.tbaAddress', 'TBA address')} />
                       </div>
                     </div>
                   )}
@@ -1061,7 +1177,7 @@ const NFTDetailPage = () => {
 
                 return (
                   <div className="attributes-section">
-                    <h3>Attributes</h3>
+                    <h3>{t('nfts.detail.attributes', 'Attributes')}</h3>
 
                     {/* URL-based attributes in 3-column grid */}
                     {urlAttributes.length > 0 && (
@@ -1102,12 +1218,11 @@ const NFTDetailPage = () => {
             {/* TBA Section */}
             {tbaAddress && (
               <div className="tba-section">
-                <h3>Token Bound Account (TBA)</h3>
+                <h3>{t('nfts.detail.tbaTitle', 'Token Bound Account (TBA)')}</h3>
                 {!tbaDeployed && (
                   <div className="tba-deploy">
                     <p>
-                      Deploy a Token Bound Account for this NFT to enable it to
-                      own assets and interact with smart contracts.
+                      {t('nfts.detail.tbaDescription', 'Deploy a Token Bound Account for this NFT to enable it to own assets and interact with smart contracts.')}
                     </p>
                     {account &&
                       nft.owner.toLowerCase() === account.toLowerCase() && (
@@ -1116,30 +1231,30 @@ const NFTDetailPage = () => {
                           disabled={deployingTBA}
                           className="deploy-tba-button"
                         >
-                          {deployingTBA ? "Deploying..." : "Deploy TBA"}
+                          {deployingTBA ? t('nfts.detail.deploying', 'Deploying...') : t('nfts.detail.deployTBA', 'Deploy TBA')}
                         </button>
                       )}
                     {(!account ||
                       nft.owner.toLowerCase() !== account.toLowerCase()) && (
                       <p className="tba-notice">
-                        Connect wallet as owner to deploy TBA
+                        {t('nfts.detail.tbaConnectPrompt', 'Connect wallet as owner to deploy TBA')}
                       </p>
                     )}
                   </div>
                 )}
                 {tbaDeployed && (
                   <div className="tba-info">
-                    <p>This NFT has a Token Bound Account deployed.</p>
+                    <p>{t('nfts.detail.tbaDeployed', 'This NFT has a Token Bound Account deployed.')}</p>
                     <p className="tba-address-info">
                       TBA Address: <span className="address">{tbaAddress}</span>
                     </p>
                     <p className="tba-balance-info">
                       Balance: <span className="balance">{tbaBalance} ETH</span>
                     </p>
-                    {loadingTBA && <p>Loading TBA owned assets...</p>}
+                    {loadingTBA && <p>{t('nfts.detail.loadingTBA', 'Loading TBA owned assets...')}</p>}
                     {!loadingTBA && tbaOwnedNFTs.length > 0 && (
                       <div className="tba-owned-nfts">
-                        <h4>NFTs Owned by TBA</h4>
+                        <h4>{t('nfts.detail.tbaOwnedNFTs', 'NFTs Owned by TBA')}</h4>
                         <div className="tba-nfts-grid nfts-grid">
                           {tbaOwnedNFTs.map((ownedNft) => (
                             <NFTCard
@@ -1176,7 +1291,7 @@ const NFTDetailPage = () => {
                       </div>
                     )}
                     {!loadingTBA && tbaOwnedNFTs.length === 0 && (
-                      <p>No NFTs owned by this TBA yet.</p>
+                      <p>{t('nfts.detail.noTBAAssets', 'No NFTs owned by this TBA yet.')}</p>
                     )}
                   </div>
                 )}
@@ -1188,11 +1303,11 @@ const NFTDetailPage = () => {
               nft.owner.toLowerCase() === account.toLowerCase() &&
               !nft.isSbt && (
                 <div className="transfer-section">
-                  <h3>Transfer NFT</h3>
+                  <h3>{t('nfts.detail.transferNFT', 'Transfer NFT')}</h3>
                   <div className="transfer-form">
                     <input
                       type="text"
-                      placeholder="Recipient address (0x...)"
+                      placeholder={t('nfts.detail.recipientPlaceholder', 'Recipient address (0x...')}
                       value={transferTo}
                       onChange={(e) => setTransferTo(e.target.value)}
                       className="transfer-input"
@@ -1203,7 +1318,7 @@ const NFTDetailPage = () => {
                       disabled={transferring || !transferTo}
                       className="transfer-button"
                     >
-                      {transferring ? "Transferring..." : "Transfer"}
+                      {transferring ? t('nfts.detail.transferring', 'Transferring...') : t('nfts.detail.transfer', 'Transfer')}
                     </button>
                   </div>
                 </div>
@@ -1214,17 +1329,16 @@ const NFTDetailPage = () => {
               nft.owner.toLowerCase() === account.toLowerCase() &&
               !nft.isSbt && (
                 <div className="burn-section">
-                  <h3>Burn NFT</h3>
+                  <h3>{t('nfts.detail.burnNFT', 'Burn NFT')}</h3>
                   <p className="burn-warning">
-                    ⚠️ Burning is permanent and cannot be undone. The NFT will
-                    be destroyed forever.
+                    ⚠️ {t('nfts.detail.burnWarning', 'Burning is permanent and cannot be undone. The NFT will be destroyed forever.')}
                   </p>
                   <button
                     onClick={() => setShowBurnConfirmation(true)}
                     disabled={burning}
                     className="burn-button"
                   >
-                    {burning ? "Burning..." : "Burn NFT"}
+                    {burning ? t('nfts.detail.burning', 'Burning...') : t('nfts.detail.burnNFT', 'Burn NFT')}
                   </button>
                 </div>
               )}
@@ -1240,29 +1354,28 @@ const NFTDetailPage = () => {
                     className="burn-confirmation-dialog"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <h3>⚠️ Confirm NFT Burn</h3>
-                    <p>Are you absolutely sure you want to burn this NFT?</p>
+                    <h3>⚠️ {t('nfts.detail.confirmBurn', 'Confirm NFT Burn')}</h3>
+                    <p>{t('nfts.detail.confirmBurnQuestion', 'Are you absolutely sure you want to burn this NFT?')}</p>
                     <p className="burn-nft-info">
                       <strong>{metadata?.name || `NFT #${id}`}</strong>
                       <br />
                       Token ID: {id}
                     </p>
                     <p className="burn-final-warning">
-                      This action is <strong>permanent</strong> and{" "}
-                      <strong>cannot be undone</strong>.
+                      {t('nfts.detail.permanentAction', 'This action is permanent and cannot be undone.')}
                     </p>
                     <div className="burn-confirmation-buttons">
                       <button
                         onClick={() => setShowBurnConfirmation(false)}
                         className="cancel-burn-button"
                       >
-                        Cancel
+                        {t('nfts.detail.cancel', 'Cancel')}
                       </button>
                       <button
                         onClick={handleBurn}
                         className="confirm-burn-button"
                       >
-                        Yes, Burn NFT
+                        {t('nfts.detail.yesBurn', 'Yes, Burn NFT')}
                       </button>
                     </div>
                   </div>

@@ -1,35 +1,35 @@
-# Web3CMS API Documentation
+# Web3CMS API ドキュメント
 
-## Overview
+## 概要
 
-The Web3CMS API is a RESTful API built on AWS API Gateway and Lambda functions. It provides endpoints for content management, settings, and general CRUD operations.
+Web3CMS API は、AWS API Gateway と Lambda 関数上に構築された RESTful API です。コンテンツ管理、設定、および一般的な CRUD 操作のためのエンドポイントを提供します。
 
-## Base URL
+## ベース URL
 
 ```
-Development: https://api-dev.example.com
-Staging: https://api-staging.example.com
-Production: https://api.example.com
+開発環境: https://api-dev.example.com
+ステージング環境: https://api-staging.example.com
+本番環境: https://api.example.com
 ```
 
-## Authentication
+## 認証
 
-Most endpoints require authentication via MetaMask wallet address (EOA - Externally Owned Account).
+ほとんどのエンドポイントは、MetaMask ウォレットアドレス（EOA - Externally Owned Account）による認証が必要です。
 
-### Authentication Header
+### 認証ヘッダー
 
 ```
 Authorization: Bearer {wallet_address}
 ```
 
-Example:
+例:
 ```
 Authorization: Bearer 0x1234567890abcdef1234567890abcdef12345678
 ```
 
-## Common Response Formats
+## 共通レスポンス形式
 
-### Success Response
+### 成功レスポンス
 
 ```json
 {
@@ -38,47 +38,47 @@ Authorization: Bearer 0x1234567890abcdef1234567890abcdef12345678
 }
 ```
 
-### Error Response
+### エラーレスポンス
 
 ```json
 {
-  "message": "Error description",
-  "error": "Detailed error message (only in non-production)"
+  "message": "エラーの説明",
+  "error": "詳細なエラーメッセージ (非本番環境のみ)"
 }
 ```
 
-### HTTP Status Codes
+### HTTP ステータスコード
 
-- `200 OK` - Successful request
-- `201 Created` - Resource created successfully
-- `204 No Content` - Successful deletion
-- `400 Bad Request` - Invalid request parameters
-- `401 Unauthorized` - Missing or invalid authentication
-- `403 Forbidden` - Insufficient permissions
-- `404 Not Found` - Resource not found
-- `405 Method Not Allowed` - Invalid HTTP method
-- `500 Internal Server Error` - Server error
+- `200 OK` - リクエスト成功
+- `201 Created` - リソースの作成成功
+- `204 No Content` - 削除成功
+- `400 Bad Request` - 無効なリクエストパラメータ
+- `401 Unauthorized` - 認証情報の欠落または無効
+- `403 Forbidden` - 権限不足
+- `404 Not Found` - リソースが見つからない
+- `405 Method Not Allowed` - 無効な HTTP メソッド
+- `500 Internal Server Error` - サーバーエラー
 
-## Endpoints
+## エンドポイント
 
 ### Items API
 
-Basic CRUD operations for generic items.
+汎用アイテムの基本的な CRUD 操作。
 
-#### List Items
+#### アイテム一覧取得
 
 ```http
 GET /items
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "items": [
     {
       "id": "item-1234567890-abc123",
-      "name": "Sample Item",
-      "description": "Item description",
+      "name": "サンプルアイテム",
+      "description": "アイテムの説明",
       "createdAt": "2024-01-01T00:00:00.000Z",
       "updatedAt": "2024-01-01T00:00:00.000Z"
     }
@@ -87,48 +87,48 @@ GET /items
 }
 ```
 
-#### Get Item
+#### アイテム取得
 
 ```http
 GET /items/{id}
 ```
 
-**Parameters:**
-- `id` (path) - Item ID
+**パラメータ:**
+- `id` (パス) - アイテム ID
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "item-1234567890-abc123",
-  "name": "Sample Item",
-  "description": "Item description",
+  "name": "サンプルアイテム",
+  "description": "アイテムの説明",
   "createdAt": "2024-01-01T00:00:00.000Z",
   "updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
-#### Create Item
+#### アイテム作成
 
 ```http
 POST /items
 ```
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
-  "name": "New Item",
-  "description": "Item description",
+  "name": "新しいアイテム",
+  "description": "アイテムの説明",
   "type": "custom",
   "metadata": { ... }
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "item-1234567890-abc123",
-  "name": "New Item",
-  "description": "Item description",
+  "name": "新しいアイテム",
+  "description": "アイテムの説明",
   "type": "custom",
   "metadata": { ... },
   "createdAt": "2024-01-01T00:00:00.000Z",
@@ -136,61 +136,61 @@ POST /items
 }
 ```
 
-#### Update Item
+#### アイテム更新
 
 ```http
 PUT /items/{id}
 ```
 
-**Parameters:**
-- `id` (path) - Item ID
+**パラメータ:**
+- `id` (パス) - アイテム ID
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
-  "name": "Updated Item",
-  "description": "Updated description"
+  "name": "更新されたアイテム",
+  "description": "更新された説明"
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "item-1234567890-abc123",
-  "name": "Updated Item",
-  "description": "Updated description",
+  "name": "更新されたアイテム",
+  "description": "更新された説明",
   "updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
-#### Delete Item
+#### アイテム削除
 
 ```http
 DELETE /items/{id}
 ```
 
-**Parameters:**
-- `id` (path) - Item ID
+**パラメータ:**
+- `id` (パス) - アイテム ID
 
-**Response:**
+**レスポンス:**
 ```
 204 No Content
 ```
 
 ### Settings API
 
-Application configuration management.
+アプリケーション設定管理。
 
-#### Get Settings
+#### 設定取得
 
 ```http
 GET /settings/{key}
 ```
 
-**Parameters:**
-- `key` (path) - Setting key (default: "app_config")
+**パラメータ:**
+- `key` (パス) - 設定キー (デフォルト: "app_config")
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "settingKey": "app_config",
@@ -204,16 +204,16 @@ GET /settings/{key}
 }
 ```
 
-#### Update Settings
+#### 設定更新
 
 ```http
 PUT /settings/{key}
 ```
 
-**Parameters:**
-- `key` (path) - Setting key (default: "app_config")
+**パラメータ:**
+- `key` (パス) - 設定キー (デフォルト: "app_config")
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "data": {
@@ -224,7 +224,7 @@ PUT /settings/{key}
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "settingKey": "app_config",
@@ -236,18 +236,18 @@ PUT /settings/{key}
 
 ### Folders API
 
-Content folder management with hierarchical structure.
+階層構造を持つコンテンツフォルダ管理。
 
-#### List Folders
+#### フォルダ一覧取得
 
 ```http
 GET /columns/folders
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "folders": [
@@ -255,8 +255,8 @@ GET /columns/folders
       "id": "folder-1234567890-abc123",
       "type": "folder",
       "eoa": "0x1234567890abcdef1234567890abcdef12345678",
-      "name": "My Folder",
-      "description": "Folder description",
+      "name": "マイフォルダ",
+      "description": "フォルダの説明",
       "status": "public",
       "priority": 0,
       "parentId": null,
@@ -267,26 +267,26 @@ GET /columns/folders
 }
 ```
 
-#### Get Folder
+#### フォルダ取得
 
 ```http
 GET /columns/folders/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Folder ID
+**パラメータ:**
+- `id` (パス) - フォルダ ID
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "folder-1234567890-abc123",
   "type": "folder",
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
-  "name": "My Folder",
-  "description": "Folder description",
+  "name": "マイフォルダ",
+  "description": "フォルダの説明",
   "status": "public",
   "priority": 0,
   "parentId": null,
@@ -295,39 +295,39 @@ GET /columns/folders/{id}
 }
 ```
 
-#### Create Folder
+#### フォルダ作成
 
 ```http
 POST /columns/folders
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
-  "name": "New Folder",
-  "description": "Folder description",
+  "name": "新しいフォルダ",
+  "description": "フォルダの説明",
   "status": "public",
   "priority": 0,
   "parentId": "parent-folder-id"
 }
 ```
 
-**Status Options:**
-- `public` - Visible to everyone
-- `limited` - Limited visibility
-- `hidden` - Hidden from public
+**ステータスオプション:**
+- `public` - 全員に公開
+- `limited` - 限定公開
+- `hidden` - 非公開
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "folder-1234567890-abc123",
   "type": "folder",
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
-  "name": "New Folder",
-  "description": "Folder description",
+  "name": "新しいフォルダ",
+  "description": "フォルダの説明",
   "status": "public",
   "priority": 0,
   "parentId": "parent-folder-id",
@@ -336,82 +336,82 @@ POST /columns/folders
 }
 ```
 
-#### Update Folder
+#### フォルダ更新
 
 ```http
 PUT /columns/folders/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Folder ID
+**パラメータ:**
+- `id` (パス) - フォルダ ID
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
-  "name": "Updated Folder",
-  "description": "Updated description",
+  "name": "更新されたフォルダ",
+  "description": "更新された説明",
   "status": "limited",
   "priority": 1
 }
 ```
 
-**Note:** Only the folder owner can update it.
+**注意:** フォルダの所有者のみが更新できます。
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "folder-1234567890-abc123",
-  "name": "Updated Folder",
-  "description": "Updated description",
+  "name": "更新されたフォルダ",
+  "description": "更新された説明",
   "status": "limited",
   "priority": 1,
   "updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
-#### Delete Folder
+#### フォルダ削除
 
 ```http
 DELETE /columns/folders/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Folder ID
-- `cascade` (query, optional) - Delete all contents in folder (true/false)
+**パラメータ:**
+- `id` (パス) - フォルダ ID
+- `cascade` (クエリ、オプション) - フォルダ内のすべてのコンテンツを削除 (true/false)
 
-**Example:**
+**例:**
 ```
 DELETE /columns/folders/folder-123?cascade=true
 ```
 
-**Response:**
+**レスポンス:**
 ```
 204 No Content
 ```
 
 ### Contents API
 
-Content management within folders.
+フォルダ内のコンテンツ管理。
 
-#### List Contents
+#### コンテンツ一覧取得
 
 ```http
 GET /columns/contents
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Query Parameters:**
-- `folderId` (optional) - Filter by folder ID
+**クエリパラメータ:**
+- `folderId` (オプション) - フォルダ ID でフィルタ
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "contents": [
@@ -421,9 +421,9 @@ GET /columns/contents
       "folderId": "folder-123",
       "eoa": "0x1234567890abcdef1234567890abcdef12345678",
       "status": "published",
-      "title": "My Content",
-      "description": "Content description",
-      "content": "# Markdown content here",
+      "title": "マイコンテンツ",
+      "description": "コンテンツの説明",
+      "content": "# マークダウンコンテンツ",
       "contentType": "text",
       "priority": 0,
       "createdAt": "2024-01-01T00:00:00.000Z",
@@ -433,19 +433,19 @@ GET /columns/contents
 }
 ```
 
-#### Get Content
+#### コンテンツ取得
 
 ```http
 GET /columns/contents/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Content ID
+**パラメータ:**
+- `id` (パス) - コンテンツ ID
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "content-1234567890-abc123",
@@ -453,9 +453,9 @@ GET /columns/contents/{id}
   "folderId": "folder-123",
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
   "status": "published",
-  "title": "My Content",
-  "description": "Content description",
-  "content": "# Markdown content here",
+  "title": "マイコンテンツ",
+  "description": "コンテンツの説明",
+  "content": "# マークダウンコンテンツ",
   "contentType": "text",
   "priority": 0,
   "createdAt": "2024-01-01T00:00:00.000Z",
@@ -463,52 +463,52 @@ GET /columns/contents/{id}
 }
 ```
 
-#### Create Content
+#### コンテンツ作成
 
 ```http
 POST /columns/contents
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "folderId": "folder-123",
-  "title": "New Content",
-  "description": "Content description",
-  "content": "# Markdown content here",
+  "title": "新しいコンテンツ",
+  "description": "コンテンツの説明",
+  "content": "# マークダウンコンテンツ",
   "contentType": "text",
   "status": "draft",
   "priority": 0
 }
 ```
 
-**Status Options:**
-- `draft` - Work in progress
-- `review` - Under review
-- `standby` - Ready to publish
-- `published` - Published and visible
+**ステータスオプション:**
+- `draft` - 下書き
+- `review` - レビュー中
+- `standby` - 公開準備完了
+- `published` - 公開済み
 
-**Content Type Options:**
-- `text` - Plain text/Markdown
-- `html` - HTML content
-- `image` - Image URL
-- `video` - Video URL
-- `iframe` - Embedded iframe
-- `link` - External link
+**コンテンツタイプオプション:**
+- `text` - プレーンテキスト/マークダウン
+- `html` - HTML コンテンツ
+- `image` - 画像 URL
+- `video` - ビデオ URL
+- `iframe` - 埋め込み iframe
+- `link` - 外部リンク
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "content-1234567890-abc123",
   "type": "content",
   "folderId": "folder-123",
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
-  "title": "New Content",
-  "description": "Content description",
-  "content": "# Markdown content here",
+  "title": "新しいコンテンツ",
+  "description": "コンテンツの説明",
+  "content": "# マークダウンコンテンツ",
   "contentType": "text",
   "status": "draft",
   "priority": 0,
@@ -517,78 +517,78 @@ POST /columns/contents
 }
 ```
 
-#### Update Content
+#### コンテンツ更新
 
 ```http
 PUT /columns/contents/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Content ID
+**パラメータ:**
+- `id` (パス) - コンテンツ ID
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
-  "title": "Updated Content",
-  "description": "Updated description",
-  "content": "# Updated markdown content",
+  "title": "更新されたコンテンツ",
+  "description": "更新された説明",
+  "content": "# 更新されたマークダウンコンテンツ",
   "status": "published"
 }
 ```
 
-**Note:** Only the content owner can update it.
+**注意:** コンテンツの所有者のみが更新できます。
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "content-1234567890-abc123",
-  "title": "Updated Content",
-  "description": "Updated description",
-  "content": "# Updated markdown content",
+  "title": "更新されたコンテンツ",
+  "description": "更新された説明",
+  "content": "# 更新されたマークダウンコンテンツ",
   "status": "published",
   "updatedAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
-#### Delete Content
+#### コンテンツ削除
 
 ```http
 DELETE /columns/contents/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `id` (path) - Content ID
+**パラメータ:**
+- `id` (パス) - コンテンツ ID
 
-**Response:**
+**レスポンス:**
 ```
 204 No Content
 ```
 
 ### Public API
 
-Public endpoints that don't require authentication.
+認証を必要としないパブリックエンドポイント。
 
-#### List Public Folders
+#### パブリックフォルダ一覧取得
 
 ```http
 GET /columns/public/folders
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "folders": [
     {
       "id": "folder-1234567890-abc123",
       "type": "folder",
-      "name": "Public Folder",
-      "description": "Public folder description",
+      "name": "パブリックフォルダ",
+      "description": "パブリックフォルダの説明",
       "status": "public",
       "priority": 0,
       "createdAt": "2024-01-01T00:00:00.000Z",
@@ -598,18 +598,18 @@ GET /columns/public/folders
 }
 ```
 
-**Note:** Only folders with `status: "public"` are returned.
+**注意:** `status: "public"` のフォルダのみが返されます。
 
-#### List Published Contents
+#### 公開済みコンテンツ一覧取得
 
 ```http
 GET /columns/public/contents
 ```
 
-**Query Parameters:**
-- `folderId` (optional) - Filter by folder ID
+**クエリパラメータ:**
+- `folderId` (オプション) - フォルダ ID でフィルタ
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "contents": [
@@ -618,9 +618,9 @@ GET /columns/public/contents
       "type": "content",
       "folderId": "folder-123",
       "status": "published",
-      "title": "Published Content",
-      "description": "Content description",
-      "content": "# Public content",
+      "title": "公開済みコンテンツ",
+      "description": "コンテンツの説明",
+      "content": "# パブリックコンテンツ",
       "contentType": "text",
       "priority": 0,
       "createdAt": "2024-01-01T00:00:00.000Z",
@@ -630,27 +630,27 @@ GET /columns/public/contents
 }
 ```
 
-**Note:** Only contents with `status: "published"` are returned.
+**注意:** `status: "published"` のコンテンツのみが返されます。
 
-#### Get Published Content
+#### 公開済みコンテンツ取得
 
 ```http
 GET /columns/public/contents/{id}
 ```
 
-**Parameters:**
-- `id` (path) - Content ID
+**パラメータ:**
+- `id` (パス) - コンテンツ ID
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "id": "content-1234567890-abc123",
   "type": "content",
   "folderId": "folder-123",
   "status": "published",
-  "title": "Published Content",
-  "description": "Content description",
-  "content": "# Public content",
+  "title": "公開済みコンテンツ",
+  "description": "コンテンツの説明",
+  "content": "# パブリックコンテンツ",
   "contentType": "text",
   "priority": 0,
   "createdAt": "2024-01-01T00:00:00.000Z",
@@ -658,29 +658,29 @@ GET /columns/public/contents/{id}
 }
 ```
 
-**Note:** Returns 404 if content is not published.
+**注意:** コンテンツが公開されていない場合は 404 を返します。
 
 ### Users API
 
-User profile management with EOA as primary key.
+EOA をプライマリキーとするユーザープロフィール管理。
 
-#### List Users
+#### ユーザー一覧取得
 
 ```http
 GET /users
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (optional for admin)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (管理者用オプション)
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "users": [
     {
       "eoa": "0x1234567890abcdef1234567890abcdef12345678",
       "discordAddress": "discord#1234",
-      "name": "User Name",
+      "name": "ユーザー名",
       "avatar": "https://example.com/avatar.png",
       "roles": ["user", "contributor"],
       "admin": false,
@@ -692,21 +692,21 @@ GET /users
 }
 ```
 
-#### Get User
+#### ユーザー取得
 
 ```http
 GET /users/{eoa}
 ```
 
-**Parameters:**
-- `eoa` (path) - Ethereum Owner Address
+**パラメータ:**
+- `eoa` (パス) - Ethereum Owner Address
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
   "discordAddress": "discord#1234",
-  "name": "User Name",
+  "name": "ユーザー名",
   "avatar": "https://example.com/avatar.png",
   "roles": ["user", "contributor"],
   "admin": false,
@@ -715,33 +715,33 @@ GET /users/{eoa}
 }
 ```
 
-#### Create User
+#### ユーザー作成
 
 ```http
 POST /users
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
   "discordAddress": "discord#1234",
-  "name": "User Name",
+  "name": "ユーザー名",
   "avatar": "https://example.com/avatar.png",
   "roles": ["user"],
   "admin": false
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
   "discordAddress": "discord#1234",
-  "name": "User Name",
+  "name": "ユーザー名",
   "avatar": "https://example.com/avatar.png",
   "roles": ["user"],
   "admin": false,
@@ -750,35 +750,35 @@ POST /users
 }
 ```
 
-#### Update User
+#### ユーザー更新
 
 ```http
 PUT /users/{eoa}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `eoa` (path) - Ethereum Owner Address
+**パラメータ:**
+- `eoa` (パス) - Ethereum Owner Address
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "discordAddress": "newdiscord#5678",
-  "name": "Updated Name",
+  "name": "更新された名前",
   "avatar": "https://example.com/new-avatar.png",
   "roles": ["user", "contributor", "moderator"],
   "admin": true
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "eoa": "0x1234567890abcdef1234567890abcdef12345678",
   "discordAddress": "newdiscord#5678",
-  "name": "Updated Name",
+  "name": "更新された名前",
   "avatar": "https://example.com/new-avatar.png",
   "roles": ["user", "contributor", "moderator"],
   "admin": true,
@@ -786,44 +786,44 @@ PUT /users/{eoa}
 }
 ```
 
-#### Delete User
+#### ユーザー削除
 
 ```http
 DELETE /users/{eoa}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required, admin only)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須、管理者のみ)
 
-**Parameters:**
-- `eoa` (path) - Ethereum Owner Address
+**パラメータ:**
+- `eoa` (パス) - Ethereum Owner Address
 
-**Response:**
+**レスポンス:**
 ```
 204 No Content
 ```
 
 ### NFTs API
 
-NFT metadata management with composite key (contract address + token ID).
+複合キー（コントラクトアドレス + トークン ID）による NFT メタデータ管理。
 
-#### List NFTs
+#### NFT 一覧取得
 
 ```http
 GET /nfts
 ```
 
-**Query Parameters:**
-- `owner` (optional) - Filter by owner address
-- `creator` (optional) - Filter by creator address
+**クエリパラメータ:**
+- `owner` (オプション) - 所有者アドレスでフィルタ
+- `creator` (オプション) - 作成者アドレスでフィルタ
 
-**Examples:**
+**例:**
 ```
 GET /nfts?owner=0x1234567890abcdef1234567890abcdef12345678
 GET /nfts?creator=0xabcdef1234567890abcdef1234567890abcdef12
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "nfts": [
@@ -843,16 +843,16 @@ GET /nfts?creator=0xabcdef1234567890abcdef1234567890abcdef12
 }
 ```
 
-#### List NFTs by Contract
+#### コントラクトごとの NFT 一覧取得
 
 ```http
 GET /nfts/{ca}
 ```
 
-**Parameters:**
-- `ca` (path) - Contract Address
+**パラメータ:**
+- `ca` (パス) - コントラクトアドレス
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "nfts": [
@@ -872,17 +872,17 @@ GET /nfts/{ca}
 }
 ```
 
-#### Get NFT
+#### NFT 取得
 
 ```http
 GET /nfts/{ca}/{id}
 ```
 
-**Parameters:**
-- `ca` (path) - Contract Address
-- `id` (path) - Token ID
+**パラメータ:**
+- `ca` (パス) - コントラクトアドレス
+- `id` (パス) - トークン ID
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "ca": "0xcontract1234567890abcdef1234567890abcdef",
@@ -897,16 +897,16 @@ GET /nfts/{ca}/{id}
 }
 ```
 
-#### Create NFT
+#### NFT 作成
 
 ```http
 POST /nfts
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "ca": "0xcontract1234567890abcdef1234567890abcdef",
@@ -919,7 +919,7 @@ POST /nfts
 }
 ```
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "ca": "0xcontract1234567890abcdef1234567890abcdef",
@@ -934,38 +934,38 @@ POST /nfts
 }
 ```
 
-#### Update NFT
+#### NFT 更新
 
 ```http
 PUT /nfts/{ca}/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須)
 
-**Parameters:**
-- `ca` (path) - Contract Address
-- `id` (path) - Token ID
+**パラメータ:**
+- `ca` (パス) - コントラクトアドレス
+- `id` (パス) - トークン ID
 
-**Request Body:**
+**リクエストボディ:**
 ```json
 {
   "tokenUrl": "https://api.example.com/metadata/1-updated",
-  "name": "Updated NFT #1",
+  "name": "更新された NFT #1",
   "image": "https://example.com/nft/1-updated.png",
   "owner": "0xnewowner234567890abcdef1234567890abcdef"
 }
 ```
 
-**Note:** `creator` cannot be updated after creation.
+**注意:** `creator` は作成後に更新できません。
 
-**Response:**
+**レスポンス:**
 ```json
 {
   "ca": "0xcontract1234567890abcdef1234567890abcdef",
   "id": "1",
   "tokenUrl": "https://api.example.com/metadata/1-updated",
-  "name": "Updated NFT #1",
+  "name": "更新された NFT #1",
   "image": "https://example.com/nft/1-updated.png",
   "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
   "owner": "0xnewowner234567890abcdef1234567890abcdef",
@@ -973,132 +973,132 @@ PUT /nfts/{ca}/{id}
 }
 ```
 
-#### Delete NFT
+#### NFT 削除
 
 ```http
 DELETE /nfts/{ca}/{id}
 ```
 
-**Headers:**
-- `Authorization: Bearer {wallet_address}` (required, admin only)
+**ヘッダー:**
+- `Authorization: Bearer {wallet_address}` (必須、管理者のみ)
 
-**Parameters:**
-- `ca` (path) - Contract Address
-- `id` (path) - Token ID
+**パラメータ:**
+- `ca` (パス) - コントラクトアドレス
+- `id` (パス) - トークン ID
 
-**Response:**
+**レスポンス:**
 ```
 204 No Content
 ```
 
-## Rate Limiting
+## レート制限
 
-The API implements AWS API Gateway default rate limiting:
-- 10,000 requests per second (RPS)
-- 5,000 burst capacity
+API は AWS API Gateway のデフォルトレート制限を実装しています：
+- 秒間 10,000 リクエスト (RPS)
+- バースト容量 5,000
 
 ## CORS
 
-All endpoints support CORS with the following headers:
+すべてのエンドポイントは以下のヘッダーで CORS をサポートしています：
 - `Access-Control-Allow-Origin: *`
 - `Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS`
 - `Access-Control-Allow-Headers: Content-Type,Authorization`
 
-## Error Handling
+## エラーハンドリング
 
-### Common Error Responses
+### 一般的なエラーレスポンス
 
 #### 400 Bad Request
 ```json
 {
-  "message": "Request body is required"
+  "message": "リクエストボディが必要です"
 }
 ```
 
 #### 401 Unauthorized
 ```json
 {
-  "message": "Authorization header is required"
+  "message": "Authorization ヘッダーが必要です"
 }
 ```
 
 #### 403 Forbidden
 ```json
 {
-  "message": "You do not have permission to perform this action"
+  "message": "このアクションを実行する権限がありません"
 }
 ```
 
 #### 404 Not Found
 ```json
 {
-  "message": "Folder not found"
+  "message": "フォルダが見つかりません"
 }
 ```
 
 #### 500 Internal Server Error
 ```json
 {
-  "message": "Internal server error",
-  "error": "Detailed error message (non-production only)"
+  "message": "内部サーバーエラー",
+  "error": "詳細なエラーメッセージ (非本番環境のみ)"
 }
 ```
 
-## SDK Examples
+## SDK 例
 
 ### JavaScript/TypeScript
 
 ```javascript
-// Using the provided API service classes
+// 提供された API サービスクラスの使用
 import { FolderService, ContentService } from './services/api';
 
 const folderService = new FolderService();
 const contentService = new ContentService();
 
-// List folders
+// フォルダ一覧取得
 const folders = await folderService.getFolders();
 
-// Create content
+// コンテンツ作成
 const newContent = await contentService.create({
   folderId: 'folder-123',
-  title: 'My Content',
+  title: 'マイコンテンツ',
   content: '# Hello World',
   contentType: 'text',
   status: 'draft'
 });
 
-// Update content
+// コンテンツ更新
 const updated = await contentService.update(newContent.id, {
   status: 'published'
 });
 ```
 
-### cURL Examples
+### cURL 例
 
 ```bash
-# Get public folders
+# パブリックフォルダ取得
 curl https://api.example.com/columns/public/folders
 
-# Create folder (with auth)
+# フォルダ作成 (認証付き)
 curl -X POST https://api.example.com/columns/folders \
   -H "Authorization: Bearer 0x1234567890abcdef1234567890abcdef12345678" \
   -H "Content-Type: application/json" \
-  -d '{"name":"My Folder","status":"public"}'
+  -d '{"name":"マイフォルダ","status":"public"}'
 
-# Delete folder with cascade
+# カスケード削除でフォルダ削除
 curl -X DELETE https://api.example.com/columns/folders/folder-123?cascade=true \
   -H "Authorization: Bearer 0x1234567890abcdef1234567890abcdef12345678"
 ```
 
 ## Webhooks
 
-Currently not implemented. Future versions will support webhooks for:
-- Content published
-- Content updated
-- Folder created/deleted
+現在未実装。将来のバージョンでは以下の Webhook をサポート予定：
+- コンテンツ公開
+- コンテンツ更新
+- フォルダ作成/削除
 
-## API Versioning
+## API バージョニング
 
-The API currently uses URL-based versioning. Future versions will be available at:
-- `/v1/` - Current version
-- `/v2/` - Future version (planned)
+API は現在 URL ベースのバージョニングを使用しています。将来のバージョンは以下で利用可能になります：
+- `/v1/` - 現在のバージョン
+- `/v2/` - 将来のバージョン (計画中)

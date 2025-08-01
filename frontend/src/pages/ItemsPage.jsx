@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useI18n } from '../contexts/I18nContext';
 import api from '../services/api';
 import ItemCard from '../components/ItemCard';
 import ItemForm from '../components/ItemForm';
 import './ItemsPage.css';
 
 const ItemsPage = () => {
+  const { t } = useI18n();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +26,7 @@ const ItemsPage = () => {
       setItems(response.items || []);
     } catch (err) {
       console.error('Failed to load items:', err);
-      setError('Failed to load items. Please check your connection and try again.');
+      setError(t('items.error', 'Failed to load items. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -37,7 +39,7 @@ const ItemsPage = () => {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to create item:', err);
-      throw new Error('Failed to create item. Please try again.');
+      throw new Error(t('common.error', 'An error occurred'));
     }
   };
 
@@ -49,7 +51,7 @@ const ItemsPage = () => {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to update item:', err);
-      throw new Error('Failed to update item. Please try again.');
+      throw new Error(t('common.error', 'An error occurred'));
     }
   };
 
@@ -59,7 +61,7 @@ const ItemsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) {
+    if (!window.confirm(t('items.deleteConfirm', 'Are you sure you want to delete this item?'))) {
       return;
     }
 
@@ -68,14 +70,14 @@ const ItemsPage = () => {
       await loadItems();
     } catch (err) {
       console.error('Failed to delete item:', err);
-      setError('Failed to delete item. Please try again.');
+      setError(t('common.error', 'An error occurred'));
     }
   };
 
   return (
     <div className="home-page">
       <div className="page-header">
-        <h1>Items</h1>
+        <h1>{t('items.title', 'Items')}</h1>
         <button 
           className="btn btn-primary"
           onClick={() => {
@@ -85,7 +87,7 @@ const ItemsPage = () => {
             }
           }}
         >
-          {showForm ? 'Cancel' : 'Add New Item'}
+          {showForm ? t('common.cancel', 'Cancel') : t('items.addNew', 'Add New Item')}
         </button>
       </div>
 
@@ -109,13 +111,13 @@ const ItemsPage = () => {
       {loading && (
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Loading items...</p>
+          <p>{t('items.loading', 'Loading items...')}</p>
         </div>
       )}
 
       {!loading && !error && items.length === 0 && (
         <div className="empty-state">
-          <p>No items found. Create your first item!</p>
+          <p>{t('items.noItems', 'No items found in the system')}</p>
         </div>
       )}
 

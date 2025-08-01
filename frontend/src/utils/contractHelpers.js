@@ -70,6 +70,14 @@ export const calculateTBAAddress = async (
     
     // Most TBA registries have an 'account' or 'getAccount' function
     // Adjust based on your specific registry ABI
+    console.log('RPC Call: registry.account', {
+      registryAddress,
+      implementationAddress,
+      chainId,
+      tokenContract,
+      tokenId,
+      salt
+    });
     const tbaAddress = await registry.account(
       implementationAddress,
       chainId,
@@ -179,6 +187,7 @@ export const getNFTMetadata = async (contractAddress, tokenId, provider) => {
  */
 export const isTBADeployed = async (tbaAddress, provider) => {
   try {
+    console.log('RPC Call: getCode', { address: tbaAddress });
     const code = await provider.getCode(tbaAddress);
     return code !== '0x';
   } catch (error) {

@@ -1,202 +1,202 @@
-# Contributing to Web3CMS
+# Web3CMS への貢献
 
-Thank you for your interest in contributing to Web3CMS! This document provides guidelines and instructions for contributing to the project.
+Web3CMS への貢献に興味を持っていただきありがとうございます！このドキュメントでは、プロジェクトへの貢献に関するガイドラインと手順を説明します。
 
-## Code of Conduct
+## 行動規範
 
-By participating in this project, you agree to abide by our Code of Conduct:
+このプロジェクトに参加することで、以下の行動規範に従うことに同意したものとみなされます：
 
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints and experiences
-- Gracefully accept constructive criticism
-- Focus on what is best for the community
-- Show empathy towards other community members
+- 歓迎的で包括的な言葉遣いを使用する
+- 異なる視点や経験を尊重する
+- 建設的な批判を優雅に受け入れる
+- コミュニティにとって最善なことに焦点を当てる
+- 他のコミュニティメンバーに共感を示す
 
-## How to Contribute
+## 貢献の方法
 
-### Reporting Bugs
+### バグの報告
 
-Before creating bug reports, please check existing issues to avoid duplicates. When creating a bug report, include:
+バグレポートを作成する前に、重複を避けるため既存の Issue を確認してください。バグレポートを作成する際は、以下を含めてください：
 
-1. **Clear title and description**
-2. **Steps to reproduce**
-3. **Expected behavior**
-4. **Actual behavior**
-5. **Screenshots** (if applicable)
-6. **Environment details**:
-   - OS and version
-   - Node.js version
-   - Browser and version
-   - Web3CMS version/commit
+1. **明確なタイトルと説明**
+2. **再現手順**
+3. **期待される動作**
+4. **実際の動作**
+5. **スクリーンショット**（該当する場合）
+6. **環境の詳細**：
+   - OS とバージョン
+   - Node.js バージョン
+   - ブラウザとバージョン
+   - Web3CMS バージョン/コミット
 
-### Suggesting Enhancements
+### 機能拡張の提案
 
-Enhancement suggestions are welcome! Please provide:
+機能拡張の提案は歓迎します！以下を提供してください：
 
-1. **Use case** - Why is this enhancement needed?
-2. **Proposed solution** - How should it work?
-3. **Alternatives considered** - What other solutions did you consider?
-4. **Additional context** - Any other relevant information
+1. **ユースケース** - なぜこの拡張が必要なのか？
+2. **提案する解決策** - どのように動作すべきか？
+3. **検討した代替案** - 他にどのような解決策を検討したか？
+4. **追加のコンテキスト** - その他の関連情報
 
-### Pull Requests
+### プルリクエスト
 
-1. **Fork the repository** and create your branch from `main`
-2. **Follow the coding standards** (see below)
-3. **Write tests** for new functionality
-4. **Update documentation** as needed
-5. **Ensure all tests pass**
-6. **Submit a pull request**
+1. **リポジトリをフォーク**し、`main` からブランチを作成
+2. **コーディング標準に従う**（下記参照）
+3. 新機能の**テストを書く**
+4. 必要に応じて**ドキュメントを更新**
+5. **すべてのテストが通ることを確認**
+6. **プルリクエストを提出**
 
-## Development Process
+## 開発プロセス
 
-### 1. Setting Up Your Development Environment
+### 1. 開発環境のセットアップ
 
 ```bash
-# Fork and clone the repository
+# リポジトリをフォークしてクローン
 git clone https://github.com/yourusername/web3cms.git
 cd web3cms
 
-# Add upstream remote
+# アップストリームリモートを追加
 git remote add upstream https://github.com/originalowner/web3cms.git
 
-# Install dependencies
+# 依存関係をインストール
 npm run install:all
 ```
 
-### 2. Creating a Feature Branch
+### 2. 機能ブランチの作成
 
 ```bash
-# Update your fork
+# フォークを更新
 git fetch upstream
 git checkout main
 git merge upstream/main
 
-# Create a feature branch
+# 機能ブランチを作成
 git checkout -b feature/your-feature-name
 ```
 
-### 3. Making Changes
+### 3. 変更の実施
 
-Follow these guidelines:
+以下のガイドラインに従ってください：
 
-- Write clean, readable code
-- Add comments for complex logic
-- Keep functions small and focused
-- Use meaningful variable names
-- Follow existing patterns
+- クリーンで読みやすいコードを書く
+- 複雑なロジックにはコメントを追加
+- 関数は小さく、集中的に保つ
+- 意味のある変数名を使用
+- 既存のパターンに従う
 
-### 4. Committing Changes
+### 4. 変更のコミット
 
-We use [Conventional Commits](https://www.conventionalcommits.org/):
+[Conventional Commits](https://www.conventionalcommits.org/) を使用します：
 
 ```bash
-# Format: <type>(<scope>): <subject>
+# フォーマット: <type>(<scope>): <subject>
 
-# Examples:
-git commit -m "feat(api): add user authentication"
-git commit -m "fix(frontend): resolve wallet connection issue"
-git commit -m "docs: update API documentation"
-git commit -m "style: format code with prettier"
-git commit -m "refactor(backend): extract common utilities"
-git commit -m "test: add unit tests for folder service"
-git commit -m "chore: update dependencies"
+# 例:
+git commit -m "feat(api): ユーザー認証を追加"
+git commit -m "fix(frontend): ウォレット接続の問題を解決"
+git commit -m "docs: API ドキュメントを更新"
+git commit -m "style: prettier でコードをフォーマット"
+git commit -m "refactor(backend): 共通ユーティリティを抽出"
+git commit -m "test: フォルダサービスのユニットテストを追加"
+git commit -m "chore: 依存関係を更新"
 ```
 
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
+タイプ:
+- `feat`: 新機能
+- `fix`: バグ修正
+- `docs`: ドキュメントのみ
+- `style`: コードスタイルの変更（フォーマットなど）
+- `refactor`: コードのリファクタリング
+- `test`: テストの追加または更新
+- `chore`: メンテナンスタスク
 
-### 5. Testing
+### 5. テスト
 
 ```bash
-# Run all tests
+# すべてのテストを実行
 npm test
 
-# Run backend tests
+# バックエンドテストを実行
 npm run test:backend
 
-# Run frontend tests
+# フロントエンドテストを実行
 cd frontend && npm test
 
-# Check code coverage
+# コードカバレッジを確認
 npm run test:coverage
 ```
 
-### 6. Submitting a Pull Request
+### 6. プルリクエストの提出
 
-1. Push your branch to your fork
-2. Go to the original repository on GitHub
-3. Click "New Pull Request"
-4. Select your branch
-5. Fill out the PR template
-6. Submit the PR
+1. ブランチをフォークにプッシュ
+2. GitHub 上の元のリポジトリに移動
+3. "New Pull Request" をクリック
+4. ブランチを選択
+5. PR テンプレートに記入
+6. PR を提出
 
-#### PR Template
+#### PR テンプレート
 
 ```markdown
-## Description
-Brief description of changes
+## 説明
+変更の簡単な説明
 
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
+## 変更の種類
+- [ ] バグ修正
+- [ ] 新機能
+- [ ] 破壊的変更
+- [ ] ドキュメント更新
 
-## Testing
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
+## テスト
+- [ ] ユニットテストが通る
+- [ ] 統合テストが通る
+- [ ] 手動テスト完了
 
-## Checklist
-- [ ] Code follows project style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex code
-- [ ] Documentation updated
-- [ ] No new warnings generated
+## チェックリスト
+- [ ] コードがプロジェクトのスタイルガイドラインに従っている
+- [ ] セルフレビュー完了
+- [ ] 複雑なコードにコメントを追加
+- [ ] ドキュメント更新済み
+- [ ] 新しい警告が生成されていない
 ```
 
-## Coding Standards
+## コーディング標準
 
 ### TypeScript/JavaScript
 
 ```typescript
-// Use meaningful names
+// 意味のある名前を使用
 const getUserById = async (userId: string) => {
-  // Good
+  // 良い
 };
 
 const func = async (id: string) => {
-  // Bad
+  // 悪い
 };
 
-// Use proper types
+// 適切な型を使用
 interface User {
   id: string;
   name: string;
   email: string;
 }
 
-// Document complex functions
+// 複雑な関数をドキュメント化
 /**
- * Processes user data and returns formatted result
- * @param userData - Raw user data from API
- * @returns Formatted user object
+ * ユーザーデータを処理してフォーマットされた結果を返す
+ * @param userData - API からの生のユーザーデータ
+ * @returns フォーマットされたユーザーオブジェクト
  */
 function processUserData(userData: RawUser): User {
-  // Implementation
+  // 実装
 }
 ```
 
-### React Components
+### React コンポーネント
 
 ```jsx
-// Use functional components with hooks
+// フックを使用した関数コンポーネントを使用
 const UserProfile = ({ userId }) => {
   const [user, setUser] = useState(null);
   
@@ -206,30 +206,30 @@ const UserProfile = ({ userId }) => {
   
   return (
     <div className="user-profile">
-      {/* Component content */}
+      {/* コンポーネントの内容 */}
     </div>
   );
 };
 
-// PropTypes or TypeScript interfaces
+// PropTypes または TypeScript インターフェース
 UserProfile.propTypes = {
   userId: PropTypes.string.isRequired,
 };
 ```
 
-### CSS/Styling
+### CSS/スタイリング
 
 ```css
-/* Use descriptive class names */
+/* 説明的なクラス名を使用 */
 .user-profile-header {
-  /* Good */
+  /* 良い */
 }
 
 .header {
-  /* Too generic */
+  /* 汎用的すぎる */
 }
 
-/* Follow BEM naming when applicable */
+/* 該当する場合は BEM 命名規則に従う */
 .folder-card__title {
   /* Block__Element */
 }
@@ -239,106 +239,106 @@ UserProfile.propTypes = {
 }
 ```
 
-## Project Structure Guidelines
+## プロジェクト構造のガイドライン
 
-### Adding New Features
+### 新機能の追加
 
-1. **Backend Handler**
-   - Create in `backend/src/handlers/`
-   - Follow existing handler patterns
-   - Add error handling
+1. **バックエンドハンドラ**
+   - `backend/src/handlers/` に作成
+   - 既存のハンドラパターンに従う
+   - エラーハンドリングを追加
 
-2. **Frontend Component**
-   - Create in appropriate directory
-   - Include tests
-   - Update exports
+2. **フロントエンドコンポーネント**
+   - 適切なディレクトリに作成
+   - テストを含める
+   - エクスポートを更新
 
-3. **API Service**
-   - Extend base service class
-   - Add to service index
-   - Document methods
+3. **API サービス**
+   - ベースサービスクラスを拡張
+   - サービスインデックスに追加
+   - メソッドをドキュメント化
 
-4. **Database Schema**
-   - Update TypeScript interfaces
-   - Document in ARCHITECTURE.md
-   - Consider migrations
+4. **データベーススキーマ**
+   - TypeScript インターフェースを更新
+   - ARCHITECTURE.md にドキュメント化
+   - マイグレーションを検討
 
-## Documentation
+## ドキュメント
 
-### When to Update Documentation
+### ドキュメントを更新するタイミング
 
-Update documentation when you:
-- Add new features
-- Change API endpoints
-- Modify configuration
-- Update dependencies
-- Change deployment process
+以下の場合にドキュメントを更新してください：
+- 新機能を追加したとき
+- API エンドポイントを変更したとき
+- 設定を変更したとき
+- 依存関係を更新したとき
+- デプロイプロセスを変更したとき
 
-### Documentation Standards
+### ドキュメント標準
 
-- Use clear, concise language
-- Include code examples
-- Keep it up-to-date
-- Use proper markdown formatting
+- 明確で簡潔な言葉を使用
+- コード例を含める
+- 最新の状態に保つ
+- 適切なマークダウンフォーマットを使用
 
-## Review Process
+## レビュープロセス
 
-### What We Look For
+### レビューで確認すること
 
-1. **Code Quality**
-   - Clean, readable code
-   - Proper error handling
-   - No code duplication
-   - Performance considerations
+1. **コード品質**
+   - クリーンで読みやすいコード
+   - 適切なエラーハンドリング
+   - コードの重複なし
+   - パフォーマンスの考慮
 
-2. **Testing**
-   - Adequate test coverage
-   - Tests pass
-   - Edge cases covered
+2. **テスト**
+   - 十分なテストカバレッジ
+   - テストが通る
+   - エッジケースがカバーされている
 
-3. **Documentation**
-   - Code is commented
-   - README updated if needed
-   - API docs updated
+3. **ドキュメント**
+   - コードにコメントがある
+   - 必要に応じて README が更新されている
+   - API ドキュメントが更新されている
 
-4. **Security**
-   - No exposed secrets
-   - Input validation
-   - Proper authentication
+4. **セキュリティ**
+   - シークレットが露出していない
+   - 入力検証
+   - 適切な認証
 
-### Review Timeline
+### レビュータイムライン
 
-- Initial review: 2-3 business days
-- Follow-up reviews: 1-2 business days
-- Feel free to ping if no response after 5 days
+- 初回レビュー: 2-3 営業日
+- フォローアップレビュー: 1-2 営業日
+- 5 日後に応答がない場合は、お気軽にリマインドしてください
 
-## Getting Help
+## ヘルプの取得
 
-### Resources
+### リソース
 
-- [Development Guide](DEVELOPMENT.md)
-- [Architecture Documentation](ARCHITECTURE.md)
-- [API Documentation](API.md)
+- [開発ガイド](DEVELOPMENT.md)
+- [アーキテクチャドキュメント](ARCHITECTURE.md)
+- [API ドキュメント](API.md)
 - GitHub Issues
 - GitHub Discussions
 
-### Communication Channels
+### コミュニケーションチャンネル
 
-- **GitHub Issues**: Bug reports and feature requests
-- **GitHub Discussions**: Questions and discussions
-- **Pull Requests**: Code contributions
+- **GitHub Issues**: バグレポートと機能リクエスト
+- **GitHub Discussions**: 質問とディスカッション
+- **Pull Requests**: コード貢献
 
-## Recognition
+## 認識
 
-Contributors will be:
-- Added to the Contributors list
-- Mentioned in release notes
-- Credited in the documentation
+貢献者は以下のように認識されます：
+- 貢献者リストに追加
+- リリースノートで言及
+- ドキュメントでクレジット
 
-## License
+## ライセンス
 
-By contributing, you agree that your contributions will be licensed under the project's MIT License.
+貢献することで、あなたの貢献がプロジェクトの MIT ライセンスの下でライセンスされることに同意したものとみなされます。
 
-## Thank You!
+## ありがとうございます！
 
-Your contributions make Web3CMS better for everyone. We appreciate your time and effort!
+あなたの貢献により、Web3CMS はすべての人にとってより良いものになります。あなたの時間と努力に感謝します！

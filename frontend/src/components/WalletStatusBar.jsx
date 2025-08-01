@@ -49,7 +49,7 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
 
     // 初回のみ取得
     fetchBalance();
-    
+
     // ブロックの更新を監視してバランスを更新（MetaMaskを開かない）
     if (provider) {
       const handleBlock = async () => {
@@ -65,10 +65,10 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
           }
         }
       };
-      
+
       // ブロック更新の監視（トランザクションがあった時のみ更新される）
       provider.on("block", handleBlock);
-      
+
       return () => {
         provider.off("block", handleBlock);
       };
@@ -142,6 +142,7 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
       1313161554: "Aurora",
       1313161555: "Aurora Testnet",
       8453: "Base",
+      21201: "bonsoleil",
     };
     return chains[id] || `Chain ${id}`;
   };
@@ -167,6 +168,7 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
       1313161554: "ETH",
       1313161555: "ETH",
       8453: "ETH",
+      21201: "SOL",
     };
     return symbols[id] || "ETH";
   };
@@ -211,12 +213,12 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
 
         <div className="wallet-status-info">
           {currentUser?.avatar && (
-            <img 
-              src={currentUser.avatar} 
-              alt={currentUser.name || 'User avatar'}
+            <img
+              src={currentUser.avatar}
+              alt={currentUser.name || "User avatar"}
               className="wallet-status-avatar"
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.style.display = "none";
               }}
             />
           )}

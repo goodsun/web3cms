@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Web3Provider } from './contexts/Web3Context';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { I18nProvider } from './contexts/I18nContext';
 import Layout from './components/Layout';
 import ItemsPage from './pages/ItemsPage';
 import NFTsPage from './pages/NFTsPage';
@@ -22,10 +23,11 @@ import './App.css';
 function App() {
   return (
     <SettingsProvider>
-      <Web3Provider>
-        <Router>
-          <MobileDebugLog />
-          <Routes>
+      <I18nProvider>
+        <Web3Provider>
+          <Router>
+            <MobileDebugLog />
+            <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<ColumnsPage />} />
               <Route path="items" element={<ItemsPage />} />
@@ -38,11 +40,7 @@ function App() {
               <Route path="nfts/creator" element={<CreatorsPage />} />
               <Route path="nfts/creator/:address" element={<NFTListPage mode="creator" />} />
               <Route path="nfts/owner/:address" element={<NFTListPage mode="owner" />} />
-              <Route path="settings" element={
-                <ProtectedRoute requireMember={true}>
-                  <SettingsPage />
-                </ProtectedRoute>
-              } />
+              <Route path="settings" element={<SettingsPage />} />
               <Route path="settings/admin" element={
                 <ProtectedRoute requireAdmin={true}>
                   <AdminSettingsPage />
@@ -53,6 +51,7 @@ function App() {
           </Routes>
         </Router>
       </Web3Provider>
+      </I18nProvider>
     </SettingsProvider>
   );
 }

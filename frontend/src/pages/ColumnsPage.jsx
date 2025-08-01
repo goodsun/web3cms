@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useWeb3 } from "../contexts/Web3Context";
 import { useSettings } from "../contexts/SettingsContext";
+import { useI18n } from "../contexts/I18nContext";
 import api from "../services/api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -12,6 +13,7 @@ import "./ColumnsPage.css";
 const ColumnsPage = () => {
   const { account } = useWeb3();
   const { settings } = useSettings();
+  const { t } = useI18n();
   const [folders, setFolders] = useState([]);
   const [contents, setContents] = useState([]);
   const [rootContent, setRootContent] = useState(null);
@@ -66,7 +68,7 @@ const ColumnsPage = () => {
       ) {
         setFolders([]);
       } else {
-        setError("Failed to load folders. Please try again.");
+        setError(t('common.error', 'An error occurred'));
       }
     } finally {
       setIsLoading(false);

@@ -1,16 +1,16 @@
-# Web3CMS Deployment Guide
+# Web3CMS デプロイメントガイド
 
-## Overview
+## 概要
 
-This guide covers the deployment process for Web3CMS to AWS using AWS CDK. The application supports three environments: development (dev), staging, and production (prod).
+このガイドでは、AWS CDK を使用した Web3CMS の AWS へのデプロイプロセスについて説明します。アプリケーションは開発（dev）、ステージング（staging）、本番（prod）の 3 つの環境をサポートしています。
 
-## Prerequisites
+## 前提条件
 
-### Required Software
+### 必要なソフトウェア
 
-1. **Node.js** (v20.x or higher)
+1. **Node.js** (v20.x 以上)
    ```bash
-   node --version  # Should output v20.x.x or higher
+   node --version  # v20.x.x 以上が表示されるはず
    ```
 
 2. **AWS CLI** (v2.x)
@@ -24,168 +24,168 @@ This guide covers the deployment process for Web3CMS to AWS using AWS CDK. The a
    cdk --version
    ```
 
-### AWS Configuration
+### AWS 設定
 
-1. **Configure AWS Credentials**
+1. **AWS 認証情報の設定**
    ```bash
    aws configure
    ```
-   Enter your:
-   - AWS Access Key ID
-   - AWS Secret Access Key
-   - Default region (e.g., us-east-1)
-   - Default output format (json)
+   以下を入力：
+   - AWS アクセスキー ID
+   - AWS シークレットアクセスキー
+   - デフォルトリージョン（例: us-east-1）
+   - デフォルト出力形式（json）
 
-2. **Verify AWS Access**
+2. **AWS アクセスの確認**
    ```bash
    aws sts get-caller-identity
    ```
 
-3. **Bootstrap CDK** (first time only)
+3. **CDK のブートストラップ**（初回のみ）
    ```bash
    cdk bootstrap aws://ACCOUNT-ID/REGION
    ```
 
-## Quick Deployment
+## クイックデプロイメント
 
-### One-Command Deployment
+### ワンコマンドデプロイメント
 
-The fastest way to deploy is using the provided npm scripts:
+提供されている npm スクリプトを使用する最速のデプロイ方法：
 
 ```bash
-# Deploy to development
+# 開発環境へのデプロイ
 npm run deploy:dev
 
-# Deploy to staging
+# ステージング環境へのデプロイ
 npm run deploy:staging
 
-# Deploy to production
+# 本番環境へのデプロイ
 npm run deploy:prod
 ```
 
-These commands will:
-1. Build the TypeScript code
-2. Deploy the CDK stack
-3. Update frontend configuration
-4. Invalidate CloudFront cache
+これらのコマンドは以下を実行します：
+1. TypeScript コードのビルド
+2. CDK スタックのデプロイ
+3. フロントエンド設定の更新
+4. CloudFront キャッシュの無効化
 
-## Step-by-Step Deployment
+## ステップバイステップのデプロイメント
 
-### 1. Install Dependencies
+### 1. 依存関係のインストール
 
 ```bash
-# Root directory
+# ルートディレクトリ
 npm install
 
-# Frontend dependencies
+# フロントエンドの依存関係
 cd frontend
 npm install
 cd ..
 
-# Backend dependencies
+# バックエンドの依存関係
 cd backend
 npm install
 cd ..
 ```
 
-### 2. Build the Project
+### 2. プロジェクトのビルド
 
 ```bash
-# Build TypeScript files
+# TypeScript ファイルのビルド
 npm run build
 
-# Build frontend
+# フロントエンドのビルド
 cd frontend
 npm run build
 cd ..
 ```
 
-### 3. Deploy Infrastructure
+### 3. インフラストラクチャのデプロイ
 
 ```bash
-# Deploy to development
+# 開発環境へのデプロイ
 cdk deploy --context env=dev
 
-# Deploy to staging
+# ステージング環境へのデプロイ
 cdk deploy --context env=staging
 
-# Deploy to production
+# 本番環境へのデプロイ
 cdk deploy --context env=prod
 ```
 
-### 4. Update Frontend Configuration
+### 4. フロントエンド設定の更新
 
-After deployment, update the frontend with the API endpoint:
+デプロイ後、API エンドポイントでフロントエンドを更新：
 
 ```bash
-# Using the provided script
+# 提供されたスクリプトを使用
 ./scripts/update-frontend-config.sh dev
 
-# Or manually
+# または手動で
 API_URL=$(./scripts/get-api-endpoint.sh dev)
 echo "VITE_API_ENDPOINT=$API_URL" > frontend/.env.production.local
 ```
 
-### 5. Deploy Frontend
+### 5. フロントエンドのデプロイ
 
 ```bash
 cd frontend
 npm run build
 cd ..
 
-# The CDK deployment automatically syncs the built files to S3
+# CDK デプロイメントはビルドされたファイルを自動的に S3 に同期します
 ```
 
-## Deployment Scripts
+## デプロイメントスクリプト
 
 ### deploy-with-config.sh
 
-Automated deployment script that handles the complete deployment process:
+完全なデプロイメントプロセスを処理する自動デプロイメントスクリプト：
 
 ```bash
-./scripts/deploy-with-config.sh [environment]
+./scripts/deploy-with-config.sh [環境]
 ```
 
-Features:
-- Validates environment parameter
-- Builds TypeScript code
-- Deploys CDK stack
-- Updates frontend configuration
-- Rebuilds frontend with new config
-- Syncs to S3
-- Invalidates CloudFront cache
+機能：
+- 環境パラメータの検証
+- TypeScript コードのビルド
+- CDK スタックのデプロイ
+- フロントエンド設定の更新
+- 新しい設定でフロントエンドを再ビルド
+- S3 への同期
+- CloudFront キャッシュの無効化
 
 ### update-frontend-config.sh
 
-Updates the frontend configuration with the deployed API endpoint:
+デプロイされた API エンドポイントでフロントエンド設定を更新：
 
 ```bash
-./scripts/update-frontend-config.sh [environment]
+./scripts/update-frontend-config.sh [環境]
 ```
 
 ### get-api-endpoint.sh
 
-Retrieves the API endpoint URL for a given environment:
+指定された環境の API エンドポイント URL を取得：
 
 ```bash
-./scripts/get-api-endpoint.sh [environment]
+./scripts/get-api-endpoint.sh [環境]
 ```
 
-## Environment Configuration
+## 環境設定
 
-### Environment Variables
+### 環境変数
 
-Each environment uses specific naming conventions:
+各環境は特定の命名規則を使用：
 
 ```
-Development: {projectName}-{resource}-dev
-Staging:     {projectName}-{resource}-staging
-Production:  {projectName}-{resource}-prod
+開発環境: {projectName}-{resource}-dev
+ステージング環境: {projectName}-{resource}-staging
+本番環境: {projectName}-{resource}-prod
 ```
 
-### CDK Context
+### CDK コンテキスト
 
-Configure deployment parameters in `cdk.json`:
+`cdk.json` でデプロイメントパラメータを設定：
 
 ```json
 {
@@ -205,223 +205,223 @@ Configure deployment parameters in `cdk.json`:
 }
 ```
 
-## Resource Overview
+## リソース概要
 
-### Created AWS Resources
+### 作成される AWS リソース
 
 1. **API Gateway**
-   - REST API with CORS enabled
-   - Endpoints for items, settings, and columns
+   - CORS が有効な REST API
+   - items、settings、columns のエンドポイント
 
-2. **Lambda Functions** (3)
-   - CRUD handler
-   - Settings handler
-   - Columns handler
+2. **Lambda 関数** (3)
+   - CRUD ハンドラ
+   - Settings ハンドラ
+   - Columns ハンドラ
 
-3. **DynamoDB Tables** (3)
-   - Items table
-   - Settings table
-   - Columns table
+3. **DynamoDB テーブル** (3)
+   - Items テーブル
+   - Settings テーブル
+   - Columns テーブル
 
-4. **S3 Bucket**
-   - Frontend hosting
-   - Blocked public access
+4. **S3 バケット**
+   - フロントエンドホスティング
+   - パブリックアクセスをブロック
 
-5. **CloudFront Distribution**
-   - Global CDN
-   - Custom error pages
-   - HTTPS only
+5. **CloudFront ディストリビューション**
+   - グローバル CDN
+   - カスタムエラーページ
+   - HTTPS のみ
 
-6. **IAM Roles and Policies**
-   - Lambda execution roles
-   - DynamoDB access policies
+6. **IAM ロールとポリシー**
+   - Lambda 実行ロール
+   - DynamoDB アクセスポリシー
 
-## Post-Deployment Tasks
+## デプロイ後のタスク
 
-### 1. Verify Deployment
+### 1. デプロイの確認
 
-Check that all resources are created:
+すべてのリソースが作成されていることを確認：
 
 ```bash
-# List CloudFormation stacks
+# CloudFormation スタックの一覧表示
 aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE
 
-# Get stack outputs
+# スタック出力の取得
 aws cloudformation describe-stacks --stack-name web3cms-stack-dev
 ```
 
-### 2. Test API Endpoints
+### 2. API エンドポイントのテスト
 
 ```bash
-# Get API URL
+# API URL の取得
 API_URL=$(./scripts/get-api-endpoint.sh dev)
 
-# Test health endpoint
+# ヘルスエンドポイントのテスト
 curl $API_URL/items
 
-# Test public endpoints
+# パブリックエンドポイントのテスト
 curl $API_URL/columns/public/folders
 ```
 
-### 3. Access Frontend
+### 3. フロントエンドへのアクセス
 
-The CloudFront URL is output after deployment:
+CloudFront URL はデプロイ後に出力されます：
 ```
 https://d1234567890abc.cloudfront.net
 ```
 
-### 4. Configure Custom Domain (Optional)
+### 4. カスタムドメインの設定（オプション）
 
-1. Request ACM certificate in us-east-1
-2. Update CDK stack with domain configuration
-3. Configure Route53 or external DNS
+1. us-east-1 で ACM 証明書をリクエスト
+2. ドメイン設定で CDK スタックを更新
+3. Route53 または外部 DNS を設定
 
-## Rollback Procedures
+## ロールバック手順
 
-### Quick Rollback
+### クイックロールバック
 
 ```bash
-# Rollback to previous version
+# 前のバージョンへのロールバック
 cdk deploy --rollback
 
-# Or destroy and redeploy
+# または破棄して再デプロイ
 cdk destroy --context env=dev
 cdk deploy --context env=dev
 ```
 
-### Manual Rollback
+### 手動ロールバック
 
-1. **Frontend Rollback**
+1. **フロントエンドのロールバック**
    ```bash
-   # Restore previous build
+   # 前のビルドを復元
    aws s3 sync s3://bucket-name-backup/ s3://bucket-name/ --delete
    ```
 
-2. **Lambda Rollback**
+2. **Lambda のロールバック**
    ```bash
-   # Update function code to previous version
+   # 関数コードを前のバージョンに更新
    aws lambda update-function-code --function-name function-name --s3-bucket bucket --s3-key previous-version.zip
    ```
 
-## Monitoring Deployment
+## デプロイメントの監視
 
-### CloudFormation Events
+### CloudFormation イベント
 
-Monitor deployment progress:
+デプロイメントの進行状況を監視：
 
 ```bash
-# Watch stack events
+# スタックイベントを監視
 watch -n 2 "aws cloudformation describe-stack-events --stack-name web3cms-stack-dev | head -20"
 ```
 
-### Deployment Logs
+### デプロイメントログ
 
-Check CDK deployment logs:
+CDK デプロイメントログを確認：
 ```bash
-# CDK outputs detailed logs during deployment
+# CDK はデプロイメント中に詳細なログを出力します
 cdk deploy --verbose
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### Common Issues
+### 一般的な問題
 
-1. **CDK Bootstrap Required**
+1. **CDK ブートストラップが必要**
    ```
-   Error: This stack uses assets, so the toolkit stack must be deployed
-   Solution: Run 'cdk bootstrap'
-   ```
-
-2. **Insufficient IAM Permissions**
-   ```
-   Error: User is not authorized to perform: cloudformation:CreateStack
-   Solution: Ensure AWS credentials have AdministratorAccess or required policies
+   エラー: This stack uses assets, so the toolkit stack must be deployed
+   解決策: 'cdk bootstrap' を実行
    ```
 
-3. **DynamoDB Table Exists**
+2. **不十分な IAM 権限**
    ```
-   Error: Table already exists
-   Solution: Either destroy existing stack or use different environment name
-   ```
-
-4. **S3 Bucket Name Conflict**
-   ```
-   Error: Bucket name already exists
-   Solution: S3 bucket names are global; modify projectName in cdk.json
+   エラー: User is not authorized to perform: cloudformation:CreateStack
+   解決策: AWS 認証情報に AdministratorAccess または必要なポリシーがあることを確認
    ```
 
-### Debug Commands
+3. **DynamoDB テーブルが存在する**
+   ```
+   エラー: Table already exists
+   解決策: 既存のスタックを破棄するか、異なる環境名を使用
+   ```
+
+4. **S3 バケット名の競合**
+   ```
+   エラー: Bucket name already exists
+   解決策: S3 バケット名はグローバル；cdk.json の projectName を変更
+   ```
+
+### デバッグコマンド
 
 ```bash
-# Check Lambda logs
+# Lambda ログの確認
 aws logs tail /aws/lambda/web3cms-crud-dev --follow
 
-# Check API Gateway logs
+# API Gateway ログの確認
 aws logs tail API-Gateway-Execution-Logs_${REST_API_ID}/prod --follow
 
-# Test Lambda function
+# Lambda 関数のテスト
 aws lambda invoke --function-name web3cms-crud-dev --payload '{"httpMethod":"GET","path":"/items"}' response.json
 ```
 
-## Production Deployment Checklist
+## 本番デプロイメントチェックリスト
 
-- [ ] Run tests in staging environment
-- [ ] Backup current production data
-- [ ] Review and update environment variables
-- [ ] Enable CloudWatch alarms
-- [ ] Configure auto-scaling if needed
-- [ ] Test rollback procedure
-- [ ] Update DNS records if using custom domain
-- [ ] Monitor deployment progress
-- [ ] Verify all endpoints post-deployment
-- [ ] Check CloudFront distribution
+- [ ] ステージング環境でテストを実行
+- [ ] 現在の本番データをバックアップ
+- [ ] 環境変数をレビューして更新
+- [ ] CloudWatch アラームを有効化
+- [ ] 必要に応じて自動スケーリングを設定
+- [ ] ロールバック手順をテスト
+- [ ] カスタムドメインを使用する場合は DNS レコードを更新
+- [ ] デプロイメントの進行状況を監視
+- [ ] デプロイ後にすべてのエンドポイントを確認
+- [ ] CloudFront ディストリビューションを確認
 
-## Cost Optimization
+## コスト最適化
 
-### Development Environment
-- Use DynamoDB on-demand pricing
-- Set Lambda memory to minimum required
-- Configure S3 lifecycle policies
+### 開発環境
+- DynamoDB オンデマンド価格を使用
+- Lambda メモリを必要最小限に設定
+- S3 ライフサイクルポリシーを設定
 
-### Production Environment
-- Consider DynamoDB provisioned capacity for predictable workloads
-- Enable S3 Intelligent-Tiering
-- Use CloudFront caching effectively
-- Set up budget alerts
+### 本番環境
+- 予測可能なワークロードには DynamoDB プロビジョンド容量を検討
+- S3 Intelligent-Tiering を有効化
+- CloudFront キャッシングを効果的に使用
+- 予算アラートを設定
 
-## Security Considerations
+## セキュリティの考慮事項
 
-### Pre-Deployment
-1. Review IAM policies for least privilege
-2. Enable AWS CloudTrail
-3. Configure AWS Config
-4. Set up AWS GuardDuty
+### デプロイ前
+1. 最小権限の IAM ポリシーをレビュー
+2. AWS CloudTrail を有効化
+3. AWS Config を設定
+4. AWS GuardDuty を設定
 
-### Post-Deployment
-1. Enable S3 bucket versioning
-2. Configure CloudWatch alarms
-3. Set up SNS notifications for errors
-4. Review API Gateway throttling limits
+### デプロイ後
+1. S3 バケットのバージョニングを有効化
+2. CloudWatch アラームを設定
+3. エラー用の SNS 通知を設定
+4. API Gateway のスロットリング制限をレビュー
 
-## Maintenance
+## メンテナンス
 
-### Regular Tasks
-- Monitor CloudWatch logs and metrics
-- Review and rotate access keys
-- Update dependencies regularly
-- Backup DynamoDB tables
-- Review cost optimization reports
+### 定期的なタスク
+- CloudWatch ログとメトリクスを監視
+- アクセスキーをレビューしてローテーション
+- 依存関係を定期的に更新
+- DynamoDB テーブルをバックアップ
+- コスト最適化レポートをレビュー
 
-### Update Procedures
-1. Test updates in development
-2. Deploy to staging and verify
-3. Schedule production deployment
-4. Monitor post-deployment metrics
+### 更新手順
+1. 開発環境で更新をテスト
+2. ステージングにデプロイして確認
+3. 本番デプロイメントをスケジュール
+4. デプロイ後のメトリクスを監視
 
-## Support
+## サポート
 
-For deployment issues:
-1. Check CloudFormation events for errors
-2. Review CloudWatch logs
-3. Consult AWS CDK documentation
-4. Check GitHub issues for similar problems
+デプロイメントの問題については：
+1. CloudFormation イベントでエラーを確認
+2. CloudWatch ログをレビュー
+3. AWS CDK ドキュメントを参照
+4. GitHub issues で類似の問題を確認

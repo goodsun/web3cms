@@ -1,271 +1,278 @@
 # Web3CMS
 
-A modern, serverless Content Management System with Web3 wallet authentication, built on AWS infrastructure.
+Web3ウォレット認証を備えた、AWS インフラストラクチャ上に構築されたモダンなサーバーレスコンテンツ管理システム。
 
-## Overview
+## 概要
 
-Web3CMS is a fullstack application that combines traditional CMS features with Web3 capabilities. It provides a secure, scalable content management platform with Ethereum wallet-based authentication and NFT integration.
+Web3CMS は、従来の CMS 機能と Web3 機能を組み合わせたフルスタックアプリケーションです。Ethereum ウォレットベースの認証と NFT 統合により、安全でスケーラブルなコンテンツ管理プラットフォームを提供します。
 
-### Key Features
+### 主な機能
 
-- 🔐 **Web3 Authentication**: MetaMask wallet integration for secure login
-- 📝 **Content Management**: Hierarchical folder structure with rich content support
-- 🚀 **Serverless Architecture**: Built on AWS Lambda, API Gateway, and DynamoDB
-- 🌐 **Public & Private Content**: Flexible access control for content visibility
-- 📱 **Mobile Optimized**: Responsive design with mobile wallet support
-- ⚡ **High Performance**: CloudFront CDN and optimized API design
-- 🔧 **Infrastructure as Code**: Complete AWS CDK setup
+- 🔐 **Web3 認証**: 安全なログインのための MetaMask ウォレット統合
+- 📝 **コンテンツ管理**: リッチコンテンツサポートを備えた階層フォルダ構造
+- 🚀 **サーバーレスアーキテクチャ**: AWS Lambda、API Gateway、DynamoDB 上に構築
+- 🌐 **パブリック＆プライベートコンテンツ**: コンテンツ可視性の柔軟なアクセス制御
+- 📱 **モバイル最適化**: モバイルウォレットサポートを備えたレスポンシブデザイン
+- ⚡ **高パフォーマンス**: CloudFront CDN と最適化された API 設計
+- 🔧 **Infrastructure as Code**: 完全な AWS CDK セットアップ
 
-## Tech Stack
+## 技術スタック
 
-### Backend
+### バックエンド
 - AWS Lambda (Node.js 20.x)
 - AWS API Gateway
 - DynamoDB
 - AWS CDK (TypeScript)
 - S3 + CloudFront
 
-### Frontend
+### フロントエンド
 - React 19.1.0
 - Vite
 - MetaMask SDK
 - ethers.js
 - React Router
 
-## Quick Start
+## クイックスタート
 
-### Prerequisites
+### 前提条件
 
-- Node.js 20.x or higher
-- AWS CLI configured with appropriate credentials
+- Node.js 20.x 以上
+- 適切な認証情報で設定された AWS CLI
 - AWS CDK CLI (`npm install -g aws-cdk`)
 - Git
 
-### Installation
+### インストール
 
-1. Clone the repository:
+1. リポジトリをクローン:
 ```bash
 git clone https://github.com/yourusername/web3cms.git
 cd web3cms
 ```
 
-2. Install dependencies:
+2. 依存関係をインストール:
 ```bash
-# Install root dependencies
+# ルート依存関係をインストール
 npm install
 
-# Install frontend dependencies
+# フロントエンド依存関係をインストール
 cd frontend
 npm install
 cd ..
 
-# Install backend dependencies
+# バックエンド依存関係をインストール
 cd backend
 npm install
 cd ..
 ```
 
-3. Deploy to AWS:
+3. AWS にデプロイ:
 ```bash
-# Deploy to development environment
+# 開発環境にデプロイ
 npm run deploy:dev
 
-# Deploy to staging
+# ステージング環境にデプロイ
 npm run deploy:staging
 
-# Deploy to production
+# 本番環境にデプロイ
 npm run deploy:prod
 ```
 
-4. Start local development:
+4. ローカル開発を開始:
 ```bash
-# Terminal 1: Start backend watch mode
+# ターミナル 1: バックエンドのウォッチモードを開始
 npm run watch
 
-# Terminal 2: Start frontend dev server
+# ターミナル 2: フロントエンド開発サーバーを開始
 cd frontend
 npm run dev
 ```
 
-## Project Structure
+## プロジェクト構造
 
 ```
 web3cms/
-├── backend/                    # Lambda functions and backend code
+├── backend/                    # Lambda 関数とバックエンドコード
 │   ├── src/
-│   │   ├── handlers/          # Lambda function handlers
-│   │   │   ├── crud.ts       # Basic CRUD operations
-│   │   │   ├── settings.ts   # Settings management
-│   │   │   └── columns.ts    # CMS content operations
-│   │   └── constants.ts      # Shared constants
-│   ├── repositories/          # Data access layer
-│   ├── utils/                 # Utility functions
+│   │   ├── handlers/          # Lambda 関数ハンドラー
+│   │   │   ├── crud.ts       # 基本的な CRUD 操作
+│   │   │   ├── settings.ts   # 設定管理
+│   │   │   └── columns.ts    # CMS コンテンツ操作
+│   │   └── constants.ts      # 共有定数
+│   ├── repositories/          # データアクセスレイヤー
+│   ├── utils/                 # ユーティリティ関数
 │   └── tsconfig.json
-├── frontend/                   # React frontend application
+├── frontend/                   # React フロントエンドアプリケーション
 │   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── pages/            # Page components
-│   │   ├── services/         # API services
-│   │   ├── contexts/         # React contexts
-│   │   ├── hooks/            # Custom hooks
-│   │   └── utils/            # Utility functions
+│   │   ├── components/        # React コンポーネント
+│   │   ├── pages/            # ページコンポーネント
+│   │   ├── services/         # API サービス
+│   │   ├── contexts/         # React コンテキスト
+│   │   ├── hooks/            # カスタムフック
+│   │   └── utils/            # ユーティリティ関数
 │   └── vite.config.js
-├── lib/                       # CDK infrastructure code
+├── lib/                       # CDK インフラストラクチャコード
 │   └── fullstack-serverless-cdk-stack.ts
-├── scripts/                   # Deployment and utility scripts
-├── shared/                    # Shared code between frontend and backend
-│   └── constants/            # Shared constants
-└── docs/                     # Documentation
+├── scripts/                   # デプロイメントとユーティリティスクリプト
+├── shared/                    # フロントエンドとバックエンド間の共有コード
+│   └── constants/            # 共有定数
+└── docs/                     # ドキュメント
 
 ```
 
-## API Documentation
+## API ドキュメント
 
-See [API.md](docs/API.md) for detailed API documentation.
+詳細な API ドキュメントは [API.md](docs/API.md) を参照してください。
 
-### Quick API Reference
+### クイック API リファレンス
 
-- `GET /items` - List all items
-- `POST /items` - Create new item
-- `GET /items/{id}` - Get specific item
-- `PUT /items/{id}` - Update item
-- `DELETE /items/{id}` - Delete item
-- `GET /columns/folders` - List folders
-- `POST /columns/folders` - Create folder
-- `GET /columns/contents` - List contents
-- `POST /columns/contents` - Create content
+- `GET /items` - すべてのアイテムを一覧表示
+- `POST /items` - 新しいアイテムを作成
+- `GET /items/{id}` - 特定のアイテムを取得
+- `PUT /items/{id}` - アイテムを更新
+- `DELETE /items/{id}` - アイテムを削除
+- `GET /columns/folders` - フォルダを一覧表示
+- `POST /columns/folders` - フォルダを作成
+- `GET /columns/contents` - コンテンツを一覧表示
+- `POST /columns/contents` - コンテンツを作成
 
-## Configuration
+## 設定
 
-### Environment Variables
+### 環境変数
 
-#### Backend (Lambda)
-- `TABLE_NAME` - DynamoDB table for items
-- `SETTINGS_TABLE_NAME` - DynamoDB table for settings
-- `REGION` - AWS region
-- `ENV` - Environment (dev/staging/prod)
+#### バックエンド (Lambda)
+- `TABLE_NAME` - アイテム用の DynamoDB テーブル
+- `SETTINGS_TABLE_NAME` - 設定用の DynamoDB テーブル
+- `REGION` - AWS リージョン
+- `ENV` - 環境 (dev/staging/prod)
 
-#### Frontend
-- `VITE_API_ENDPOINT` - API Gateway endpoint URL
+#### フロントエンド
+- `VITE_API_ENDPOINT` - API Gateway エンドポイント URL
 
-### AWS Resources
+### AWS リソース
 
-The CDK stack creates the following resources:
+CDK スタックは以下のリソースを作成します：
 - API Gateway REST API
-- Lambda functions
-- DynamoDB tables (3)
-- S3 bucket for frontend
-- CloudFront distribution
-- IAM roles and policies
+- Lambda 関数
+- DynamoDB テーブル (3つ)
+- フロントエンド用 S3 バケット
+- CloudFront ディストリビューション
+- IAM ロールとポリシー
 
-## Development
+## 開発
 
-### Local Development
+### ローカル開発
 
-1. Start the backend in watch mode:
+1. バックエンドをウォッチモードで開始:
 ```bash
 npm run watch
 ```
 
-2. Start the frontend dev server:
+2. フロントエンド開発サーバーを開始:
 ```bash
 cd frontend
 npm run dev
 ```
 
-3. Access the application at `http://localhost:5173`
+3. `http://localhost:5173` でアプリケーションにアクセス
 
-### Testing
+### 設定ファイル
+
+`frontend/public/api-config.json` ファイルはデプロイ時に自動生成され、git にコミットすべきではありません。ローカル開発では：
+- ファイルが存在しない場合、`api-config.json.template` から生成されます
+- デプロイ時に正しい API エンドポイントで更新されます
+- このファイルは環境固有の URL がコミットされないよう git により無視されます
+
+### テスト
 
 ```bash
-# Run backend tests
+# バックエンドテストを実行
 npm test
 
-# Run frontend tests
+# フロントエンドテストを実行
 cd frontend
 npm test
 ```
 
-### Code Quality
+### コード品質
 
 ```bash
-# Build TypeScript
+# TypeScript をビルド
 npm run build
 
-# Type check
+# 型チェック
 npm run typecheck
 ```
 
-## Deployment
+## デプロイメント
 
-### Automated Deployment
+### 自動デプロイメント
 
-Use the provided npm scripts for deployment:
+提供された npm スクリプトを使用してデプロイ：
 
 ```bash
-# Deploy to specific environment
+# 特定の環境にデプロイ
 npm run deploy:dev
 npm run deploy:staging
 npm run deploy:prod
 
-# Deploy with automatic frontend config update
+# フロントエンド設定の自動更新でデプロイ
 ./scripts/deploy-with-config.sh dev
 ```
 
-### Manual Deployment
+### 手動デプロイメント
 
-1. Build the project:
+1. プロジェクトをビルド:
 ```bash
 npm run build
 ```
 
-2. Deploy using CDK:
+2. CDK を使用してデプロイ:
 ```bash
 cdk deploy --context env=dev
 ```
 
-3. Update frontend configuration:
+3. フロントエンド設定を更新:
 ```bash
 ./scripts/update-frontend-config.sh dev
 ```
 
-## Architecture
+## アーキテクチャ
 
-See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentation.
+詳細なアーキテクチャドキュメントは [ARCHITECTURE.md](docs/ARCHITECTURE.md) を参照してください。
 
-### High-Level Overview
+### ハイレベル概要
 
-- **Frontend**: React SPA hosted on S3/CloudFront
-- **API**: REST API via API Gateway
-- **Backend**: Lambda functions for business logic
-- **Database**: DynamoDB for data storage
-- **Authentication**: MetaMask wallet-based auth
+- **フロントエンド**: S3/CloudFront でホストされる React SPA
+- **API**: API Gateway 経由の REST API
+- **バックエンド**: ビジネスロジック用の Lambda 関数
+- **データベース**: データストレージ用の DynamoDB
+- **認証**: MetaMask ウォレットベース認証
 
-## Contributing
+## コントリビューション
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.
+コントリビューションガイドラインは [CONTRIBUTING.md](docs/CONTRIBUTING.md) を参照してください。
 
-## License
+## ライセンス
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+このプロジェクトは MIT ライセンスのもとでライセンスされています - 詳細は [LICENSE](LICENSE) ファイルを参照してください。
 
-## Support
+## サポート
 
-- Documentation: [docs/](docs/)
+- ドキュメント: [docs/](docs/)
 - Issues: [GitHub Issues](https://github.com/yourusername/web3cms/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/web3cms/discussions)
+- ディスカッション: [GitHub Discussions](https://github.com/yourusername/web3cms/discussions)
 
-## Roadmap
+## ロードマップ
 
-- [ ] Enhanced Web3 authentication with signature verification
-- [ ] NFT-gated content
-- [ ] Multi-chain support
-- [ ] Real-time updates with WebSocket
-- [ ] Advanced search with OpenSearch
-- [ ] Internationalization (i18n)
-- [ ] Plugin system
-- [ ] GraphQL API option
+- [ ] 署名検証を使用した強化された Web3 認証
+- [ ] NFT ゲートコンテンツ
+- [ ] マルチチェーンサポート
+- [ ] WebSocket によるリアルタイム更新
+- [ ] OpenSearch による高度な検索
+- [ ] 国際化 (i18n)
+- [ ] プラグインシステム
+- [ ] GraphQL API オプション
 
-## Acknowledgments
+## 謝辞
 
-Built with modern web technologies and AWS serverless services.
+モダンな Web 技術と AWS サーバーレスサービスで構築されています。

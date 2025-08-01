@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../contexts/Web3Context';
+import { useI18n } from '../contexts/I18nContext';
 import { userService } from '../services/api';
 import Toast from '../components/Toast';
 import { Link } from 'react-router-dom';
+import PreAuthSettingsPage from './PreAuthSettingsPage';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
-  const { account, currentUser, isAdmin, isLoadingUser, disconnect } = useWeb3();
+  const { account, currentUser, isAdmin, isLoadingUser } = useWeb3();
+  const { t, language, changeLanguage } = useI18n();
   const [user, setUser] = useState({
     eoa: '',
     name: '',
@@ -51,10 +54,10 @@ const SettingsPage = () => {
         name: user.name,
         avatar: user.avatar
       });
-      setSuccess('Profile updated successfully!');
+      setSuccess(t('settings.profileUpdated', 'Profile updated successfully!'));
     } catch (err) {
       console.error('Failed to save user settings:', err);
-      setError('Failed to save settings. Please try again.');
+      setError(t('settings.saveError', 'Failed to save settings. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -68,13 +71,13 @@ const SettingsPage = () => {
     
     try {
       await userService.claimAdmin(account);
-      setSuccess('Admin privileges claimed successfully!');
+      setSuccess(t('settings.adminClaimSuccess', 'Admin privileges claimed successfully!'));
       setAdminExists(true);
       // Reload the page to refresh user context
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       console.error('Failed to claim admin:', err);
-      setError('Failed to claim admin privileges. Please try again.');
+      setError(t('settings.adminClaimError', 'Failed to claim admin privileges. Please try again.'));
     } finally {
       setClaimingAdmin(false);
     }
@@ -85,24 +88,21 @@ const SettingsPage = () => {
       <div className="settings-page">
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Loading user information...</p>
+          <p>{t('settings.loadingUser', 'Loading user information...')}</p>
         </div>
       </div>
     );
   }
 
+  // Show PreAuthSettingsPage if wallet is not connected
+  if (!account) {
+    return <PreAuthSettingsPage />;
+  }
+
   return (
     <div className="settings-page">
       <div className="page-header">
-        <h1>User Settings</h1>
-        <button
-          type="button"
-          className="btn btn-secondary disconnect-btn"
-          onClick={disconnect}
-          title="Disconnect wallet"
-        >
-          Disconnect Wallet
-        </button>
+        <h1>{t('settings.title', 'User Settings')}</h1>
       </div>
 
       {error && (
@@ -123,12 +123,30 @@ const SettingsPage = () => {
       )}
 
       <form onSubmit={handleSave}>
-        {/* User Profile */}
+        {/* Language Settings */}
         <section className="settings-section">
-          <h2>Profile Information</h2>
+          <h2>{t('settings.language', 'Language')}</h2>
           
           <div className="form-group">
-            <label htmlFor="eoa">Wallet Address</label>
+            <label htmlFor="language">{t('settings.selectLanguage', 'Select your preferred language')}</label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="form-input"
+            >
+              <option value="en">English</option>
+              <option value="ja">日本語 (Japanese)</option>
+            </select>
+          </div>
+        </section>
+
+        {/* User Profile */}
+        <section className="settings-section">
+          <h2>{t('settings.profile', 'Profile Information')}</h2>
+          
+          <div className="form-group">
+            <label htmlFor="eoa">{t('settings.walletAddress', 'Wallet Address')}</label>
             <input
               type="text"
               id="eoa"
@@ -140,14 +158,14 @@ const SettingsPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="name">Display Name</label>
+            <label htmlFor="name">{t('settings.displayName', 'Display Name')}</label>
             <input
               type="text"
               id="name"
               value={user.name}
               onChange={(e) => setUser({ ...user, name: e.target.value })}
               className="form-input"
-              placeholder="Your display name"
+              placeholder={t('settings.displayNamePlaceholder', 'Enter your display name')}
             />
           </div>
 
@@ -162,19 +180,19 @@ const SettingsPage = () => {
               placeholder="Connect via Discord bot"
             />
             <small className="form-help">
-              Discord ID will be set automatically when you connect via Discord bot
+              {t('settings.discordIdHint', 'Discord ID will be set automatically when you connect via Discord bot')}
             </small>
           </div>
 
           <div className="form-group">
-            <label htmlFor="avatar">Avatar URL</label>
+            <label htmlFor="avatar">{t('settings.avatarUrl', 'Avatar URL')}</label>
             <input
               type="url"
               id="avatar"
               value={user.avatar}
               onChange={(e) => setUser({ ...user, avatar: e.target.value })}
               className="form-input"
-              placeholder="https://example.com/avatar.png"
+              placeholder={t('settings.avatarUrlPlaceholder', 'Enter your avatar image URL')}
             />
           </div>
         </section>
@@ -195,7 +213,7 @@ const SettingsPage = () => {
             {!isAdmin && !adminExists && (
               <div className="admin-claim">
                 <p className="warning-text">
-                  ⚠️ No administrator exists for this system. As the first member, you can claim admin privileges.
+                  ⚠️ {t('settings.claimAdminDescription', 'You can claim admin privileges as the first admin.')}
                 </p>
                 <button
                   type="button"
@@ -203,16 +221,16 @@ const SettingsPage = () => {
                   disabled={claimingAdmin}
                   className="btn btn-warning"
                 >
-                  {claimingAdmin ? 'Claiming...' : 'Become Administrator'}
+                  {claimingAdmin ? t('settings.claimingAdmin', 'Claiming admin privileges...') : t('settings.claimAdminButton', 'Claim Admin Privileges')}
                 </button>
               </div>
             )}
 
             {isAdmin && (
               <div className="admin-link">
-                <p>As an administrator, you have access to:</p>
+                <p>{t('settings.adminDashboard', 'Admin Dashboard')}</p>
                 <Link to="/settings/admin" className="btn btn-secondary">
-                  Admin Settings →
+                  {t('settings.systemSettings', 'System Settings')} →
                 </Link>
               </div>
             )}
@@ -225,7 +243,7 @@ const SettingsPage = () => {
             className="btn btn-primary"
             disabled={saving}
           >
-            {saving ? 'Saving...' : 'Save Profile'}
+            {saving ? t('settings.savingChanges', 'Saving changes...') : t('settings.saveChanges', 'Save Changes')}
           </button>
         </div>
       </form>

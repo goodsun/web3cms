@@ -52,3 +52,7 @@ coverage/
 # Local development
 env.json
 .secrets
+
+# Generated configuration files
+frontend/public/api-config.json
+frontend/dist/api-config.json
