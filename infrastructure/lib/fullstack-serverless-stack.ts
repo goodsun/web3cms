@@ -88,6 +88,50 @@ export class FullstackServerlessStack extends cdk.Stack {
       },
     });
 
+    // Users Table
+    const usersTable = new dynamodb.Table(this, 'UsersTable', {
+      partitionKey: {
+        name: 'eoa',
+        type: dynamodb.AttributeType.STRING,
+      },
+      tableName: `${projectName}-users-${env}`,
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: env === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    // NFTs Table
+    const nftsTable = new dynamodb.Table(this, 'NFTsTable', {
+      partitionKey: {
+        name: 'ca',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING,
+      },
+      tableName: `${projectName}-nfts-${env}`,
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: env === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    // Add GSI for querying NFTs by owner
+    nftsTable.addGlobalSecondaryIndex({
+      indexName: 'owner-index',
+      partitionKey: {
+        name: 'owner',
+        type: dynamodb.AttributeType.STRING,
+      },
+    });
+
+    // Add GSI for querying NFTs by creator
+    nftsTable.addGlobalSecondaryIndex({
+      indexName: 'creator-index',
+      partitionKey: {
+        name: 'creator',
+        type: dynamodb.AttributeType.STRING,
+      },
+    });
+
     // Lambda function for CRUD operations
     const crudLambda = new NodejsFunction(this, 'CrudHandler', {
       functionName: `${projectName}-crud-${env}`,
@@ -96,6 +140,8 @@ export class FullstackServerlessStack extends cdk.Stack {
       entry: path.join(__dirname, '../../backend/src/handlers/crud.ts'),
       environment: {
         TABLE_NAME: table.tableName,
+        USERS_TABLE_NAME: usersTable.tableName,
+        NFTS_TABLE_NAME: nftsTable.tableName,
         REGION: this.region,
         ENV: env,
       },
@@ -111,6 +157,8 @@ export class FullstackServerlessStack extends cdk.Stack {
 
     // Grant permissions to Lambda
     table.grantReadWriteData(crudLambda);
+    usersTable.grantReadWriteData(crudLambda);
+    nftsTable.grantReadWriteData(crudLambda);
 
     // Lambda function for Settings operations
     const settingsLambda = new NodejsFunction(this, 'SettingsHandler', {
@@ -159,6 +207,52 @@ export class FullstackServerlessStack extends cdk.Stack {
     // Grant permissions to Columns Lambda
     columnsTable.grantReadWriteData(columnsLambda);
 
+    // Lambda function for Users operations
+    const usersLambda = new NodejsFunction(this, 'UsersHandler', {
+      functionName: `${projectName}-users-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/users.ts'),
+      environment: {
+        USERS_TABLE_NAME: usersTable.tableName,
+        REGION: this.region,
+        ENV: env,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to Users Lambda
+    usersTable.grantReadWriteData(usersLambda);
+
+    // Lambda function for NFTs operations
+    const nftsLambda = new NodejsFunction(this, 'NFTsHandler', {
+      functionName: `${projectName}-nfts-${env}`,
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../backend/src/handlers/nfts.ts'),
+      environment: {
+        NFTS_TABLE_NAME: nftsTable.tableName,
+        REGION: this.region,
+        ENV: env,
+      },
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      bundling: {
+        minify: env === 'prod',
+        sourceMap: env !== 'prod',
+        target: 'es2022',
+      },
+    });
+
+    // Grant permissions to NFTs Lambda
+    nftsTable.grantReadWriteData(nftsLambda);
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'ItemsApi', {
       restApiName: `${projectName}-api-${env}`,
@@ -182,6 +276,8 @@ export class FullstackServerlessStack extends cdk.Stack {
     const integration = new apigateway.LambdaIntegration(crudLambda);
     const settingsIntegration = new apigateway.LambdaIntegration(settingsLambda);
     const columnsIntegration = new apigateway.LambdaIntegration(columnsLambda);
+    const usersIntegration = new apigateway.LambdaIntegration(usersLambda);
+    const nftsIntegration = new apigateway.LambdaIntegration(nftsLambda);
 
     // API endpoints
     const items = api.root.addResource('items');
@@ -229,6 +325,29 @@ export class FullstackServerlessStack extends cdk.Stack {
     
     const columnsPublicContent = columnsPublicContents.addResource('{id}');
     columnsPublicContent.addMethod('GET', columnsIntegration); // GET /columns/public/contents/{id}
+
+    // Users endpoints
+    const users = api.root.addResource('users');
+    users.addMethod('GET', usersIntegration); // GET /users - List all users
+    users.addMethod('POST', usersIntegration); // POST /users - Create new user
+    
+    const user = users.addResource('{eoa}');
+    user.addMethod('GET', usersIntegration); // GET /users/{eoa} - Get specific user
+    user.addMethod('PUT', usersIntegration); // PUT /users/{eoa} - Update user
+    user.addMethod('DELETE', usersIntegration); // DELETE /users/{eoa} - Delete user
+
+    // NFTs endpoints
+    const nfts = api.root.addResource('nfts');
+    nfts.addMethod('GET', nftsIntegration); // GET /nfts?owner={owner}&creator={creator} - Query NFTs
+    nfts.addMethod('POST', nftsIntegration); // POST /nfts - Create new NFT
+    
+    const nftContract = nfts.addResource('{ca}');
+    nftContract.addMethod('GET', nftsIntegration); // GET /nfts/{ca} - Get NFTs by contract
+    
+    const nftToken = nftContract.addResource('{id}');
+    nftToken.addMethod('GET', nftsIntegration); // GET /nfts/{ca}/{id} - Get specific NFT
+    nftToken.addMethod('PUT', nftsIntegration); // PUT /nfts/{ca}/{id} - Update NFT
+    nftToken.addMethod('DELETE', nftsIntegration); // DELETE /nfts/{ca}/{id} - Delete NFT
 
     // S3 Bucket for frontend
     const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
@@ -312,6 +431,16 @@ export class FullstackServerlessStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ColumnsTableName', {
       value: columnsTable.tableName,
       description: 'DynamoDB Columns Table Name',
+    });
+
+    new cdk.CfnOutput(this, 'UsersTableName', {
+      value: usersTable.tableName,
+      description: 'DynamoDB Users Table Name',
+    });
+
+    new cdk.CfnOutput(this, 'NFTsTableName', {
+      value: nftsTable.tableName,
+      description: 'DynamoDB NFTs Table Name',
     });
 
     new cdk.CfnOutput(this, 'DistributionId', {
