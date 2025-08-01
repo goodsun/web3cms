@@ -69,6 +69,17 @@
 
 .creator-avatar {
   flex-shrink: 0;
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.avatar-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 .avatar-placeholder {
@@ -77,16 +88,34 @@
   border-radius: 50%;
   background-color: var(--color-gray-200);
   color: var(--color-gray-700);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-lg);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.avatar-placeholder.show {
+  display: flex;
 }
 
 .creator-info {
   flex: 1;
   min-width: 0;
+}
+
+.creator-name {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .creator-address {

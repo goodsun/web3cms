@@ -50,6 +50,14 @@
   gap: var(--spacing-xs);
 }
 
+.wallet-status-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .wallet-status-address {
   font-family: var(--font-mono);
   letter-spacing: 0.05em;

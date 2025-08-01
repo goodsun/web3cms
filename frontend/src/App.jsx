@@ -10,11 +10,13 @@ import CreatorsPage from './pages/CreatorsPage';
 import NFTDetailPage from './pages/NFTDetailPage';
 import MintPage from './pages/MintPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminSettingsPage from './pages/AdminSettingsPage';
 import ColumnsPage from './pages/ColumnsPage';
 import SitemapPage from './pages/SitemapPage';
 import FolderViewPage from './pages/FolderViewPage';
 import ContentViewPage from './pages/ContentViewPage';
 import MobileDebugLog from './components/MobileDebugLog';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -36,7 +38,16 @@ function App() {
               <Route path="nfts/creator" element={<CreatorsPage />} />
               <Route path="nfts/creator/:address" element={<NFTListPage mode="creator" />} />
               <Route path="nfts/owner/:address" element={<NFTListPage mode="owner" />} />
-              <Route path="settings" element={<SettingsPage />} />
+              <Route path="settings" element={
+                <ProtectedRoute requireMember={true}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="settings/admin" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminSettingsPage />
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

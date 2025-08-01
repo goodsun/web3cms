@@ -11,6 +11,8 @@ import TBANFTTransfer from '../components/TBANFTTransfer';
 import CopyButton from '../components/CopyButton';
 import ChainMismatchModal from '../components/ChainMismatchModal';
 import { useChainGuard } from '../hooks/useChainGuard';
+import UserDisplay from '../components/UserDisplay';
+import NFTCard from '../components/NFTCard';
 import './NFTDetailPage.css';
 import './NFTDetailPage-instagram.css';
 
@@ -869,9 +871,7 @@ const NFTDetailPage = () => {
                   <div className="detail-item">
                     <span className="detail-label">Owner:</span>
                     <div className="detail-value-wrapper">
-                      <Link to={`/nfts/owner/${nft.owner}`} className="detail-value address">
-                        {formatAddress(nft.owner)}
-                      </Link>
+                      <UserDisplay address={nft.owner} size="medium" linkToProfile={true} />
                       <CopyButton text={nft.owner} label="Owner address" />
                     </div>
                   </div>
@@ -879,9 +879,7 @@ const NFTDetailPage = () => {
                     <div className="detail-item">
                       <span className="detail-label">Creator:</span>
                       <div className="detail-value-wrapper">
-                        <Link to={`/nfts/creator/${nft.creator}`} className="detail-value address">
-                          {formatAddress(nft.creator)}
-                        </Link>
+                        <UserDisplay address={nft.creator} size="medium" linkToProfile={true} />
                         <CopyButton text={nft.creator} label="Creator address" />
                       </div>
                     </div>
@@ -1042,30 +1040,19 @@ const NFTDetailPage = () => {
                     {!loadingTBA && tbaOwnedNFTs.length > 0 && (
                       <div className="tba-owned-nfts">
                         <h4>NFTs Owned by TBA</h4>
-                        <div className="tba-nfts-grid">
+                        <div className="tba-nfts-grid nfts-grid">
                           {tbaOwnedNFTs.map((ownedNft) => (
-                            <div key={ownedNft.tokenId} className="tba-owned-nft-container">
-                              <Link 
-                                to={`/nfts/token/${ownedNft.tokenId}`}
-                                className="tba-owned-nft"
-                              >
-                                {ownedNft.metadata?.image && (
-                                  <img src={ownedNft.metadata.image} alt={ownedNft.metadata.name || `Token #${ownedNft.tokenId}`} />
-                                )}
-                                <div className="tba-nft-info">
-                                  <p>{ownedNft.metadata?.name || `Token #${ownedNft.tokenId}`}</p>
-                                </div>
-                              </Link>
-                              {account && nft.owner.toLowerCase() === account.toLowerCase() && (
-                                <button
-                                  className="tba-nft-transfer-btn"
-                                  onClick={() => setTransferringTBANft(ownedNft)}
-                                  title="Transfer this NFT from TBA"
-                                >
-                                  Transfer
-                                </button>
-                              )}
-                            </div>
+                            <NFTCard
+                              key={ownedNft.tokenId}
+                              nft={{
+                                ...ownedNft,
+                                image: ownedNft.metadata?.image,
+                                name: ownedNft.metadata?.name,
+                                description: ownedNft.metadata?.description,
+                              }}
+                              showActions={account && nft.owner.toLowerCase() === account.toLowerCase()}
+                              onTransfer={() => setTransferringTBANft(ownedNft)}
+                            />
                           ))}
                         </div>
                         {transferringTBANft && (

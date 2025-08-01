@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import MetaMaskSDK from "@metamask/sdk";
 import { ethers } from "ethers";
+import { userService } from "../services/api";
 
 const Web3Context = createContext();
 
@@ -28,6 +29,8 @@ export const Web3Provider = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
 
   // Initialize MetaMask SDK
   useEffect(() => {
@@ -136,11 +139,12 @@ export const Web3Provider = ({ children }) => {
       setProvider(null);
       setSigner(null);
       setChainId(null);
+      setCurrentUser(null);
       localStorage.removeItem("web3_connected");
       localStorage.removeItem("walletAddress");
     } else {
       // Connected
-      const account = accounts[0];
+      const account = accounts[0].toLowerCase(); // Normalize to lowercase
       setAccount(account);
       
       if (window.addDebugLog) {
@@ -157,6 +161,21 @@ export const Web3Provider = ({ children }) => {
 
       localStorage.setItem("web3_connected", "true");
       localStorage.setItem("walletAddress", account);
+
+      // Register or fetch user
+      setIsLoadingUser(true);
+      try {
+        let user = await userService.getCurrentUser(account);
+        if (!user) {
+          // Register new user as member
+          user = await userService.registerUser(account);
+        }
+        setCurrentUser(user);
+      } catch (err) {
+        console.error("Failed to register/fetch user:", err);
+      } finally {
+        setIsLoadingUser(false);
+      }
     }
   }, [ethereum]);
 
@@ -250,6 +269,7 @@ export const Web3Provider = ({ children }) => {
     setProvider(null);
     setSigner(null);
     setChainId(null);
+    setCurrentUser(null);
     localStorage.removeItem("web3_connected");
     localStorage.removeItem("walletAddress");
   }, [sdk]);
@@ -271,6 +291,20 @@ export const Web3Provider = ({ children }) => {
     [ethereum]
   );
 
+  const refreshUser = useCallback(async () => {
+    if (!account) return;
+    
+    setIsLoadingUser(true);
+    try {
+      const user = await userService.getCurrentUser(account);
+      setCurrentUser(user);
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
+    } finally {
+      setIsLoadingUser(false);
+    }
+  }, [account]);
+
   // Remove focus event listener - it causes MetaMask to pop up repeatedly
   // Focus handling is not necessary for maintaining connection
 
@@ -283,9 +317,14 @@ export const Web3Provider = ({ children }) => {
     error,
     isConnected: !!account,
     isInitialized,
+    currentUser,
+    isLoadingUser,
+    isMember: !!currentUser,
+    isAdmin: currentUser?.admin === true,
     connect,
     disconnect,
     switchNetwork,
+    refreshUser,
   };
 
   return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;

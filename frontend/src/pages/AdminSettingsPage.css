@@ -1,9 +1,9 @@
-.settings-page {
+.admin-settings-page {
   max-width: 800px;
   margin: 0 auto;
 }
 
-.settings-page h1 {
+.admin-settings-page h1 {
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -31,6 +31,8 @@
 .loading-state p {
   color: var(--color-gray-500);
 }
+
+/* Message styles moved to Toast component */
 
 .settings-section {
   background: var(--color-white);
@@ -77,19 +79,17 @@
   transition: all var(--transition-fast);
 }
 
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
   outline: none;
   border-color: var(--color-black);
   box-shadow: 0 0 0 1px var(--color-black);
-}
-
-.form-input.disabled,
-.form-input:disabled {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-500);
-  cursor: not-allowed;
 }
 
 .form-help {
@@ -99,10 +99,72 @@
   color: var(--color-gray-500);
 }
 
+.input-group {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.input-group .form-input {
+  flex: 1;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-black);
+}
+
+.api-config {
+  background: var(--color-gray-50);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-md);
+  border: var(--border-width) solid var(--color-gray-200);
+}
+
 .form-actions {
   margin-top: var(--spacing-xl);
   display: flex;
   gap: var(--spacing-md);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .settings-section {
+    padding: var(--spacing-lg);
+  }
+  
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .input-group .btn {
+    width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+  }
 }
 
 /* Admin Status */
@@ -172,45 +234,91 @@
   cursor: not-allowed;
 }
 
-.admin-link {
-  margin-top: var(--spacing-lg);
+/* Admin Management Styles */
+.admin-grant-section,
+.admin-list-section,
+.leave-admin-section {
+  margin-bottom: var(--spacing-2xl);
 }
 
-.admin-link p {
+.admin-grant-section h3,
+.admin-list-section h3,
+.leave-admin-section h3 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-gray-800);
+}
+
+.admin-grant-form .input-group {
   margin-bottom: var(--spacing-sm);
-  color: var(--color-gray-600);
 }
 
-.btn-secondary {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
-  border: var(--border-width) solid var(--color-gray-300);
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background: var(--color-gray-50);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--color-gray-200);
+}
+
+.admin-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-white);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--color-gray-200);
+}
+
+.current-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  font-style: italic;
+  margin-left: auto;
+}
+
+.no-admins {
+  text-align: center;
+  color: var(--color-gray-500);
+  font-style: italic;
+  padding: var(--spacing-lg);
+}
+
+.leave-admin-section {
+  background-color: var(--color-danger-light);
+  border: var(--border-width) solid var(--color-danger);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+}
+
+.leave-admin-section .warning-text {
+  color: var(--color-danger-dark);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  display: inline-block;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.btn-secondary:hover {
-  background-color: var(--color-gray-200);
-  border-color: var(--color-gray-400);
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--color-danger-dark);
   transform: translateY(-1px);
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .settings-section {
-    padding: var(--spacing-lg);
-  }
-  
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-  
-  .form-actions .btn {
-    width: 100%;
-  }
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

@@ -5,6 +5,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
 import { getRpcProvider } from '../utils/rpcUtils';
 import { ethers } from 'ethers';
+import { userService } from '../services/api';
 import './CreatorsPage.css';
 
 const CreatorsPage = () => {
@@ -14,6 +15,7 @@ const CreatorsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [contractInfo, setContractInfo] = useState(null);
+  const [creatorsWithInfo, setCreatorsWithInfo] = useState({});
 
   const web3Config = settings?.web3 || {};
 
@@ -59,6 +61,18 @@ const CreatorsPage = () => {
         try {
           const creatorsList = await nftContract.getCreators();
           setCreators(creatorsList);
+          
+          // Fetch user info for all creators using batch API
+          const batchResult = await userService.getBatchUsers(creatorsList);
+          const userInfoMap = {};
+          
+          if (batchResult.users && batchResult.users.length > 0) {
+            batchResult.users.forEach(user => {
+              userInfoMap[user.eoa] = user;
+            });
+          }
+          
+          setCreatorsWithInfo(userInfoMap);
         } catch (err) {
           console.error('Failed to fetch creators:', err);
           throw new Error('Contract does not support getCreators() method');
@@ -125,31 +139,44 @@ const CreatorsPage = () => {
 
       {!loading && !error && creators.length > 0 && (
         <div className="creators-grid">
-          {creators.map((creator, index) => (
-            <Link 
-              key={creator} 
-              to={`/nfts/creator/${creator}`}
-              className="creator-card"
-            >
-              <div className="creator-avatar">
-                {/* Simple identicon-like avatar */}
-                <div className="avatar-placeholder">
-                  {index + 1}
+          {creators.map((creator, index) => {
+            const userInfo = creatorsWithInfo[creator.toLowerCase()];
+            return (
+              <Link 
+                key={creator} 
+                to={`/nfts/creator/${creator}`}
+                className="creator-card"
+              >
+                <div className="creator-avatar">
+                  {userInfo?.avatar ? (
+                    <img 
+                      src={userInfo.avatar} 
+                      alt={userInfo.name || 'Creator avatar'} 
+                      className="avatar-image"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`avatar-placeholder ${userInfo?.avatar ? '' : 'show'}`}>
+                    {userInfo?.name ? userInfo.name.charAt(0).toUpperCase() : (index + 1)}
+                  </div>
                 </div>
-              </div>
-              <div className="creator-info">
-                <div className="creator-address">
-                  {formatAddress(creator)}
+                <div className="creator-info">
+                  <div className="creator-name">
+                    {userInfo?.name || formatAddress(creator)}
+                  </div>
+                  <div className="creator-label">
+                    {userInfo?.name ? formatAddress(creator) : `Creator #${index + 1}`}
+                  </div>
                 </div>
-                <div className="creator-label">
-                  Creator #{index + 1}
+                <div className="creator-arrow">
+                  →
                 </div>
-              </div>
-              <div className="creator-arrow">
-                →
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
 

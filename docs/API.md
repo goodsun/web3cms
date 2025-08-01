@@ -660,6 +660,337 @@ GET /columns/public/contents/{id}
 
 **Note:** Returns 404 if content is not published.
 
+### Users API
+
+User profile management with EOA as primary key.
+
+#### List Users
+
+```http
+GET /users
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (optional for admin)
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "eoa": "0x1234567890abcdef1234567890abcdef12345678",
+      "discordAddress": "discord#1234",
+      "name": "User Name",
+      "avatar": "https://example.com/avatar.png",
+      "roles": ["user", "contributor"],
+      "admin": false,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### Get User
+
+```http
+GET /users/{eoa}
+```
+
+**Parameters:**
+- `eoa` (path) - Ethereum Owner Address
+
+**Response:**
+```json
+{
+  "eoa": "0x1234567890abcdef1234567890abcdef12345678",
+  "discordAddress": "discord#1234",
+  "name": "User Name",
+  "avatar": "https://example.com/avatar.png",
+  "roles": ["user", "contributor"],
+  "admin": false,
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Create User
+
+```http
+POST /users
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required)
+
+**Request Body:**
+```json
+{
+  "eoa": "0x1234567890abcdef1234567890abcdef12345678",
+  "discordAddress": "discord#1234",
+  "name": "User Name",
+  "avatar": "https://example.com/avatar.png",
+  "roles": ["user"],
+  "admin": false
+}
+```
+
+**Response:**
+```json
+{
+  "eoa": "0x1234567890abcdef1234567890abcdef12345678",
+  "discordAddress": "discord#1234",
+  "name": "User Name",
+  "avatar": "https://example.com/avatar.png",
+  "roles": ["user"],
+  "admin": false,
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Update User
+
+```http
+PUT /users/{eoa}
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required)
+
+**Parameters:**
+- `eoa` (path) - Ethereum Owner Address
+
+**Request Body:**
+```json
+{
+  "discordAddress": "newdiscord#5678",
+  "name": "Updated Name",
+  "avatar": "https://example.com/new-avatar.png",
+  "roles": ["user", "contributor", "moderator"],
+  "admin": true
+}
+```
+
+**Response:**
+```json
+{
+  "eoa": "0x1234567890abcdef1234567890abcdef12345678",
+  "discordAddress": "newdiscord#5678",
+  "name": "Updated Name",
+  "avatar": "https://example.com/new-avatar.png",
+  "roles": ["user", "contributor", "moderator"],
+  "admin": true,
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Delete User
+
+```http
+DELETE /users/{eoa}
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required, admin only)
+
+**Parameters:**
+- `eoa` (path) - Ethereum Owner Address
+
+**Response:**
+```
+204 No Content
+```
+
+### NFTs API
+
+NFT metadata management with composite key (contract address + token ID).
+
+#### List NFTs
+
+```http
+GET /nfts
+```
+
+**Query Parameters:**
+- `owner` (optional) - Filter by owner address
+- `creator` (optional) - Filter by creator address
+
+**Examples:**
+```
+GET /nfts?owner=0x1234567890abcdef1234567890abcdef12345678
+GET /nfts?creator=0xabcdef1234567890abcdef1234567890abcdef12
+```
+
+**Response:**
+```json
+{
+  "nfts": [
+    {
+      "ca": "0xcontract1234567890abcdef1234567890abcdef",
+      "id": "1",
+      "tokenUrl": "https://api.example.com/metadata/1",
+      "name": "NFT #1",
+      "image": "https://example.com/nft/1.png",
+      "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+      "owner": "0x1234567890abcdef1234567890abcdef12345678",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### List NFTs by Contract
+
+```http
+GET /nfts/{ca}
+```
+
+**Parameters:**
+- `ca` (path) - Contract Address
+
+**Response:**
+```json
+{
+  "nfts": [
+    {
+      "ca": "0xcontract1234567890abcdef1234567890abcdef",
+      "id": "1",
+      "tokenUrl": "https://api.example.com/metadata/1",
+      "name": "NFT #1",
+      "image": "https://example.com/nft/1.png",
+      "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+      "owner": "0x1234567890abcdef1234567890abcdef12345678",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### Get NFT
+
+```http
+GET /nfts/{ca}/{id}
+```
+
+**Parameters:**
+- `ca` (path) - Contract Address
+- `id` (path) - Token ID
+
+**Response:**
+```json
+{
+  "ca": "0xcontract1234567890abcdef1234567890abcdef",
+  "id": "1",
+  "tokenUrl": "https://api.example.com/metadata/1",
+  "name": "NFT #1",
+  "image": "https://example.com/nft/1.png",
+  "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+  "owner": "0x1234567890abcdef1234567890abcdef12345678",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Create NFT
+
+```http
+POST /nfts
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required)
+
+**Request Body:**
+```json
+{
+  "ca": "0xcontract1234567890abcdef1234567890abcdef",
+  "id": "1",
+  "tokenUrl": "https://api.example.com/metadata/1",
+  "name": "NFT #1",
+  "image": "https://example.com/nft/1.png",
+  "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+  "owner": "0x1234567890abcdef1234567890abcdef12345678"
+}
+```
+
+**Response:**
+```json
+{
+  "ca": "0xcontract1234567890abcdef1234567890abcdef",
+  "id": "1",
+  "tokenUrl": "https://api.example.com/metadata/1",
+  "name": "NFT #1",
+  "image": "https://example.com/nft/1.png",
+  "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+  "owner": "0x1234567890abcdef1234567890abcdef12345678",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Update NFT
+
+```http
+PUT /nfts/{ca}/{id}
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required)
+
+**Parameters:**
+- `ca` (path) - Contract Address
+- `id` (path) - Token ID
+
+**Request Body:**
+```json
+{
+  "tokenUrl": "https://api.example.com/metadata/1-updated",
+  "name": "Updated NFT #1",
+  "image": "https://example.com/nft/1-updated.png",
+  "owner": "0xnewowner234567890abcdef1234567890abcdef"
+}
+```
+
+**Note:** `creator` cannot be updated after creation.
+
+**Response:**
+```json
+{
+  "ca": "0xcontract1234567890abcdef1234567890abcdef",
+  "id": "1",
+  "tokenUrl": "https://api.example.com/metadata/1-updated",
+  "name": "Updated NFT #1",
+  "image": "https://example.com/nft/1-updated.png",
+  "creator": "0xabcdef1234567890abcdef1234567890abcdef12",
+  "owner": "0xnewowner234567890abcdef1234567890abcdef",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+#### Delete NFT
+
+```http
+DELETE /nfts/{ca}/{id}
+```
+
+**Headers:**
+- `Authorization: Bearer {wallet_address}` (required, admin only)
+
+**Parameters:**
+- `ca` (path) - Contract Address
+- `id` (path) - Token ID
+
+**Response:**
+```
+204 No Content
+```
+
 ## Rate Limiting
 
 The API implements AWS API Gateway default rate limiting:

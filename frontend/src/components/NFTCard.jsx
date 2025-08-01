@@ -4,6 +4,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { getNFTContract } from '../utils/contractHelpers';
 import { getRpcProvider } from '../utils/rpcUtils';
 import { ethers } from 'ethers';
+import UserDisplay from './UserDisplay';
 import './NFTCard.css';
 
 const NFTCard = ({ nft, showOwner = false, showActions = false, onTransfer }) => {
@@ -32,10 +33,6 @@ const NFTCard = ({ nft, showOwner = false, showActions = false, onTransfer }) =>
     fetchMetadata();
   }, [nft.tokenURI]);
   
-  const formatAddress = (addr) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
   const imageUrl = metadata?.image || nft.image;
   const name = metadata?.name || nft.name || `Token #${nft.tokenId}`;
   const description = metadata?.description || nft.description;
@@ -73,7 +70,9 @@ const NFTCard = ({ nft, showOwner = false, showActions = false, onTransfer }) =>
         )}
         <p className="nft-id">Token ID: {nft.tokenId}</p>
         {showOwner && nft.owner && (
-          <p className="nft-owner">Owner: {formatAddress(nft.owner)}</p>
+          <p className="nft-owner">
+            Owner: <UserDisplay address={nft.owner} size="small" />
+          </p>
         )}
       </div>
       

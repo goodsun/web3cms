@@ -4,7 +4,7 @@ import { useSettings } from "../contexts/SettingsContext";
 import "./WalletStatusBar.css";
 
 const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
-  const { account, chainId, provider } = useWeb3();
+  const { account, chainId, provider, currentUser } = useWeb3();
   const { settings } = useSettings();
   const [copied, setCopied] = useState(false);
   const [balance, setBalance] = useState("0");
@@ -210,6 +210,16 @@ const WalletStatusBar = ({ isMobileMenuOpen = false }) => {
         </div>
 
         <div className="wallet-status-info">
+          {currentUser?.avatar && (
+            <img 
+              src={currentUser.avatar} 
+              alt={currentUser.name || 'User avatar'}
+              className="wallet-status-avatar"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          )}
           <span className="wallet-status-address">
             {shortenAddress(account)}
           </span>

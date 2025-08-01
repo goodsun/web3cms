@@ -11,17 +11,18 @@ const Layout = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { settings, loading } = useSettings();
-  const { account } = useWeb3();
+  const { account, isMember } = useWeb3();
 
   React.useEffect(() => {
     console.log('Layout settings:', settings);
-  }, [settings]);
+    console.log('Layout - account:', account, 'isMember:', isMember);
+  }, [settings, account, isMember]);
 
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/items', label: 'Items' },
     { path: '/nfts', label: 'NFTs' },
-    { path: '/settings', label: 'Settings' },
+    ...(isMember ? [{ path: '/settings', label: 'Settings' }] : []),
   ];
 
   const isActive = (path) => {

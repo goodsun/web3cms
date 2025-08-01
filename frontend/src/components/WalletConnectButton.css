@@ -48,6 +48,26 @@
   }
 }
 
+/* Avatar styles */
+.wallet-icon-btn.has-avatar {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.wallet-icon-btn .user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.wallet-icon-btn.has-avatar:hover .user-avatar {
+  opacity: 0.8;
+}
+
 /* Mobile styles */
 @media (max-width: 768px) {
   .wallet-icon-btn {

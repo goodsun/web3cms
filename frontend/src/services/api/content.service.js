@@ -21,3 +21,5 @@ export class ContentService extends BaseApiService {
     return result.contents || [];
   }
 }
+
+export const contentService = new ContentService();

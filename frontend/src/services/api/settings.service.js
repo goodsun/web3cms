@@ -13,3 +13,5 @@ export class SettingsService extends BaseApiService {
     return this.update(key, data);
   }
 }
+
+export const settingsService = new SettingsService();

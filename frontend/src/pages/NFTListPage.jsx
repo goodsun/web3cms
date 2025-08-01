@@ -11,6 +11,8 @@ import CopyButton from '../components/CopyButton';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import NFTCard from '../components/NFTCard';
+import UserDisplay from '../components/UserDisplay';
+import { userService } from '../services/api';
 import './NFTListPage.css';
 
 const NFTListPage = ({ mode = 'owner' }) => {
@@ -27,8 +29,25 @@ const NFTListPage = ({ mode = 'owner' }) => {
     return window.innerWidth <= 768 ? 'instagram' : 'grid';
   });
   const [copySuccess, setCopySuccess] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
 
   const web3Config = settings?.web3 || {};
+
+  // Fetch user info for the address
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!address) return;
+      
+      try {
+        const user = await userService.getCurrentUser(address);
+        setUserInfo(user);
+      } catch (err) {
+        console.error('Failed to fetch user info:', err);
+      }
+    };
+    
+    fetchUserInfo();
+  }, [address]);
 
   useEffect(() => {
     const fetchNFTs = async () => {
@@ -180,20 +199,20 @@ const NFTListPage = ({ mode = 'owner' }) => {
         <h1>
           NFTs by {mode === 'creator' ? 'Creator' : 'Owner'}
         </h1>
-        <div className="address-display">
-          <span className="address-label">{mode === 'creator' ? 'Creator' : 'Owner'}:</span>
-          <span className="address-value">
-            {formatAddress(address)}
-          </span>
-          <CopyButton text={address} label="address" />
-        </div>
-        {contractInfo && (
-          <div className="contract-info">
-            <small>
-              Contract: {contractInfo.name} ({contractInfo.symbol})
-            </small>
+        <div className="header-info">
+          {contractInfo && (
+            <div className="contract-info">
+              <small>
+                Contract: {contractInfo.name} ({contractInfo.symbol})
+              </small>
+            </div>
+          )}
+          <div className="address-display">
+            <span className="address-label">{mode === 'creator' ? 'Creator' : 'Owner'}:</span>
+            <UserDisplay address={address} size="small" showAddress={true} />
+            <CopyButton text={address} label="address" />
           </div>
-        )}
+        </div>
       </div>
 
       {loading && (

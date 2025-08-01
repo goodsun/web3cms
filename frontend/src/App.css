@@ -18,12 +18,17 @@
   --color-primary-hover: #171717;
   --color-primary-light: #f0f0f0;
   --color-danger: #dc2626;
+  --color-danger-light: #fee2e2;
+  --color-danger-dark: #991b1b;
   --color-success: #16a34a;
   --color-success-light: #dcfce7;
   --color-success-dark: #166534;
   --color-warning: #f59e0b;
   --color-warning-light: #fef3c7;
   --color-warning-dark: #92400e;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+  --color-info-dark: #1e40af;
   
   /* Spacing */
   --spacing-xs: 0.25rem;

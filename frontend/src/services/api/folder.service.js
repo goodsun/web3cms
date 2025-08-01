@@ -23,3 +23,5 @@ export class FolderService extends BaseApiService {
     });
   }
 }
+
+export const folderService = new FolderService();

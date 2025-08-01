@@ -27,6 +27,12 @@ Web3CMS is a serverless, event-driven content management system built on AWS inf
             │              │      │ Handler      │      │ Handler      │
             └──────┬───────┘      └──────┬───────┘      └──────┬───────┘
                    │                     │                      │
+                   │              ┌──────┴───────┐      ┌──────┴───────┐
+                   │              │ Lambda:      │      │ Lambda:      │
+                   │              │ Users        │      │ NFTs         │
+                   │              │ Handler      │      │ Handler      │
+                   │              └──────┬───────┘      └──────┬───────┘
+                   │                     │                      │
                    └─────────────────────┴──────────────────────┘
                                         │
                                         ▼
@@ -38,6 +44,10 @@ Web3CMS is a serverless, event-driven content management system built on AWS inf
                             │  │ Settings Table  │  │
                             │  ├─────────────────┤  │
                             │  │ Columns Table   │  │
+                            │  ├─────────────────┤  │
+                            │  │  Users Table    │  │
+                            │  ├─────────────────┤  │
+                            │  │  NFTs Table     │  │
                             │  └─────────────────┘  │
                             └───────────────────────┘
 ```
@@ -97,6 +107,18 @@ frontend/src/services/
 - Public/private access patterns
 - Cascade delete functionality
 
+**Users Handler** (`backend/src/handlers/users.ts`)
+- User profile management
+- EOA (Ethereum Owner Address) as primary key
+- Discord integration support
+- Role-based access control
+
+**NFTs Handler** (`backend/src/handlers/nfts.ts`)
+- NFT metadata management
+- Query by owner or creator
+- Support for multiple contract addresses
+- Token metadata caching
+
 ### 3. Data Layer
 
 #### DynamoDB Tables
@@ -120,7 +142,34 @@ Sort Key: version (String)
 Primary Key: id (String)
 GSI: type-index
   - Partition Key: type
-Supports: folders, contents
+Supports: folders, contents, root
+```
+
+**Users Table**
+```
+Primary Key: eoa (String)
+Attributes:
+  - discordAddress: String
+  - name: String
+  - avatar: String
+  - roles: Array
+  - admin: Boolean
+```
+
+**NFTs Table**
+```
+Partition Key: ca (String) - Contract Address
+Sort Key: id (String) - Token ID
+GSI: owner-index
+  - Partition Key: owner
+GSI: creator-index
+  - Partition Key: creator
+Attributes:
+  - tokenUrl: String
+  - name: String
+  - image: String
+  - creator: String
+  - owner: String
 ```
 
 #### Data Models
@@ -165,8 +214,18 @@ interface Content {
 
 ```typescript
 lib/fullstack-serverless-cdk-stack.ts
-├── DynamoDB Tables (3)
-├── Lambda Functions (3)
+├── DynamoDB Tables (5)
+│   ├── Items Table
+│   ├── Settings Table
+│   ├── Columns Table
+│   ├── Users Table
+│   └── NFTs Table
+├── Lambda Functions (5)
+│   ├── CRUD Handler
+│   ├── Settings Handler
+│   ├── Columns Handler
+│   ├── Users Handler
+│   └── NFTs Handler
 ├── API Gateway REST API
 ├── S3 Bucket (Frontend hosting)
 ├── CloudFront Distribution

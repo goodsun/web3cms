@@ -15,6 +15,7 @@ import { generateId } from '../../utils/id-generator';
 const client = new DynamoDBClient({ region: process.env.REGION });
 const docClient = DynamoDBDocumentClient.from(client);
 const tableName = process.env.TABLE_NAME!;
+const usersTableName = process.env.USERS_TABLE_NAME!;
 
 
 // Get user EOA from authorization header
@@ -24,6 +25,22 @@ const getUserEOA = (event: APIGatewayProxyEvent): string | null => {
     return authHeader.replace('Bearer ', '').toLowerCase();
   }
   return null;
+};
+
+// Check if user is admin
+const isUserAdmin = async (eoa: string): Promise<boolean> => {
+  try {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: usersTableName,
+        Key: { eoa: eoa.toLowerCase() },
+      })
+    );
+    return result.Item?.admin === true;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
 };
 
 // Types
@@ -305,7 +322,9 @@ export const handler = async (
             });
           }
 
-          if (checkResult.Item.eoa !== userEOA) {
+          // Check if user owns the folder or is admin
+          const isAdmin = await isUserAdmin(userEOA);
+          if (checkResult.Item.eoa !== userEOA && !isAdmin) {
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to update this folder'
             });
@@ -349,7 +368,9 @@ export const handler = async (
             });
           }
 
-          if (deleteCheckResult.Item.eoa !== userEOA) {
+          // Check if user owns the folder or is admin
+          const isAdminDelete = await isUserAdmin(userEOA);
+          if (deleteCheckResult.Item.eoa !== userEOA && !isAdminDelete) {
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to delete this folder'
             });
@@ -588,7 +609,9 @@ export const handler = async (
             });
           }
 
-          if (checkResult.Item.eoa !== userEOA) {
+          // Check if user owns the content or is admin
+          const isAdminUpdateContent = await isUserAdmin(userEOA);
+          if (checkResult.Item.eoa !== userEOA && !isAdminUpdateContent) {
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to update this content'
             });
@@ -629,7 +652,9 @@ export const handler = async (
             });
           }
 
-          if (deleteCheckResult.Item.eoa !== userEOA) {
+          // Check if user owns the content or is admin
+          const isAdminDeleteContent = await isUserAdmin(userEOA);
+          if (deleteCheckResult.Item.eoa !== userEOA && !isAdminDeleteContent) {
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to delete this content'
             });

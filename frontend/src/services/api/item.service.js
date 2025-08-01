@@ -10,3 +10,5 @@ export class ItemService extends BaseApiService {
     return result.items || [];
   }
 }
+
+export const itemService = new ItemService();

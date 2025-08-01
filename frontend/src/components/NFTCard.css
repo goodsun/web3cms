@@ -91,6 +91,9 @@
   font-size: var(--font-size-xs);
   color: var(--color-gray-500);
   margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .spinner-small {

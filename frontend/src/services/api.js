@@ -280,4 +280,13 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+const apiService = new ApiService();
+
+export default apiService;
+
+// Re-export named services for new modular structure
+export { userService } from './api/user.service';
+export { contentService } from './api/content.service';
+export { folderService } from './api/folder.service';
+export { itemService } from './api/item.service';
+export { settingsService } from './api/settings.service';

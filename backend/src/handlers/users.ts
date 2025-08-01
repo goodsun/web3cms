@@ -7,6 +7,7 @@ import {
   UpdateCommand,
   DeleteCommand,
   ScanCommand,
+  BatchGetCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { createResponse, HTTP_STATUS } from '../../utils/response';
 
@@ -20,9 +21,10 @@ export const handler = async (
   const method = event.httpMethod;
   const path = event.path;
   
-  // Extract EOA from path
+  // Extract EOA from path and normalize to lowercase
   const pathParts = path.split('/');
-  const eoa = pathParts[pathParts.length - 1];
+  const rawEoa = pathParts[pathParts.length - 1];
+  const eoa = rawEoa ? rawEoa.toLowerCase() : rawEoa;
 
   try {
     switch (method) {
@@ -44,17 +46,56 @@ export const handler = async (
           
           return createResponse(HTTP_STATUS.OK, result.Item);
         } else {
-          // GET /users - List all users
-          const result = await docClient.send(
-            new ScanCommand({
-              TableName: tableName,
-            })
-          );
-          
-          return createResponse(HTTP_STATUS.OK, {
-            users: result.Items || [],
-            count: result.Count || 0,
-          });
+          // Check for batch request
+          if (event.queryStringParameters?.eoas) {
+            // GET /users?eoas=addr1,addr2,addr3 - Batch get users
+            const eoas = event.queryStringParameters.eoas
+              .split(',')
+              .map(addr => addr.toLowerCase())
+              .filter(addr => addr);
+            
+            if (eoas.length === 0) {
+              return createResponse(HTTP_STATUS.BAD_REQUEST, {
+                message: 'No valid EOA addresses provided'
+              });
+            }
+            
+            // DynamoDB BatchGet has a limit of 100 items
+            if (eoas.length > 100) {
+              return createResponse(HTTP_STATUS.BAD_REQUEST, {
+                message: 'Too many addresses. Maximum 100 allowed per request'
+              });
+            }
+            
+            const result = await docClient.send(
+              new BatchGetCommand({
+                RequestItems: {
+                  [tableName]: {
+                    Keys: eoas.map(eoa => ({ eoa }))
+                  }
+                }
+              })
+            );
+            
+            const users = result.Responses?.[tableName] || [];
+            return createResponse(HTTP_STATUS.OK, {
+              users,
+              count: users.length,
+              requested: eoas.length
+            });
+          } else {
+            // GET /users - List all users
+            const result = await docClient.send(
+              new ScanCommand({
+                TableName: tableName,
+              })
+            );
+            
+            return createResponse(HTTP_STATUS.OK, {
+              users: result.Items || [],
+              count: result.Count || 0,
+            });
+          }
         }
 
       case 'POST':
@@ -67,23 +108,27 @@ export const handler = async (
           });
         }
 
+        // Normalize EOA to lowercase
+        const normalizedEoa = createBody.eoa.toLowerCase();
+
         // Check if user already exists
         const existing = await docClient.send(
           new GetCommand({
             TableName: tableName,
-            Key: { eoa: createBody.eoa },
+            Key: { eoa: normalizedEoa },
           })
         );
         
         if (existing.Item) {
           return createResponse(HTTP_STATUS.CONFLICT, {
-            message: 'User already exists'
+            message: 'User already exists',
+            user: existing.Item
           });
         }
 
         const newUser = {
-          eoa: createBody.eoa,
-          discordAddress: createBody.discordAddress || null,
+          eoa: normalizedEoa,
+          discordId: createBody.discordId || null,
           name: createBody.name || null,
           avatar: createBody.avatar || null,
           roles: createBody.roles || [],
@@ -116,10 +161,10 @@ export const handler = async (
         const expressionAttributeNames: Record<string, string> = {};
         const expressionAttributeValues: Record<string, any> = {};
 
-        if (updateBody.discordAddress !== undefined) {
-          updateExpression.push('#discordAddress = :discordAddress');
-          expressionAttributeNames['#discordAddress'] = 'discordAddress';
-          expressionAttributeValues[':discordAddress'] = updateBody.discordAddress;
+        if (updateBody.discordId !== undefined) {
+          updateExpression.push('#discordId = :discordId');
+          expressionAttributeNames['#discordId'] = 'discordId';
+          expressionAttributeValues[':discordId'] = updateBody.discordId;
         }
 
         if (updateBody.name !== undefined) {

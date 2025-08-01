@@ -6,6 +6,23 @@ export class BaseApiService {
     this.baseUrl = API_BASE_URL;
   }
 
+  getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async handleResponse(response) {
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+    if (response.status === 204) {
+      return null;
+    }
+    return response.json();
+  }
+
   async getAuthToken() {
     const account = localStorage.getItem('account');
     return account || '';

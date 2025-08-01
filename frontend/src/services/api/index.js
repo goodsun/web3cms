@@ -1,5 +1,6 @@
 export { BaseApiService } from './base.service';
-export { ItemService } from './item.service';
-export { FolderService } from './folder.service';
-export { ContentService } from './content.service';
-export { SettingsService } from './settings.service';
+export { ItemService, itemService } from './item.service';
+export { FolderService, folderService } from './folder.service';
+export { ContentService, contentService } from './content.service';
+export { SettingsService, settingsService } from './settings.service';
+export { userService } from './user.service';
