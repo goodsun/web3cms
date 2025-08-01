@@ -31,12 +31,12 @@ const ColumnsPage = () => {
       // Use public API endpoints that don't require authentication
       const [foldersResponse, contentsResponse] = await Promise.all([
         api.getPublicFolders(),
-        api.getPublicContents()
+        api.getPublicContents(),
       ]);
-      
+
       // Find root content in public contents
       const allContents = contentsResponse.contents || [];
-      const rootContentItem = allContents.find(c => c.id === 'root');
+      const rootContentItem = allContents.find((c) => c.id === "root");
       if (rootContentItem) {
         setRootContent(rootContentItem.content || "");
       }
@@ -98,7 +98,7 @@ const ColumnsPage = () => {
         {account && (
           <div className="admin-actions">
             <Link to="/sitemap" className="sitemap-link">
-              📝 Edit Sitemap
+              Edit Sitemap
             </Link>
           </div>
         )}

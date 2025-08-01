@@ -1,7 +1,7 @@
 .columns-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: 0 var(--spacing-lg);
 }
 
 .page-header {
@@ -250,7 +250,7 @@
 
 @media (max-width: 768px) {
   .columns-page {
-    padding: var(--spacing-md);
+    padding: 0;
   }
 
   .page-header {

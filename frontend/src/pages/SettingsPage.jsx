@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
-  const { account, currentUser, isAdmin, isLoadingUser } = useWeb3();
+  const { account, currentUser, isAdmin, isLoadingUser, disconnect } = useWeb3();
   const [user, setUser] = useState({
     eoa: '',
     name: '',
@@ -93,7 +93,17 @@ const SettingsPage = () => {
 
   return (
     <div className="settings-page">
-      <h1>User Settings</h1>
+      <div className="page-header">
+        <h1>User Settings</h1>
+        <button
+          type="button"
+          className="btn btn-secondary disconnect-btn"
+          onClick={disconnect}
+          title="Disconnect wallet"
+        >
+          Disconnect Wallet
+        </button>
+      </div>
 
       {error && (
         <Toast

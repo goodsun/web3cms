@@ -22,7 +22,6 @@ const Layout = () => {
     { path: '/', label: 'Home' },
     { path: '/items', label: 'Items' },
     { path: '/nfts', label: 'NFTs' },
-    ...(isMember ? [{ path: '/settings', label: 'Settings' }] : []),
   ];
 
   const isActive = (path) => {
@@ -38,9 +37,19 @@ const Layout = () => {
       <div className="app-layout">
       <header className="main-header">
         <div className="header-container">
-          <Link to="/" className="logo">
+          <button
+            className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          
+          <div className="logo">
             {settings?.title || 'Web3CMS'}
-          </Link>
+          </div>
           
           <nav className="main-nav">
             {navLinks.map((link) => (
@@ -62,15 +71,6 @@ const Layout = () => {
             <div className="mobile-wallet-button">
               <WalletConnectButton />
             </div>
-            <button
-              className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
           </div>
         </div>
 

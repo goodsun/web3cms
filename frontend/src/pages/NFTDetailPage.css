@@ -1,5 +1,7 @@
 /* Global box-sizing */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -158,7 +160,7 @@
 .nft-youtube {
   width: 100%;
   overflow: hidden;
-  border-radius: var(--border-radius);
+  border-radius: 3%;
   background-color: var(--color-gray-100);
 }
 
@@ -415,7 +417,6 @@
 
 /* Copy button styles removed - using CopyButton component */
 
-
 .detail-item:last-child {
   border-bottom: none;
 }
@@ -494,7 +495,7 @@
 .transfer-input {
   flex: 1;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: none;
+  border: var(--border-width) solid var(--color-gray-200);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
   font-family: var(--font-mono);
@@ -771,7 +772,7 @@
   .nft-content {
     padding: 0;
   }
-  
+
   /* 全セクション共通のスタイル */
   .metadata-section,
   .attributes-section,
@@ -783,7 +784,7 @@
     border-radius: 0;
     border: none;
   }
-  
+
   /* メタデータセクションは特別扱い */
   .metadata-section {
     grid-template-columns: 1fr;
@@ -793,87 +794,86 @@
     border-radius: 0;
     background: none;
   }
-  
+
   /* メディア表示 */
   .media-display {
     width: 100%;
     margin-bottom: var(--spacing-lg);
   }
-  
+
   .nft-image,
   .nft-animation,
   .nft-3d-model,
   .nft-youtube {
     border-radius: var(--border-radius);
   }
-  
+
   /* Attributes grid - 3 columns like Instagram */
   .attributes-url-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-xs);
   }
-  
+
   .attribute-text-item {
     grid-template-columns: 100px 1fr;
     gap: var(--spacing-sm);
   }
-  
+
   /* Attribute cards - Instagram style */
   .attribute-url-card {
     border-radius: 0;
     aspect-ratio: 1;
   }
-  
+
   .attr-content {
     height: 100%;
   }
-  
+
   .attr-image {
     height: 100%;
     width: 100%;
     object-fit: contain;
     object-position: center;
   }
-  
+
   .attr-3d-viewer {
     height: 100%;
   }
-  
+
   /* 3D model viewer on mobile - maintain aspect ratio */
   .nft-3d-model {
     width: 100%;
     max-width: 100%;
     aspect-ratio: 1;
   }
-  
-  
+
   .transfer-form {
     flex-direction: column;
   }
-  
+
   .detail-item {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-xs);
   }
-  
+
   .detail-value {
     text-align: left;
   }
-  
+
   .detail-value-wrapper {
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .media-tabs {
     flex-wrap: wrap;
   }
-  
+
   .tba-nfts-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
-  
+
   .lightbox-close {
     top: 10px;
     right: 10px;

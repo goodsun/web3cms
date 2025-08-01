@@ -1,14 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import WalletIcon from './icons/WalletIcon';
 import './WalletConnectButton.css';
 
 const WalletConnectButton = () => {
-  const { isConnecting, isConnected, connect, disconnect, currentUser } = useWeb3();
+  const { isConnecting, isConnected, connect, currentUser } = useWeb3();
+  const navigate = useNavigate();
 
   const handleClick = async () => {
     if (isConnected) {
-      disconnect();
+      navigate('/settings');
     } else {
       await connect();
     }
@@ -21,7 +23,7 @@ const WalletConnectButton = () => {
       className={`wallet-icon-btn ${isConnected ? 'connected' : ''} ${isConnecting ? 'connecting' : ''} ${hasAvatar ? 'has-avatar' : ''}`}
       onClick={handleClick}
       disabled={isConnecting}
-      title={isConnected ? 'Disconnect wallet' : 'Connect wallet'}
+      title={isConnected ? 'Go to settings' : 'Connect wallet'}
     >
       {hasAvatar ? (
         <img 

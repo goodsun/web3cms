@@ -435,6 +435,45 @@ const AdminSettingsPage = () => {
         </div>
       </form>
 
+      {/* Configuration Status Section */}
+      <section className="settings-section">
+        <h2>Configuration Status</h2>
+        <div className="status-grid">
+          <div className="status-item">
+            <span
+              className={`status-indicator ${
+                settings.web3.rpcUrls ? "status-ok" : "status-error"
+              }`}
+            >
+              ●
+            </span>
+            <span>RPC Configuration</span>
+          </div>
+          <div className="status-item">
+            <span
+              className={`status-indicator ${
+                settings.web3.nftContract ? "status-ok" : "status-warning"
+              }`}
+            >
+              ●
+            </span>
+            <span>NFT Contract</span>
+          </div>
+          <div className="status-item">
+            <span
+              className={`status-indicator ${
+                settings.web3.tbaRegistry && settings.web3.tbaImplementation
+                  ? "status-ok"
+                  : "status-warning"
+              }`}
+            >
+              ●
+            </span>
+            <span>TBA Configuration</span>
+          </div>
+        </div>
+      </section>
+
       {/* Admin Management Section */}
       <section className="settings-section">
         <h2>Admin Management</h2>
