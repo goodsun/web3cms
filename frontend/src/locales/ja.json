@@ -104,7 +104,10 @@
     "systemSettings": "システム設定",
     "configureApp": "アプリケーション設定を構成",
     "loadingUser": "Loading user information...",
-    "connectPrompt": "すべての設定と機能にアクセスするにはウォレットを接続してください"
+    "connectPrompt": "すべての設定と機能にアクセスするにはウォレットを接続してください",
+    "apiConfig": {
+      "notice": "API URLが設定されていません。バックエンドに接続するには設定してください。"
+    }
   },
   "home": {
     "welcome": "Web3CMSへようこそ",

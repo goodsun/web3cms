@@ -3,7 +3,6 @@
   min-height: 400px;
 }
 
-
 .btn-icon-add {
   display: flex;
   align-items: center;
@@ -64,6 +63,17 @@
   background-color: var(--color-gray-50);
 }
 
+.folder-tree-node[draggable="false"] {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.folder-tree-node.drag-not-allowed {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: var(--color-danger-light, #fee);
+}
+
 .folder-tree-node.drag-over-on {
   background-color: var(--color-primary-light, #f0f0f0);
   border: 2px dashed var(--color-primary);
@@ -100,33 +110,73 @@
   font-weight: 500;
 }
 
+/* Author EOA display in sitemap */
+.folder-tree-node .item-author,
+.content-item .item-author {
+  margin-left: auto;
+  margin-right: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  color: var(--color-gray-600);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* Status badges - non-clickable labels */
 .folder-status,
 .content-status {
   font-size: var(--font-size-xs);
   padding: 2px var(--spacing-xs);
   border-radius: var(--border-radius-sm);
-  margin-left: var(--spacing-sm);
+  margin-left: 0;
+  margin-right: var(--spacing-sm);
   border: none;
   font-family: inherit;
-  transition: all 0.2s ease;
+  font-weight: normal;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
-.folder-status.clickable,
-.content-status.clickable {
+/* Edit buttons - specific styles to override global button styles */
+.sitemap-container .edit-button {
+  /* Reset global button styles */
+  all: unset;
+
+  /* Apply specific styles */
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  padding: 2px var(--spacing-xs);
+  margin-left: 0;
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-700);
+  border: none;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
+  font-family: inherit;
+  font-weight: normal;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  text-align: center;
 }
 
-.folder-status.clickable:hover,
-.content-status.clickable:hover {
+.sitemap-container .edit-button:hover {
+  background-color: var(--color-gray-300);
+  color: var(--color-gray-700);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
-.folder-status.clickable:active,
-.content-status.clickable:active {
+.sitemap-container .edit-button:active {
   transform: translateY(0);
 }
 
+.sitemap-container .edit-button:focus {
+  outline: 2px solid var(--color-gray-400);
+  outline-offset: 1px;
+}
+
+/* Status badge color variations */
 .status-public {
   background-color: var(--color-success-light);
   color: var(--color-success-dark);
@@ -187,6 +237,11 @@
   background-color: var(--color-gray-50);
 }
 
+.content-item[draggable="false"] {
+  cursor: default;
+  opacity: 0.8;
+}
+
 .content-item.drag-over-on {
   background-color: var(--color-primary-light, #f0f0f0);
   border: 2px dashed var(--color-primary);
@@ -199,7 +254,6 @@
 .content-item.drag-over-after {
   border-bottom: 3px solid var(--color-primary);
 }
-
 
 /* インライン編集 */
 .inline-edit {

@@ -21,6 +21,8 @@ const SettingsPage = () => {
   const [success, setSuccess] = useState(null);
   const [adminExists, setAdminExists] = useState(true);
   const [claimingAdmin, setClaimingAdmin] = useState(false);
+  const [apiUrl, setApiUrl] = useState(localStorage.getItem('apiUrl') || '');
+  const [showApiConfig, setShowApiConfig] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -32,7 +34,13 @@ const SettingsPage = () => {
       });
     }
     checkAdminStatus();
-  }, [currentUser]);
+    
+    // Check if API URL is empty and user is not admin
+    const storedApiUrl = localStorage.getItem('apiUrl');
+    if (!storedApiUrl && !isAdmin) {
+      setShowApiConfig(true);
+    }
+  }, [currentUser, isAdmin]);
 
   const checkAdminStatus = async () => {
     try {
@@ -80,6 +88,24 @@ const SettingsPage = () => {
       setError(t('settings.adminClaimError', 'Failed to claim admin privileges. Please try again.'));
     } finally {
       setClaimingAdmin(false);
+    }
+  };
+
+  const handleApiUrlSave = async () => {
+    if (apiUrl) {
+      try {
+        // Import api dynamically to avoid circular dependency
+        const api = (await import('../services/api')).default;
+        api.updateApiUrl(apiUrl);
+        localStorage.setItem('apiUrl', apiUrl);
+        setSuccess(t('settings.adminSettings.apiConfig.updateSuccess', 'API URL updated successfully! Reloading settings...'));
+        setShowApiConfig(false);
+        // Reload the page to reinitialize with new API URL
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        console.error('Failed to update API URL:', err);
+        setError(t('settings.adminSettings.apiConfig.updateError', 'Failed to update API URL. Please try again.'));
+      }
     }
   };
 
@@ -140,6 +166,39 @@ const SettingsPage = () => {
             </select>
           </div>
         </section>
+
+        {/* API Configuration - Show for non-admin users when API URL is empty */}
+        {showApiConfig && !isAdmin && (
+          <section className="settings-section">
+            <h2>{t('settings.adminSettings.apiConfig.title', 'API Configuration')}</h2>
+            <div className="api-config-notice">
+              <p>{t('settings.apiConfig.notice', 'API URL is not configured. Please set it to connect to the backend.')}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="apiUrl">{t('settings.adminSettings.apiConfig.apiUrl', 'API Gateway URL')}</label>
+              <div className="input-group">
+                <input
+                  type="url"
+                  id="apiUrl"
+                  value={apiUrl}
+                  onChange={(e) => setApiUrl(e.target.value)}
+                  placeholder={t('settings.adminSettings.apiConfig.placeholder', 'https://your-api.execute-api.region.amazonaws.com')}
+                  className="form-input"
+                />
+                <button
+                  type="button"
+                  onClick={handleApiUrlSave}
+                  className="btn btn-primary"
+                >
+                  {t('common.save', 'Save')}
+                </button>
+              </div>
+              <small className="form-help">
+                {t('settings.adminSettings.apiConfig.hint', 'Enter your API Gateway URL to connect to the backend')}
+              </small>
+            </div>
+          </section>
+        )}
 
         {/* User Profile */}
         <section className="settings-section">

@@ -6,9 +6,11 @@ import FolderForm from './FolderForm';
 import ContentForm from './ContentForm';
 import RootContentEditor from './RootContentEditor';
 import { FolderIcon, FileIcon, FolderPlusIcon } from './Icons';
+import { useWeb3 } from '../contexts/Web3Context';
 import './SitemapView.css';
 
 const SitemapView = ({ folders, contents, onRefresh }) => {
+  const { isAdmin, account } = useWeb3();
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverItem, setDragOverItem] = useState(null);
   const [dropPosition, setDropPosition] = useState('on'); // 'before', 'on', 'after'
@@ -19,6 +21,29 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
   const [actionModalState, setActionModalState] = useState({ isOpen: false, item: null, type: null });
   const [rootContent, setRootContent] = useState(null);
   const [showRootEditor, setShowRootEditor] = useState(false);
+
+  // Helper function to check if user can edit an item
+  const canEditItem = (item) => {
+    if (!account) return false;
+    if (isAdmin) return true;
+    // Check if the user owns the item
+    return item.eoa && item.eoa.toLowerCase() === account.toLowerCase();
+  };
+
+  // Helper function to check if sourceFolder is in the parent chain of targetFolder
+  const isInParentChain = (targetFolderId, sourceFolderId) => {
+    if (!targetFolderId || !sourceFolderId) return false;
+    if (targetFolderId === sourceFolderId) return true;
+    
+    // Check if sourceFolderId is anywhere in the parent chain up to root
+    let currentFolder = folders.find(f => f.id === targetFolderId);
+    while (currentFolder && currentFolder.parentId) {
+      if (currentFolder.parentId === sourceFolderId) return true;
+      currentFolder = folders.find(f => f.id === currentFolder.parentId);
+    }
+    
+    return false;
+  };
 
   // Load root content
   useEffect(() => {
@@ -57,6 +82,12 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
 
   // フォルダまたはコンテンツを削除
   const handleDelete = async (item, type) => {
+    // Check if user can edit this item
+    if (!canEditItem(item)) {
+      alert('このアイテムを削除する権限がありません');
+      return;
+    }
+    
     let confirmMessage;
     
     if (type === 'folder') {
@@ -103,6 +134,11 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
 
   // モーダル編集開始
   const startEdit = (item, type) => {
+    // Check if user can edit this item
+    if (!canEditItem(item)) {
+      alert('このアイテムを編集する権限がありません');
+      return;
+    }
     setModalState({ isOpen: true, type, item });
   };
 
@@ -204,7 +240,17 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
   // ドラッグオーバー
   const handleDragOver = (e, item, type) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    
+    // Check if drop is allowed
+    let dropAllowed = true;
+    if (draggedItem && draggedItem.type === 'folder' && type === 'folder') {
+      // Prevent dropping a folder into its own descendant (child/grandchild/etc)
+      if (isInParentChain(item.id, draggedItem.id)) {
+        dropAllowed = false;
+      }
+    }
+    
+    e.dataTransfer.dropEffect = dropAllowed ? 'move' : 'none';
     
     // ドロップ位置の判定（要素の上半分か下半分か）
     const rect = e.currentTarget.getBoundingClientRect();
@@ -221,8 +267,13 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
       }
     }
     
-    setDragOverItem({ ...item, type });
-    setDropPosition(position);
+    if (dropAllowed) {
+      setDragOverItem({ ...item, type });
+      setDropPosition(position);
+    } else {
+      setDragOverItem(null);
+      setDropPosition('on');
+    }
   };
 
   // ドラッグ終了
@@ -243,6 +294,12 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
       // フォルダをフォルダにドロップ（親フォルダの変更）
       if (draggedItem.type === 'folder' && targetType === 'folder' && dropPosition === 'on') {
         if (draggedItem.id === targetItem.id) return;
+        
+        // Prevent dropping a folder into its own descendant
+        if (isInParentChain(targetItem.id, draggedItem.id)) {
+          alert('フォルダを自身の子フォルダに移動することはできません');
+          return;
+        }
         
         await api.updateFolder(draggedItem.id, {
           ...draggedItem,
@@ -357,30 +414,42 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
             .sort((a, b) => (b.priority || 0) - (a.priority || 0));
           const isDragOver = dragOverItem?.id === folder.id && dragOverItem?.type === 'folder';
           const dragOverClass = isDragOver ? `drag-over-${dropPosition}` : '';
+          const canEdit = canEditItem(folder);
 
           return (
             <li key={folder.id} className="folder-tree-item">
               <div 
                 className={`folder-tree-node ${dragOverClass}`} 
                 style={{ paddingLeft: `${level * 20}px` }}
-                draggable
-                onDragStart={(e) => handleDragStart(e, folder, 'folder')}
-                onDragOver={(e) => handleDragOver(e, folder, 'folder')}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, folder, 'folder', dropPosition)}
+                draggable={canEdit}
+                onDragStart={(e) => canEdit && handleDragStart(e, folder, 'folder')}
+                onDragOver={(e) => canEdit && handleDragOver(e, folder, 'folder')}
+                onDragLeave={canEdit ? handleDragLeave : undefined}
+                onDrop={(e) => canEdit && handleDrop(e, folder, 'folder', dropPosition)}
               >
                 <FolderIcon size={20} className="folder-icon" />
                 <span className="folder-name">{folder.name}</span>
-                <button
-                  className={`folder-status status-${folder.status} clickable`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openActionModal(folder, 'folder');
-                  }}
-                >
+                {folder.eoa && (
+                  <span className="item-author">
+                    {folder.eoa.slice(0, 6)}...{folder.eoa.slice(-4)}
+                  </span>
+                )}
+                <span className={`folder-status status-${folder.status}`}>
                   {folder.status === 'public' ? '公開' :
                    folder.status === 'limited' ? '限定公開' : '非公開'}
-                </button>
+                </span>
+                {canEdit && (
+                  <button
+                    className="edit-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openActionModal(folder, 'folder');
+                    }}
+                    title="編集"
+                  >
+                    編集
+                  </button>
+                )}
               </div>
               {/* 新規フォルダ作成フォーム */}
               {showNewFolder === folder.id && (
@@ -433,30 +502,42 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
                   {folderContents.map(content => {
                     const isContentDragOver = dragOverItem?.id === content.id && dragOverItem?.type === 'content';
                     const contentDragOverClass = isContentDragOver ? `drag-over-${dropPosition}` : '';
+                    const canEditContent = canEditItem(content);
 
                     return (
                       <li 
                         key={content.id} 
                         className={`content-item ${contentDragOverClass}`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, content, 'content')}
-                        onDragOver={(e) => handleDragOver(e, content, 'content')}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, content, 'content', dropPosition)}
+                        draggable={canEditContent}
+                        onDragStart={(e) => canEditContent && handleDragStart(e, content, 'content')}
+                        onDragOver={(e) => canEditContent && handleDragOver(e, content, 'content')}
+                        onDragLeave={canEditContent ? handleDragLeave : undefined}
+                        onDrop={(e) => canEditContent && handleDrop(e, content, 'content', dropPosition)}
                       >
                         <FileIcon size={16} className="content-icon" />
                         <span className="content-title">{content.title}</span>
-                        <button
-                          className={`content-status status-${content.status} clickable`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openActionModal(content, 'content');
-                          }}
-                        >
+                        {content.eoa && (
+                          <span className="item-author">
+                            {content.eoa.slice(0, 6)}...{content.eoa.slice(-4)}
+                          </span>
+                        )}
+                        <span className={`content-status status-${content.status}`}>
                           {content.status === 'draft' ? '下書き' :
                            content.status === 'review' ? 'レビュー中' :
                            content.status === 'standby' ? '待機中' : '公開'}
-                        </button>
+                        </span>
+                        {canEditContent && (
+                          <button
+                            className="edit-button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openActionModal(content, 'content');
+                            }}
+                            title="編集"
+                          >
+                            編集
+                          </button>
+                        )}
                       </li>
                     );
                   })}
@@ -544,30 +625,42 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
                 .map(content => {
                 const isDragOver = dragOverItem?.id === content.id && dragOverItem?.type === 'content';
                 const rootContentDragOverClass = isDragOver ? `drag-over-${dropPosition}` : '';
+                const canEditContent = canEditItem(content);
 
                 return (
                   <li 
                     key={content.id} 
                     className={`content-item ${rootContentDragOverClass}`}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, content, 'content')}
-                    onDragOver={(e) => handleDragOver(e, content, 'content')}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, content, 'content', dropPosition)}
+                    draggable={canEditContent}
+                    onDragStart={(e) => canEditContent && handleDragStart(e, content, 'content')}
+                    onDragOver={(e) => canEditContent && handleDragOver(e, content, 'content')}
+                    onDragLeave={canEditContent ? handleDragLeave : undefined}
+                    onDrop={(e) => canEditContent && handleDrop(e, content, 'content', dropPosition)}
                   >
                     <FileIcon size={16} className="content-icon" />
                     <span className="content-title">{content.title}</span>
-                    <button
-                      className={`content-status status-${content.status} clickable`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openActionModal(content, 'content');
-                      }}
-                    >
+                    {content.eoa && (
+                      <span className="item-author">
+                        {content.eoa.slice(0, 6)}...{content.eoa.slice(-4)}
+                      </span>
+                    )}
+                    <span className={`content-status status-${content.status}`}>
                       {content.status === 'draft' ? '下書き' :
                        content.status === 'review' ? 'レビュー中' :
                        content.status === 'standby' ? '待機中' : '公開'}
-                    </button>
+                    </span>
+                    {canEditContent && (
+                      <button
+                        className="edit-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openActionModal(content, 'content');
+                        }}
+                        title="編集"
+                      >
+                        編集
+                      </button>
+                    )}
                   </li>
                 );
               })}
@@ -632,10 +725,22 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
         onEdit={startEdit}
         onDelete={handleDelete}
         onAddFolder={(folderId) => {
-          setShowNewFolder(folderId);
+          // Check if user is admin or owns the parent folder
+          const parentFolder = folders.find(f => f.id === folderId);
+          if (parentFolder && canEditItem(parentFolder)) {
+            setShowNewFolder(folderId);
+          } else {
+            alert('このフォルダに新規フォルダを追加する権限がありません');
+          }
         }}
         onAddContent={(folderId) => {
-          setShowNewContent(folderId);
+          // Check if user is admin or owns the parent folder
+          const parentFolder = folders.find(f => f.id === folderId);
+          if (parentFolder && canEditItem(parentFolder)) {
+            setShowNewContent(folderId);
+          } else {
+            alert('このフォルダに新規コンテンツを追加する権限がありません');
+          }
         }}
       />
     </div>

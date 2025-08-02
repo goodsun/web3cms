@@ -234,10 +234,7 @@
 
 .content-item {
   display: block;
-  padding: var(--spacing-lg);
   background: var(--color-white);
-  border: var(--border-width) solid var(--color-gray-200);
-  border-radius: var(--border-radius-lg);
   text-decoration: none;
   color: inherit;
   transition: all var(--transition-fast);

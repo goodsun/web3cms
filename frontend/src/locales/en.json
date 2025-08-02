@@ -104,7 +104,10 @@
     "systemSettings": "System Settings",
     "configureApp": "Configure application settings",
     "loadingUser": "Loading user information...",
-    "connectPrompt": "Connect your wallet to access all settings and features"
+    "connectPrompt": "Connect your wallet to access all settings and features",
+    "apiConfig": {
+      "notice": "API URL is not configured. Please set it to connect to the backend."
+    }
   },
   "home": {
     "welcome": "Welcome to Web3CMS",

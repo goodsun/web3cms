@@ -7,7 +7,7 @@ import ErrorState from '../components/ErrorState';
 import './ColumnsPage.css';
 
 const SitemapPage = () => {
-  const { account } = useWeb3();
+  const { account, isAdmin } = useWeb3();
   const [folders, setFolders] = useState([]);
   const [contents, setContents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,21 +92,25 @@ const SitemapPage = () => {
       <div className="page-header">
         <h1>Sitemap Editor</h1>
         <div className="sitemap-actions">
-          <button
-            className="btn btn-secondary sitemap-action-btn"
-            data-action="edit-root"
-            title="トップページコンテンツを編集"
-          >
-            トップページ編集
-          </button>
-          <button
-            className="btn btn-primary sitemap-action-btn"
-            data-action="add-folder"
-            title="ルートフォルダを作成"
-          >
-            <span style={{ marginRight: '0.5rem' }}>📁</span>
-            フォルダ追加
-          </button>
+          {isAdmin && (
+            <>
+              <button
+                className="btn btn-secondary sitemap-action-btn"
+                data-action="edit-root"
+                title="トップページコンテンツを編集"
+              >
+                トップページ編集
+              </button>
+              <button
+                className="btn btn-primary sitemap-action-btn"
+                data-action="add-folder"
+                title="ルートフォルダを作成"
+              >
+                <span style={{ marginRight: '0.5rem' }}>📁</span>
+                フォルダ追加
+              </button>
+            </>
+          )}
         </div>
       </div>
       <SitemapView folders={folders} contents={contents} onRefresh={fetchData} />
