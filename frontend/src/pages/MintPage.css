@@ -1,13 +1,13 @@
+/* Import common styles */
+@import '../styles/common.css';
+
 .mint-page {
   min-height: 60vh;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.page-header {
-  margin-bottom: var(--spacing-2xl);
-}
-
+/* Page header styles are now in common.css */
 .page-header h1 {
   margin: 0 0 var(--spacing-xs) 0;
 }
@@ -43,36 +43,7 @@
   border-bottom: var(--border-width) solid var(--color-gray-200);
 }
 
-.form-group {
-  margin-bottom: var(--spacing-lg);
-}
-
-.form-group label {
-  display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-700);
-  margin-bottom: var(--spacing-xs);
-}
-
-.form-input {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: var(--border-width) solid var(--color-gray-300);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
-  transition: border-color var(--transition-fast);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-gray-500);
-}
-
-.form-input:disabled {
-  background-color: var(--color-gray-100);
-  cursor: not-allowed;
-}
+/* Form styles are now in common.css */
 
 .form-input[type="number"] {
   width: 120px;
@@ -84,6 +55,8 @@
   color: var(--color-gray-600);
   margin-top: var(--spacing-xs);
 }
+
+/* Note: Similar to .form-help in common.css but with different color */
 
 /* Messages */
 .error-message,
@@ -116,11 +89,9 @@
   margin-bottom: 0;
 }
 
-/* Form Actions */
+/* Form Actions - override common.css to right-align */
 .form-actions {
-  display: flex;
   justify-content: flex-end;
-  margin-top: var(--spacing-xl);
 }
 
 .mint-button {
@@ -274,14 +245,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Color Variables for Success/Warning */
-:root {
-  --color-success: #059669;
-  --color-success-bg: #ecfdf5;
-  --color-warning: #d97706;
-  --color-warning-bg: #fffbeb;
-  --color-danger-bg: #fef2f2;
-}
+/* Color variables are defined in App.css */
 
 /* Responsive */
 @media (max-width: 768px) {

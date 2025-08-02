@@ -1,56 +1,13 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: var(--spacing-lg);
-}
+/* Import common styles */
+@import '../styles/common.css';
 
-.modal-content {
-  background-color: var(--color-white);
-  border-radius: var(--border-radius-lg);
+/* Modal styles mostly inherited from Modal.css, with specific transfer modal customizations */
+.transfer-modal .modal-content {
   max-width: 480px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: var(--shadow-lg);
 }
 
-.modal-close {
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--color-gray-400);
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius);
-  transition: all var(--transition-fast);
-}
-
-.modal-close:hover {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-600);
-}
-
-.modal-content h2 {
-  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md);
-  margin: 0;
-  font-size: var(--font-size-xl);
+.transfer-modal .modal-overlay {
+  backdrop-filter: blur(4px);
 }
 
 .nft-info {
@@ -90,30 +47,7 @@
   padding: 0 var(--spacing-xl) var(--spacing-xl);
 }
 
-.form-group {
-  margin-bottom: var(--spacing-lg);
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-700);
-}
-
-.form-help {
-  display: block;
-  margin-top: var(--spacing-xs);
-  font-size: var(--font-size-xs);
-  color: var(--color-gray-500);
-}
-
-.form-actions {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
-}
+/* Form styles are now in common.css */
 
 /* Mobile */
 @media (max-width: 640px) {

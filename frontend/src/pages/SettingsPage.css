@@ -1,17 +1,9 @@
+/* Import common styles */
+@import '../styles/common.css';
+
 .settings-page {
   max-width: 800px;
   margin: 0 auto;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-2xl);
-}
-
-.page-header h1 {
-  margin: 0;
 }
 
 .disconnect-btn {
@@ -33,114 +25,12 @@
 
 /* Mobile */
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
-  
   .disconnect-btn {
     align-self: flex-end;
   }
 }
 
-.loading-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-gray-200);
-  border-top-color: var(--color-black);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto var(--spacing-md);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-state p {
-  color: var(--color-gray-500);
-}
-
-.settings-section {
-  background: var(--color-white);
-  border: var(--border-width) solid var(--color-gray-200);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
-}
-
-.settings-section h2 {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-width) solid var(--color-gray-200);
-}
-
-.form-group {
-  margin-bottom: var(--spacing-lg);
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-700);
-}
-
-.form-input,
-.form-textarea,
-.form-select {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: var(--border-width) solid var(--color-gray-300);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
-  font-family: inherit;
-  background-color: var(--color-white);
-  transition: all var(--transition-fast);
-}
-
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
-  outline: none;
-  border-color: var(--color-black);
-  box-shadow: 0 0 0 1px var(--color-black);
-}
-
-.form-input.disabled,
-.form-input:disabled {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-500);
-  cursor: not-allowed;
-}
-
-.form-help {
-  display: block;
-  margin-top: var(--spacing-xs);
-  font-size: var(--font-size-xs);
-  color: var(--color-gray-500);
-}
-
-.form-actions {
-  margin-top: var(--spacing-xl);
-  display: flex;
-  gap: var(--spacing-md);
-}
+/* Form and section styles are now in common.css */
 
 /* Admin Status */
 .admin-status {
@@ -153,25 +43,7 @@
   color: var(--color-gray-700);
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.admin {
-  background-color: var(--color-success);
-  color: white;
-}
-
-.status-badge.member {
-  background-color: var(--color-info);
-  color: white;
-}
+/* Status badge styles are now in common.css */
 
 .admin-claim {
   background-color: var(--color-warning-light);
@@ -187,27 +59,7 @@
   line-height: 1.5;
 }
 
-.btn-warning {
-  background-color: var(--color-warning);
-  color: var(--color-gray-900);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-warning:hover:not(:disabled) {
-  background-color: var(--color-warning-dark);
-  transform: translateY(-1px);
-}
-
-.btn-warning:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Button styles are now in common.css */
 
 .admin-link {
   margin-top: var(--spacing-lg);
@@ -218,24 +70,7 @@
   color: var(--color-gray-600);
 }
 
-.btn-secondary {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
-  border: var(--border-width) solid var(--color-gray-300);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  display: inline-block;
-  transition: all var(--transition-fast);
-}
-
-.btn-secondary:hover {
-  background-color: var(--color-gray-200);
-  border-color: var(--color-gray-400);
-  transform: translateY(-1px);
-}
+/* Button styles are now in common.css */
 
 /* API Configuration Notice */
 .api-config-notice {
@@ -252,39 +87,6 @@
   font-weight: var(--font-weight-medium);
 }
 
-.input-group {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: stretch;
-}
+/* Input group styles are now in common.css */
 
-.input-group .form-input {
-  flex: 1;
-}
-
-.input-group .btn {
-  flex-shrink: 0;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .settings-section {
-    padding: var(--spacing-lg);
-  }
-  
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-  
-  .form-actions .btn {
-    width: 100%;
-  }
-  
-  .input-group {
-    flex-direction: column;
-  }
-  
-  .input-group .btn {
-    width: 100%;
-  }
-}
+/* Mobile responsive styles are now in common.css */

@@ -25,18 +25,28 @@ frontend/
 │   │   └── ...
 │   ├── contexts/          # React contexts
 │   │   ├── Web3Context.jsx     # Web3 wallet state
-│   │   └── SettingsContext.jsx # App settings
+│   │   ├── SettingsContext.jsx # App settings
+│   │   └── I18nContext.jsx     # Internationalization
 │   ├── hooks/             # Custom React hooks
 │   │   └── useForm.js     # Form state management
 │   ├── pages/             # Page components
 │   │   ├── HomePage.jsx   # Landing page
 │   │   ├── ColumnsPage.jsx # CMS interface
-│   │   ├── NFTsPage.jsx   # NFT features
+│   │   ├── NFTsPage.jsx   # NFT collection with tabs
+│   │   ├── NFTDetailPage.jsx # NFT detail view
+│   │   ├── NFTListPage.jsx # NFT list by creator/owner
+│   │   ├── SettingsPage.jsx # User settings
+│   │   ├── AdminSettingsPage.jsx # Admin configuration
+│   │   ├── MintPage.jsx   # NFT minting
+│   │   ├── SitemapPage.jsx # Sitemap editor
 │   │   └── ...
 │   ├── services/          # API and external services
 │   │   ├── api/          # API service classes
-│   │   ├── api.js        # Legacy API client
+│   │   ├── api.js        # API client
 │   │   └── nftService.js # NFT operations
+│   ├── styles/           # Shared styles
+│   │   ├── common.css    # Common styles (forms, buttons, etc.)
+│   │   └── nft-common.css # NFT page common styles
 │   ├── utils/            # Utility functions
 │   ├── App.jsx           # Root component
 │   ├── App.css           # Global styles
@@ -67,8 +77,10 @@ frontend/
 - Responsive design
 - Mobile-optimized
 - Tab-based navigation
-- Loading states
+- Loading states with lazy loading
 - Error handling
+- Internationalization (i18n) support
+- Instagram-style grid view on mobile
 
 ## Getting Started
 
@@ -187,6 +199,7 @@ The app uses React Context for global state:
 
 - **Web3Context**: Wallet connection and blockchain state
 - **SettingsContext**: Application settings and configuration
+- **I18nContext**: Language switching and translations
 
 ### Routing
 
@@ -197,6 +210,13 @@ Routes are defined in `App.jsx`:
   <Route path="/" element={<HomePage />} />
   <Route path="/columns/*" element={<ColumnsPage />} />
   <Route path="/nfts" element={<NFTsPage />} />
+  <Route path="/nfts/:tokenId" element={<NFTDetailPage />} />
+  <Route path="/nfts/creator/:address" element={<NFTListPage />} />
+  <Route path="/nfts/owner/:address" element={<NFTListPage />} />
+  <Route path="/mint" element={<MintPage />} />
+  <Route path="/settings" element={<SettingsPage />} />
+  <Route path="/admin" element={<AdminSettingsPage />} />
+  <Route path="/sitemap" element={<SitemapPage />} />
   {/* ... other routes */}
 </Routes>
 ```
@@ -228,6 +248,19 @@ The build is optimized for production with:
 ```bash
 # Analyze bundle size
 npm run build -- --analyze
+```
+
+### Styling
+
+The project uses a common CSS architecture:
+
+- `src/styles/common.css` - Shared styles for forms, buttons, loading states, etc.
+- Component-specific styles import common styles to avoid duplication
+- CSS variables defined in `App.css` for consistent theming
+
+```css
+/* Import common styles in component CSS */
+@import '../styles/common.css';
 ```
 
 ## Common Issues
