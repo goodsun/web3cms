@@ -18,7 +18,7 @@
     "adminSection": "管理者セクション",
     "adminSettings": {
       "title": "管理者設定",
-      "loading": "設定を読み込み中...",
+      "loading": "Loading settings...",
       "saveSettings": "設定を保存",
       "saving": "保存中...",
       "saveSuccess": "設定が正常に保存されました！",
@@ -33,13 +33,13 @@
       },
       "siteConfig": {
         "title": "サイト設定",
-        "siteName": "サイト名",
+        "siteName": "Site Title",
         "siteNamePlaceholder": "My Web3 CMS",
         "description": "Site Description",
         "descriptionPlaceholder": "A serverless CMS with Web3 integration",
         "copyrightText": "Copyright Text",
         "copyrightPlaceholder": "© 2024 My Company",
-        "footerText": "フッターテキスト",
+        "footerText": "Footer Text",
         "footerPlaceholder": "AWS CDK、Lambda、API Gateway、DynamoDBで構築"
       },
       "web3Config": {
@@ -48,15 +48,15 @@
         "chainIdHint": "デフォルトのチェーンID（例：Ethereum Mainnet:1 Polygon:137)",
         "rpcUrls": "RPC URL",
         "rpcUrlsPlaceholder": "https://eth-mainnet.g.alchemy.com/v2/your-api-key, https://mainnet.infura.io/v3/your-api-key",
-        "rpcUrlsHint": "ロードバランシングのためのRPCエンドポイントをカンマ区切りで入力。システムはこれらのURLをローテーションして信頼性を向上させます。",
+        "rpcUrlsHint": "RPCエンドポイントをカンマ区切りで入力。システムはこれらのURLをラウンドロビンさせを不可を分散させます。",
         "nftContract": "NFT CONTRACT",
         "nftContractHint": "NFTコントラクトのアドレス",
         "tbaRegistry": "TBA REGISTRY",
-        "tbaRegistryHint": "トークンバウンドアカウントレジストリコントラクトのアドレス",
+        "tbaRegistryHint": "TBAレジストリのアドレス",
         "tbaImplementation": "TBA IMPREMENTATION",
-        "tbaImplementationHint": "トークンバウンドアカウント実装コントラクトのアドレス",
+        "tbaImplementationHint": "TBAアカウントのアドレス",
         "tbaSalt": "SALT",
-        "tbaSaltHint": "決定論的TBAアドレス生成のためのソルト値（通常は0）"
+        "tbaSaltHint": "TBAアドレス生成のためのソルト値（通常は0）"
       },
       "features": {
         "requireAuth": "認証を必須にする",
@@ -103,7 +103,7 @@
     "viewAllUsers": "すべてのユーザーを表示し、役割を管理",
     "systemSettings": "システム設定",
     "configureApp": "アプリケーション設定を構成",
-    "loadingUser": "ユーザー情報を読み込み中...",
+    "loadingUser": "Loading user information...",
     "connectPrompt": "すべての設定と機能にアクセスするにはウォレットを接続してください"
   },
   "home": {
@@ -114,7 +114,7 @@
   },
   "items": {
     "title": "アイテム",
-    "loading": "アイテムを読み込み中...",
+    "loading": "Loading items...",
     "noItems": "システムにアイテムが見つかりません",
     "error": "アイテムの読み込みに失敗しました。もう一度お試しください。",
     "addNew": "新しいアイテムを追加",
@@ -122,7 +122,7 @@
   },
   "nfts": {
     "title": "NFTコレクション",
-    "loading": "NFTコレクションを読み込み中...",
+    "loading": "Loading NFT collection...",
     "noNfts": "コレクションにNFTが見つかりません",
     "viewDetails": "NFTの詳細を表示",
     "contractAddress": "コントラクトアドレス",
@@ -130,12 +130,14 @@
     "owner": "所有者",
     "creator": "作成者",
     "error": "NFTの読み込みに失敗しました。もう一度お試しください。",
-    "viewMyNfts": "自分のNFTを表示",
-    "viewMyNftsDesc": "ウォレットが所有するNFT",
-    "viewMyCreatedNfts": "作成したNFTを表示",
-    "viewMyCreatedNftsDesc": "ウォレットが作成したNFT",
-    "viewAllCreators": "すべてのクリエイターを表示",
-    "viewAllCreatorsDesc": "すべてのNFTクリエイターを閲覧",
+    "viewMyNfts": "Owned NFTs",
+    "viewMyNftsDesc": "Owned NFTs",
+    "viewMyCreatedNfts": "Created NFTs",
+    "viewMyCreatedNftsDesc": "Created NFTs",
+    "viewAllCreators": "All Creators",
+    "viewAllCreatorsDesc": "All Creators",
+    "allNfts": "All NFTs",
+    "noCreators": "クリエイターが見つかりません",
     "mint": {
       "title": "新しいNFTをミント",
       "description": "ブロックチェーン上に独自のNFTを作成",
@@ -150,7 +152,7 @@
       "metadataHelperDesc": "メタデータジェネレーターを使用してNFTメタデータを簡単に作成・ホストできます："
     },
     "detail": {
-      "loading": "NFTの詳細を読み込み中...",
+      "loading": "Loading NFT details...",
       "noProvider": "プロバイダーが利用できません。RPC設定を確認してください。",
       "burned": "このNFTはバーンされ、もう存在しません。",
       "fetchError": "NFTの詳細の取得に失敗しました",
@@ -159,7 +161,7 @@
       "invalidAddress": "有効なアドレスを入力してください",
       "walletNotConnected": "ウォレットが正しく接続されていません",
       "burnError": "NFTのバーンに失敗しました",
-      "loadingTBA": "TBAが所有するアセットを読み込み中...",
+      "loadingTBA": "Loading TBA owned assets...",
       "noTBAAssets": "このTBAはまだNFTを所有していません。",
       "tbaDeploySuccess": "TBAが正常にデプロイされました！",
       "transferSuccess": "転送に成功しました！",
@@ -196,7 +198,7 @@
       "youtubePlayer": "YouTube",
       "details": "Details",
       "attributes": "Attributes",
-      "loading": "読み込み中...",
+      "loading": "loading...",
       "close": "閉じる",
       "ownerAddress": "所有者アドレス",
       "creatorAddress": "作成者アドレス",
@@ -215,7 +217,7 @@
     "wrongNetwork": "間違ったネットワークに接続されています"
   },
   "common": {
-    "loading": "読み込み中...",
+    "loading": "loading...",
     "error": "エラーが発生しました",
     "retry": "再試行",
     "cancel": "キャンセル",

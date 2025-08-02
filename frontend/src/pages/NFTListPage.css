@@ -1,15 +1,10 @@
+@import '../styles/nft-common.css';
+
 .nft-list-page {
-  min-height: 60vh;
+  /* Uses .nft-page-container styles from common */
 }
 
-.page-header {
-  margin-bottom: var(--spacing-2xl);
-}
-
-.page-header h1 {
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
+/* Header Info */
 .header-info {
   display: flex;
   justify-content: space-between;
@@ -18,17 +13,7 @@
   flex-wrap: wrap;
 }
 
-/* Mobile layout - allow wrapping on very small screens */
-@media (max-width: 480px) {
-  .header-info {
-    gap: var(--spacing-sm);
-  }
-  
-  .address-display {
-    margin-top: var(--spacing-xs);
-  }
-}
-
+/* Address Display */
 .address-display {
   display: inline-flex;
   align-items: baseline;
@@ -70,62 +55,13 @@
   line-height: 1;
 }
 
-.contract-info {
+/* Copy button */
+.address-display .copy-button {
+  padding: var(--spacing-xs);
+  min-width: auto;
+  min-height: auto;
+  line-height: 1;
   font-size: var(--font-size-xs);
-  color: var(--color-gray-600);
-  margin-top: var(--spacing-xs);
-}
-
-/* Loading State */
-.loading-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-}
-
-.loading-state p {
-  color: var(--color-gray-500);
-  margin-top: var(--spacing-md);
-}
-
-/* Error State */
-.error-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-}
-
-.error-message {
-  color: var(--color-danger);
-  font-size: var(--font-size-base);
-  word-wrap: break-word;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-
-/* NFT Grid - Instagram style */
-.nft-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  margin-bottom: var(--spacing-xl);
-}
-
-/* Instagram-style grid mode for mobile */
-.nft-grid.instagram-mode {
-  gap: 2px;
-}
-
-.nft-grid.instagram-mode .nft-card {
-  border-radius: 0;
-  border: none;
-}
-
-/* NFT Card styles moved to ../components/NFTCard.css */
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-  color: var(--color-gray-500);
 }
 
 /* Progress Bar */
@@ -157,26 +93,6 @@
   transition: width 0.3s ease;
 }
 
-/* Stats */
-.address-display .copy-button {
-  padding: var(--spacing-xs);
-  min-width: auto;
-  min-height: auto;
-  line-height: 1;
-  font-size: var(--font-size-xs);
-}
-
-/* Copy button - removed duplicate styles, using CopyButton component styles */
-
-.stats {
-  text-align: center;
-  padding: var(--spacing-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-600);
-  border-top: var(--border-width) solid var(--color-gray-200);
-}
-
-
 /* Responsive */
 @media (min-width: 769px) {
   .nft-grid:not(.instagram-mode) {
@@ -188,7 +104,6 @@
     border-radius: var(--border-radius-lg);
     border: var(--border-width) solid var(--color-gray-200);
   }
-  
 }
 
 @media (max-width: 768px) {
@@ -201,10 +116,7 @@
     gap: 4px;
   }
   
-  .address-label {
-    font-size: var(--font-size-xs);
-  }
-  
+  .address-label,
   .address-value {
     font-size: var(--font-size-xs);
   }
@@ -218,5 +130,15 @@
   body.instagram-view-active .nft-grid.instagram-mode {
     margin-left: calc(-1 * var(--spacing-lg) / 2);
     margin-right: calc(-1 * var(--spacing-lg) / 2);
+  }
+}
+
+@media (max-width: 480px) {
+  .header-info {
+    gap: var(--spacing-sm);
+  }
+  
+  .address-display {
+    margin-top: var(--spacing-xs);
   }
 }

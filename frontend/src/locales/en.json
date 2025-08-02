@@ -136,6 +136,8 @@
     "viewMyCreatedNftsDesc": "NFTs created by your wallet",
     "viewAllCreators": "View All Creators",
     "viewAllCreatorsDesc": "Browse all NFT creators",
+    "allNfts": "All NFTs",
+    "noCreators": "No creators found",
     "mint": {
       "title": "Mint New NFT",
       "description": "Create your own unique NFT on the blockchain",

@@ -1078,6 +1078,7 @@ const NFTDetailPage = () => {
                           address={nft.creator}
                           size="medium"
                           linkToProfile={true}
+                          linkType="creator"
                         />
                         <CopyButton
                           text={nft.creator}
@@ -1141,9 +1142,12 @@ const NFTDetailPage = () => {
                     <div className="detail-item">
                       <span className="detail-label">{t('nfts.detail.tbaAddress', 'TBA Address')}:</span>
                       <div className="detail-value-wrapper">
-                        <span className="detail-value address">
-                          {formatAddress(tbaAddress)}
-                        </span>
+                        <UserDisplay
+                          address={tbaAddress}
+                          size="medium"
+                          linkToProfile={true}
+                          linkType="owner"
+                        />
                         <CopyButton text={tbaAddress} label={t('nfts.detail.tbaAddress', 'TBA address')} />
                       </div>
                     </div>

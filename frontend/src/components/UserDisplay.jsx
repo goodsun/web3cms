@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { userService } from '../services/api';
 import './UserDisplay.css';
 
-const UserDisplay = ({ address, linkToProfile = true, showAddress = true, size = 'medium' }) => {
+const UserDisplay = ({ address, linkToProfile = true, showAddress = true, size = 'medium', linkType = 'owner' }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,8 +55,9 @@ const UserDisplay = ({ address, linkToProfile = true, showAddress = true, size =
   );
 
   if (linkToProfile && address) {
+    const linkPath = linkType === 'creator' ? `/nfts/creator/${address}` : `/nfts/owner/${address}`;
     return (
-      <Link to={`/nfts/owner/${address}`} className="user-display-link">
+      <Link to={linkPath} className="user-display-link">
         {content}
       </Link>
     );
