@@ -121,7 +121,7 @@ web3cms/
 
 ## API ドキュメント
 
-詳細な API ドキュメントは [API.md](docs/API.md) を参照してください。
+詳細な API ドキュメントは [API Documentation](docs/api/README.md) を参照してください。
 
 ### クイック API リファレンス
 
@@ -238,7 +238,7 @@ cdk deploy --context env=dev
 
 ## アーキテクチャ
 
-詳細なアーキテクチャドキュメントは [ARCHITECTURE.md](docs/ARCHITECTURE.md) を参照してください。
+詳細なアーキテクチャドキュメントは [Architecture Documentation](docs/architecture/ARCHITECTURE.md) を参照してください。
 
 ### ハイレベル概要
 
@@ -250,7 +250,7 @@ cdk deploy --context env=dev
 
 ## コントリビューション
 
-コントリビューションガイドラインは [CONTRIBUTING.md](docs/CONTRIBUTING.md) を参照してください。
+コントリビューションガイドラインは [Contributing Guide](docs/CONTRIBUTING.md) を参照してください。
 
 ## ライセンス
 
@@ -258,20 +258,20 @@ cdk deploy --context env=dev
 
 ## サポート
 
-- ドキュメント: [docs/](docs/)
+- ドキュメント: [Documentation Hub](docs/README.md)
 - Issues: [GitHub Issues](https://github.com/yourusername/web3cms/issues)
 - ディスカッション: [GitHub Discussions](https://github.com/yourusername/web3cms/discussions)
 
 ## ロードマップ
 
-- [ ] 署名検証を使用した強化された Web3 認証
-- [ ] NFT ゲートコンテンツ
-- [ ] マルチチェーンサポート
-- [ ] WebSocket によるリアルタイム更新
-- [ ] OpenSearch による高度な検索
-- [ ] 国際化 (i18n)
-- [ ] プラグインシステム
-- [ ] GraphQL API オプション
+詳細なロードマップは [Project Roadmap](docs/ROADMAP.md) を参照してください。
+
+主な今後の機能:
+- 署名検証を使用した強化された Web3 認証
+- NFT ゲートコンテンツ
+- マルチチェーンサポート
+- 国際化 (i18n) - 実装済み
+- その他多数
 
 ## 謝辞
 
