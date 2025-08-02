@@ -30,13 +30,19 @@ const getUserEOA = (event: APIGatewayProxyEvent): string | null => {
 // Check if user is admin
 const isUserAdmin = async (eoa: string): Promise<boolean> => {
   try {
+    console.log('Checking admin status for EOA:', eoa);
+    const normalizedEoa = eoa.toLowerCase();
     const result = await docClient.send(
       new GetCommand({
         TableName: usersTableName,
-        Key: { eoa: eoa.toLowerCase() },
+        Key: { eoa: normalizedEoa },
       })
     );
-    return result.Item?.admin === true;
+    console.log('User record:', result.Item);
+    console.log('Admin field value:', result.Item?.admin);
+    const isAdmin = result.Item?.admin === true;
+    console.log('Is admin?', isAdmin);
+    return isAdmin;
   } catch (error) {
     console.error('Error checking admin status:', error);
     return false;
@@ -323,8 +329,18 @@ export const handler = async (
           }
 
           // Check if user owns the folder or is admin
+          console.log('Update folder - Current user EOA:', userEOA);
+          console.log('Update folder - Folder owner EOA:', checkResult.Item.eoa);
           const isAdmin = await isUserAdmin(userEOA);
-          if (checkResult.Item.eoa !== userEOA && !isAdmin) {
+          console.log('Update folder - Is user admin?', isAdmin);
+          
+          const itemOwnerEoa = checkResult.Item.eoa?.toLowerCase() || '';
+          const currentUserEoa = userEOA?.toLowerCase() || '';
+          
+          if (itemOwnerEoa !== currentUserEoa && !isAdmin) {
+            console.log('Permission denied: User is not owner and not admin');
+            console.log('Owner EOA (normalized):', itemOwnerEoa);
+            console.log('Current user EOA (normalized):', currentUserEoa);
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to update this folder'
             });
@@ -336,7 +352,7 @@ export const handler = async (
             ...updateBody,
             id: folderId, // Ensure ID doesn't change
             type: 'folder', // Ensure type doesn't change
-            eoa: userEOA, // Ensure owner doesn't change
+            eoa: checkResult.Item.eoa, // Preserve original owner
             updatedAt: generateTimestamp(),
           };
 
@@ -610,8 +626,18 @@ export const handler = async (
           }
 
           // Check if user owns the content or is admin
+          console.log('Update content - Current user EOA:', userEOA);
+          console.log('Update content - Content owner EOA:', checkResult.Item.eoa);
           const isAdminUpdateContent = await isUserAdmin(userEOA);
-          if (checkResult.Item.eoa !== userEOA && !isAdminUpdateContent) {
+          console.log('Update content - Is user admin?', isAdminUpdateContent);
+          
+          const contentOwnerEoa = checkResult.Item.eoa?.toLowerCase() || '';
+          const currentUserEoa = userEOA?.toLowerCase() || '';
+          
+          if (contentOwnerEoa !== currentUserEoa && !isAdminUpdateContent) {
+            console.log('Permission denied: User is not owner and not admin');
+            console.log('Owner EOA (normalized):', contentOwnerEoa);
+            console.log('Current user EOA (normalized):', currentUserEoa);
             return createResponse(HTTP_STATUS.FORBIDDEN, {
               message: 'You do not have permission to update this content'
             });
@@ -623,7 +649,7 @@ export const handler = async (
             ...updateBody,
             id: contentId, // Ensure ID doesn't change
             type: 'content', // Ensure type doesn't change
-            eoa: userEOA, // Ensure owner doesn't change
+            eoa: checkResult.Item.eoa, // Preserve original owner
             updatedAt: generateTimestamp(),
           };
 

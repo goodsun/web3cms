@@ -290,6 +290,12 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
 
     if (!draggedItem) return;
 
+    // Check if user can edit the dragged item
+    if (!canEditItem(draggedItem)) {
+      alert('このアイテムを移動する権限がありません');
+      return;
+    }
+
     try {
       // フォルダをフォルダにドロップ（親フォルダの変更）
       if (draggedItem.type === 'folder' && targetType === 'folder' && dropPosition === 'on') {
@@ -362,7 +368,11 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
       onRefresh();
     } catch (err) {
       console.error('Error updating item:', err);
-      alert('更新に失敗しました');
+      if (err.response?.data?.message) {
+        alert(`更新に失敗しました: ${err.response.data.message}`);
+      } else {
+        alert('更新に失敗しました');
+      }
     }
 
     setDraggedItem(null);
@@ -374,6 +384,12 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
     setDragOverItem(null);
 
     if (!draggedItem) return;
+
+    // Check if user can edit the dragged item
+    if (!canEditItem(draggedItem)) {
+      alert('このアイテムを移動する権限がありません');
+      return;
+    }
 
     try {
       if (draggedItem.type === 'folder') {
@@ -390,7 +406,11 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
       onRefresh();
     } catch (err) {
       console.error('Error updating item:', err);
-      alert('更新に失敗しました');
+      if (err.response?.data?.message) {
+        alert(`更新に失敗しました: ${err.response.data.message}`);
+      } else {
+        alert('更新に失敗しました');
+      }
     }
 
     setDraggedItem(null);
@@ -423,9 +443,9 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
                 style={{ paddingLeft: `${level * 20}px` }}
                 draggable={canEdit}
                 onDragStart={(e) => canEdit && handleDragStart(e, folder, 'folder')}
-                onDragOver={(e) => canEdit && handleDragOver(e, folder, 'folder')}
-                onDragLeave={canEdit ? handleDragLeave : undefined}
-                onDrop={(e) => canEdit && handleDrop(e, folder, 'folder', dropPosition)}
+                onDragOver={(e) => handleDragOver(e, folder, 'folder')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, folder, 'folder', dropPosition)}
               >
                 <FolderIcon size={20} className="folder-icon" />
                 <span className="folder-name">{folder.name}</span>
@@ -510,9 +530,9 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
                         className={`content-item ${contentDragOverClass}`}
                         draggable={canEditContent}
                         onDragStart={(e) => canEditContent && handleDragStart(e, content, 'content')}
-                        onDragOver={(e) => canEditContent && handleDragOver(e, content, 'content')}
-                        onDragLeave={canEditContent ? handleDragLeave : undefined}
-                        onDrop={(e) => canEditContent && handleDrop(e, content, 'content', dropPosition)}
+                        onDragOver={(e) => handleDragOver(e, content, 'content')}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, content, 'content', dropPosition)}
                       >
                         <FileIcon size={16} className="content-icon" />
                         <span className="content-title">{content.title}</span>
@@ -633,9 +653,9 @@ const SitemapView = ({ folders, contents, onRefresh }) => {
                     className={`content-item ${rootContentDragOverClass}`}
                     draggable={canEditContent}
                     onDragStart={(e) => canEditContent && handleDragStart(e, content, 'content')}
-                    onDragOver={(e) => canEditContent && handleDragOver(e, content, 'content')}
-                    onDragLeave={canEditContent ? handleDragLeave : undefined}
-                    onDrop={(e) => canEditContent && handleDrop(e, content, 'content', dropPosition)}
+                    onDragOver={(e) => handleDragOver(e, content, 'content')}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, content, 'content', dropPosition)}
                   >
                     <FileIcon size={16} className="content-icon" />
                     <span className="content-title">{content.title}</span>

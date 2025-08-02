@@ -191,6 +191,7 @@ export class FullstackServerlessStack extends cdk.Stack {
       entry: path.join(__dirname, '../../backend/src/handlers/columns.ts'),
       environment: {
         TABLE_NAME: columnsTable.tableName,
+        USERS_TABLE_NAME: usersTable.tableName,
         REGION: this.region,
         ENV: env,
       },
@@ -206,6 +207,7 @@ export class FullstackServerlessStack extends cdk.Stack {
 
     // Grant permissions to Columns Lambda
     columnsTable.grantReadWriteData(columnsLambda);
+    usersTable.grantReadData(columnsLambda);
 
     // Lambda function for Users operations
     const usersLambda = new NodejsFunction(this, 'UsersHandler', {
